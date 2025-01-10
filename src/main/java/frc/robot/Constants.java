@@ -24,6 +24,11 @@ public final class Constants {
   public static final Mode simMode = Mode.SIM;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
 
+  // Phisical values of the robot
+  public static final double ROBOT_MASS_KG = 74.088;
+  public static final double ROBOT_MOI = 6.883;
+  public static final double WHEEL_COF = 1.2;
+
   public static enum Mode {
     /** Running on a real robot. */
     REAL,
