@@ -59,6 +59,9 @@ public final class Constants {
     public static final double DRIVE_DEADBAND = 0.02;
     public static final PIDController translationController = new PIDController(0.4, 0.001, 0);
     public static final PIDController rotationController = new PIDController(0.3, 0, 0);
+
+    public static final PIDController tipControllerX = new PIDController(0.25, 0, 0.1);
+    public static final PIDController tipControllerY = new PIDController(0.25, 0, 0.1);
   }
 
   public static class VisionConstants {
