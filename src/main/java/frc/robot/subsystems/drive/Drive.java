@@ -371,4 +371,16 @@ public class Drive extends SubsystemBase {
       new Translation2d(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)
     };
   }
+
+  public ChassisSpeeds calculateTipCorrection() {
+    Constants.DriveConstants.tipControllerX.setSetpoint(0);
+    Constants.DriveConstants.tipControllerY.setSetpoint(0);
+
+    double xSpeed =
+        Constants.DriveConstants.tipControllerX.calculate(gyroInputs.xRotation.in(Radians));
+    double ySpeed =
+        Constants.DriveConstants.tipControllerX.calculate(gyroInputs.yRotation.in(Radians));
+
+    return new ChassisSpeeds(xSpeed, ySpeed, 0);
+  }
 }
