@@ -62,6 +62,9 @@ public final class Constants {
 
     public static final PIDController tipControllerX = new PIDController(0.25, 0, 0.1);
     public static final PIDController tipControllerY = new PIDController(0.25, 0, 0.1);
+
+    public static final double tipSpeedFactor = 1;
+    public static final double tipAngleFactor = 0.5;
   }
 
   public static class VisionConstants {
