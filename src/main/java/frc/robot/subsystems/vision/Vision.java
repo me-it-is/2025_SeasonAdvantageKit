@@ -4,6 +4,7 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.VisionConstants;
 import java.util.List;
@@ -46,10 +47,13 @@ public class Vision extends SubsystemBase {
         .filter(Vision::isOnField)
         .filter(Vision::maxDistanceIsInThreshold)
         .filter(Vision.isAmbiguityLess(0.25))
-        .filter(Vision::pitchRollAreInBounds)
+        .filter(Vision::pitchIsInBounds)
+        .filter(Vision::rollIsInBounds)
         .map(Vision::generatePoseEstimate)
         .forEach(
             dtUpdateEstimate); // updates drivetrain swerve pose estimator with vision measurement
+
+    // run
   }
 
   public Pose3d[] getSeenTags() {
@@ -90,10 +94,6 @@ public class Vision extends SubsystemBase {
             estimatedPose.get(), camToEstimator.photonCamera().getName(), ambiguity));
   }
 
-  private static EstimateAndInfo getSmallestAmbiguity(EstimateAndInfo one, EstimateAndInfo two) {
-    return one.ambiguity < two.ambiguity ? one : two;
-  }
-
   private static Predicate<EstimateAndInfo> isAmbiguityLess(double maxAmbiguity) {
     return estimateAndInfo ->
         estimateAndInfo.visionEstimate.targetsUsed.stream()
@@ -116,9 +116,9 @@ public class Vision extends SubsystemBase {
 
   private static boolean isOnField(Pose3d pose) {
     return pose.getX() >= 0.0
-        && pose.getX() <= VisionConstants.kFieldWidthMeters
+        && pose.getX() <= VisionConstants.kFieldWidth.in(Units.Meters)
         && pose.getY() >= 0.0
-        && pose.getY() <= 8.229;
+        && pose.getY() <= VisionConstants.kFieldHeight.in(Units.Meters);
   }
 
   private static boolean isOnField(EstimateAndInfo estimateAndInfo) {
@@ -129,8 +129,11 @@ public class Vision extends SubsystemBase {
     return Math.abs(estimateAndInfo.visionEstimate.estimatedPose.getZ()) < 0.2;
   }
 
-  private static boolean pitchRollAreInBounds(EstimateAndInfo estimateAndInfo) {
-    return Math.abs(estimateAndInfo.visionEstimate.estimatedPose.getRotation().getX()) < 0.2
-        && Math.abs(estimateAndInfo.visionEstimate.estimatedPose.getRotation().getY()) < 0.2;
+  private static boolean pitchIsInBounds(EstimateAndInfo estimateAndInfo) {
+    return Math.abs(estimateAndInfo.visionEstimate.estimatedPose.getRotation().getX()) < 0.2;
+  }
+
+  private static boolean rollIsInBounds(EstimateAndInfo estimateAndInfo) {
+    return Math.abs(estimateAndInfo.visionEstimate.estimatedPose.getRotation().getY()) < 0.2;
   }
 }
