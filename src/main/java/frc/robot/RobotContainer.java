@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
+import frc.robot.commands.AutoAim;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
@@ -35,7 +36,6 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
-import frc.robot.subsystems.vision.AutoAim;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.Vision.CamToEstimator;
 import java.util.List;
@@ -53,7 +53,6 @@ public class RobotContainer {
   private final Vision vision;
   private final Superstructure superstructure;
 
-  private final AutoAim autoAim;
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
 
@@ -104,11 +103,6 @@ public class RobotContainer {
                 new CamToEstimator(VisionConstants.aprilCamTwo, VisionConstants.poseEstimatorTwo)),
             drive::updateEstimates);
     superstructure = new Superstructure();
-    autoAim =
-        new AutoAim(
-            DriveConstants.translationController,
-            DriveConstants.rotationController,
-            drive::getRotation);
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -146,10 +140,7 @@ public class RobotContainer {
             drive,
             () -> MathUtil.applyDeadband(-controller.getLeftY(), DriveConstants.DRIVE_DEADBAND),
             () -> MathUtil.applyDeadband(-controller.getLeftX(), DriveConstants.DRIVE_DEADBAND),
-            () -> MathUtil.applyDeadband(-controller.getRightX(), DriveConstants.DRIVE_DEADBAND),
-            autoAim::isEnabled,
-            autoAim::getChassisTranslateVelocity,
-            autoAim::getChassisRotVelocity));
+            () -> MathUtil.applyDeadband(-controller.getRightX(), DriveConstants.DRIVE_DEADBAND)));
 
     // Lock to 0° when A button is held
     controller
@@ -161,8 +152,9 @@ public class RobotContainer {
                 () -> -controller.getLeftX(),
                 Rotation2d::new));
 
-    controller.povUp().onTrue(runOnce(autoAim::enable));
-    controller.povDown().onTrue(runOnce(autoAim::disable));
+    // Automatically align to April Tag
+    controller.y().whileTrue(new AutoAim(drive));
+
     // Switch to X pattern when X button is pressed
     controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 

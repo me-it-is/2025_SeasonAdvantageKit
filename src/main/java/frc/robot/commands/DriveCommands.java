@@ -33,7 +33,6 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
@@ -71,10 +70,7 @@ public class DriveCommands {
       Drive drive,
       DoubleSupplier xSupplier,
       DoubleSupplier ySupplier,
-      DoubleSupplier omegaSupplier,
-      BooleanSupplier autoAim,
-      DoubleSupplier autoTranslateVelocity,
-      DoubleSupplier autoRotateVelocity) {
+      DoubleSupplier omegaSupplier) {
     return Commands.run(
         () -> {
           // Get linear velocity
@@ -88,16 +84,11 @@ public class DriveCommands {
           omega = Math.copySign(omega * omega, omega);
 
           // Convert to field relative speeds & send command
-          boolean auto = autoAim.getAsBoolean();
           ChassisSpeeds speeds =
               new ChassisSpeeds(
-                  auto ? 0.0 : linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
-                  auto
-                      ? autoTranslateVelocity.getAsDouble()
-                      : linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
-                  auto
-                      ? autoRotateVelocity.getAsDouble()
-                      : omega * drive.getMaxAngularSpeedRadPerSec());
+                  linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
+                  linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
+                  omega * drive.getMaxAngularSpeedRadPerSec());
           boolean isFlipped =
               DriverStation.getAlliance().isPresent()
                   && DriverStation.getAlliance().get() == Alliance.Red;
