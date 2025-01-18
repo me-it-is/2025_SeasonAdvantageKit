@@ -377,24 +377,10 @@ public class Drive extends SubsystemBase {
     Constants.DriveConstants.tipControllerY.setSetpoint(0);
 
     double xSpeed =
-        Constants.DriveConstants.tipControllerX.calculate(gyroInputs.xRotation.in(Radians))
-            * calculateTipCorrectionInfluanceX();
+        Constants.DriveConstants.tipControllerX.calculate(gyroInputs.xRotation.in(Radians));
     double ySpeed =
-        Constants.DriveConstants.tipControllerX.calculate(gyroInputs.yRotation.in(Radians))
-            * calculateTipCorrectionInfluanceY();
+        Constants.DriveConstants.tipControllerX.calculate(gyroInputs.yRotation.in(Radians));
 
     return new ChassisSpeeds(xSpeed, ySpeed, 0);
-  }
-
-  private double calculateTipCorrectionInfluanceX() {
-    return ((gyroInputs.xAngularVelocity.in(RadiansPerSecond)
-            * Constants.DriveConstants.tipSpeedFactor)
-        + (gyroInputs.xRotation.in(Radians) * Constants.DriveConstants.tipAngleFactor));
-  }
-
-  private double calculateTipCorrectionInfluanceY() {
-    return ((gyroInputs.yAngularVelocity.in(RadiansPerSecond)
-            * Constants.DriveConstants.tipSpeedFactor)
-        + (gyroInputs.yRotation.in(Radians) * Constants.DriveConstants.tipAngleFactor));
   }
 }
