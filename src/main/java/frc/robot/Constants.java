@@ -75,6 +75,10 @@ public final class Constants {
     public static final Distance kFieldWidth = Meters.of(16.54);
     public static final Distance kFieldHeight = Meters.of(8.229);
 
+    public static final Distance minCamDistToTag = Meters.of(0.5);
+    public static final Distance maxCamDistToTag = Meters.of(0.8);
+    public static final Distance maxVertDisp = Meters.of(0.2);
+
     public static final double camChassisXOffset = 0.3;
     public static final double camChassisYOffset = 0.3;
     public static final double camChassisZOffset = 0.0;
