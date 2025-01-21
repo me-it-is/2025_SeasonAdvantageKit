@@ -23,12 +23,12 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.HealthChecker;
-import java.util.Queue;
-import java.util.Vector;
+import frc.robot.util.Elastic;
 import frc.robot.util.Elastic.Notification;
 import frc.robot.util.Elastic.Notification.NotificationLevel;
-import frc.robot.util.Elastic;
+import frc.robot.util.HealthChecker;
+import java.util.Queue;
+import java.util.Vector;
 
 /** IO implementation for Pigeon 2. */
 public class GyroIOPigeon2 implements GyroIO, HealthChecker {
@@ -81,24 +81,22 @@ public class GyroIOPigeon2 implements GyroIO, HealthChecker {
     faults.updateFaults();
     if (faults.getFaults().size() != 0) {
       String allErrors = "";
-      for (String s : faults.getFaults())
-      {
+      for (String s : faults.getFaults()) {
         allErrors += s;
         allErrors += " Fault, ";
       }
       // to remove the final ", "
       allErrors.substring(0, allErrors.lastIndexOf(","));
-      
+
       Notification badGryo = new Notification(NotificationLevel.WARNING, "Gryo error", allErrors);
       Elastic.sendNotification(badGryo);
     }
     return faults.getFaults().size() == 0;
   }
 
-
   public void addNotifacationToElastic() {
     // TODO Auto-generated method stub
-    
+
   }
 
   public class pigeonFaults {
@@ -134,20 +132,46 @@ public class GyroIOPigeon2 implements GyroIO, HealthChecker {
 
     public Vector<String> getFaults() {
       Vector<String> faults = new Vector<String>();
-      
-      if(bootDurringEnable) { faults.add("BootDurringEnable");}
-      if(bootIntoMotion) { faults.add("BootIntoMotion");}
-      if(bootUpAccelerometer) { faults.add("BootUpAccelerometer");}
-      if(bootUpGyroscope) { faults.add("BootUp Gryoscope");}
-      if(bootUpMagnetometer) { faults.add("BootUpMagnetomter");}
-      if(dataAquiredLate) { faults.add("DataAquiredLate");}
-      if(hardware) { faults.add("Hardware");}
-      if(loopTimeSlow) { faults.add("LoopTimeSlow");}
-      if(saturatedAccelerometer) { faults.add("SaturatedAccelerometer");}
-      if(saturatedGyroscope) { faults.add("SaturatedGyroscope");}
-      if(saturatedMagnetometer) { faults.add("saturatedMagnetometer");}
-      if(underVoltage) { faults.add("UnderVoltage");}
-      if(unlicensedFeatureInUse) { faults.add("UnlicensedFeatureInUse");}
+
+      if (bootDurringEnable) {
+        faults.add("BootDurringEnable");
+      }
+      if (bootIntoMotion) {
+        faults.add("BootIntoMotion");
+      }
+      if (bootUpAccelerometer) {
+        faults.add("BootUpAccelerometer");
+      }
+      if (bootUpGyroscope) {
+        faults.add("BootUp Gryoscope");
+      }
+      if (bootUpMagnetometer) {
+        faults.add("BootUpMagnetomter");
+      }
+      if (dataAquiredLate) {
+        faults.add("DataAquiredLate");
+      }
+      if (hardware) {
+        faults.add("Hardware");
+      }
+      if (loopTimeSlow) {
+        faults.add("LoopTimeSlow");
+      }
+      if (saturatedAccelerometer) {
+        faults.add("SaturatedAccelerometer");
+      }
+      if (saturatedGyroscope) {
+        faults.add("SaturatedGyroscope");
+      }
+      if (saturatedMagnetometer) {
+        faults.add("saturatedMagnetometer");
+      }
+      if (underVoltage) {
+        faults.add("UnderVoltage");
+      }
+      if (unlicensedFeatureInUse) {
+        faults.add("UnlicensedFeatureInUse");
+      }
 
       return faults;
     }
