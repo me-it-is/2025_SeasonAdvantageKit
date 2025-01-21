@@ -19,11 +19,13 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 
 public class Vision extends SubsystemBase {
 
+  /** static class wrapping a pose estimate with standard derivations for position and rotation */
   public static record PoseEstimate(EstimatedRobotPose estimatedPose, Matrix<N3, N1> standardDev) {}
-
+  /** static class wrapping a pose estimate, Photon Camera name, and pose estimate error */
   public static record EstimateAndInfo(
       EstimatedRobotPose visionEstimate, String cameraName, double ambiguity) {}
 
+  /** static class containing Photon Camera and corresponding Photon Pose Estimator */
   public static record CamToEstimator(PhotonCamera photonCamera, PhotonPoseEstimator estimator) {}
 
   private List<CamToEstimator> cameras;
@@ -52,8 +54,6 @@ public class Vision extends SubsystemBase {
         .map(Vision::generatePoseEstimate)
         .forEach(
             dtUpdateEstimate); // updates drivetrain swerve pose estimator with vision measurement
-
-    // run
   }
 
   public Pose3d[] getSeenTags() {
@@ -104,6 +104,10 @@ public class Vision extends SubsystemBase {
     return estimateAndInfo.visionEstimate.targetsUsed.size() >= 2;
   }
 
+  /**
+   * Whether max distance to target from current pose falls in range, measured in meters, for
+   * accurate readings
+   */
   private static boolean maxDistanceIsInThreshold(EstimateAndInfo estimateAndInfo) {
     double maxDistance =
         estimateAndInfo.visionEstimate.targetsUsed.stream()
@@ -111,9 +115,11 @@ public class Vision extends SubsystemBase {
             .max()
             .orElse(0.0);
 
-    return 0.5 < maxDistance && maxDistance < 8.0;
+    return VisionConstants.minCamDistToTag.in(Units.Meters) < maxDistance
+        && maxDistance < VisionConstants.maxCamDistToTag.in(Units.Meters);
   }
 
+  /** Is the robot on the field based on its current pose */
   private static boolean isOnField(Pose3d pose) {
     return pose.getX() >= 0.0
         && pose.getX() <= VisionConstants.kFieldWidth.in(Units.Meters)
@@ -121,12 +127,18 @@ public class Vision extends SubsystemBase {
         && pose.getY() <= VisionConstants.kFieldHeight.in(Units.Meters);
   }
 
+  /**
+   * Checks if the robot is on the field based on camera's pose data. Should be used when camera
+   * readings are available.
+   */
   private static boolean isOnField(EstimateAndInfo estimateAndInfo) {
     return isOnField(estimateAndInfo.visionEstimate.estimatedPose);
   }
 
+  /** Checks if robot pose estimate has a vertical displacement below specified threshold */
   private static boolean zIsRight(EstimateAndInfo estimateAndInfo) {
-    return Math.abs(estimateAndInfo.visionEstimate.estimatedPose.getZ()) < 0.2;
+    return Math.abs(estimateAndInfo.visionEstimate.estimatedPose.getZ())
+        < VisionConstants.maxVertDisp.in(Units.Meters);
   }
 
   private static boolean pitchIsInBounds(EstimateAndInfo estimateAndInfo) {

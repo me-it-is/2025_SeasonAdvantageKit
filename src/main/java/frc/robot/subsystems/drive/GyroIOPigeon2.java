@@ -23,7 +23,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.HealthChecker;
+import frc.robot.util.HealthChecker;
 import java.util.Queue;
 import java.util.Vector;
 import frc.robot.util.Elastic.Notification;
