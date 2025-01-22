@@ -23,12 +23,8 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import frc.robot.generated.TunerConstants;
-import frc.robot.util.Elastic;
-import frc.robot.util.Elastic.Notification;
-import frc.robot.util.Elastic.Notification.NotificationLevel;
 import frc.robot.util.HealthChecker;
 import java.util.Queue;
-import java.util.Vector;
 
 /** IO implementation for Pigeon 2. */
 public class GyroIOPigeon2 implements GyroIO, HealthChecker {
@@ -77,103 +73,13 @@ public class GyroIOPigeon2 implements GyroIO, HealthChecker {
 
   @Override
   public boolean checkHealth() {
-    pigeonFaults faults = new pigeonFaults();
-    faults.updateFaults();
-    if (faults.getFaults().size() != 0) {
-      String allErrors = "";
-      for (String s : faults.getFaults()) {
-        allErrors += s;
-        allErrors += " Fault, ";
-      }
-      // to remove the final ", "
-      allErrors.substring(0, allErrors.lastIndexOf(","));
-
-      Notification badGryo = new Notification(NotificationLevel.WARNING, "Gryo error", allErrors);
-      Elastic.sendNotification(badGryo);
-    }
-    return faults.getFaults().size() == 0;
+    pigeon.getFaultField();
+    return false;
   }
 
+  @Override
   public void addNotifacationToElastic() {
     // TODO Auto-generated method stub
 
-  }
-
-  public class pigeonFaults {
-    public boolean bootDurringEnable = false;
-    public boolean bootIntoMotion = false;
-    public boolean bootUpAccelerometer = false;
-    public boolean bootUpGyroscope = false;
-    public boolean bootUpMagnetometer = false;
-    public boolean dataAquiredLate = false;
-    public boolean hardware = false;
-    public boolean loopTimeSlow = false;
-    public boolean saturatedAccelerometer = false;
-    public boolean saturatedGyroscope = false;
-    public boolean saturatedMagnetometer = false;
-    public boolean underVoltage = false;
-    public boolean unlicensedFeatureInUse = false;
-
-    public void updateFaults() {
-      bootDurringEnable = pigeon.getFault_BootDuringEnable(true).getValue();
-      bootIntoMotion = pigeon.getFault_BootIntoMotion(true).getValue();
-      bootUpAccelerometer = pigeon.getFault_BootupAccelerometer(true).getValue();
-      bootUpGyroscope = pigeon.getFault_BootupGyroscope(true).getValue();
-      bootUpMagnetometer = pigeon.getFault_BootupMagnetometer(true).getValue();
-      dataAquiredLate = pigeon.getFault_DataAcquiredLate(true).getValue();
-      hardware = pigeon.getFault_Hardware(true).getValue();
-      loopTimeSlow = pigeon.getFault_LoopTimeSlow(true).getValue();
-      saturatedAccelerometer = pigeon.getFault_SaturatedAccelerometer(true).getValue();
-      saturatedGyroscope = pigeon.getFault_SaturatedGyroscope(true).getValue();
-      saturatedMagnetometer = pigeon.getFault_SaturatedMagnetometer(true).getValue();
-      underVoltage = pigeon.getFault_Undervoltage(true).getValue();
-      unlicensedFeatureInUse = pigeon.getFault_UnlicensedFeatureInUse(true).getValue();
-    }
-
-    public Vector<String> getFaults() {
-      Vector<String> faults = new Vector<String>();
-
-      if (bootDurringEnable) {
-        faults.add("BootDurringEnable");
-      }
-      if (bootIntoMotion) {
-        faults.add("BootIntoMotion");
-      }
-      if (bootUpAccelerometer) {
-        faults.add("BootUpAccelerometer");
-      }
-      if (bootUpGyroscope) {
-        faults.add("BootUp Gryoscope");
-      }
-      if (bootUpMagnetometer) {
-        faults.add("BootUpMagnetomter");
-      }
-      if (dataAquiredLate) {
-        faults.add("DataAquiredLate");
-      }
-      if (hardware) {
-        faults.add("Hardware");
-      }
-      if (loopTimeSlow) {
-        faults.add("LoopTimeSlow");
-      }
-      if (saturatedAccelerometer) {
-        faults.add("SaturatedAccelerometer");
-      }
-      if (saturatedGyroscope) {
-        faults.add("SaturatedGyroscope");
-      }
-      if (saturatedMagnetometer) {
-        faults.add("saturatedMagnetometer");
-      }
-      if (underVoltage) {
-        faults.add("UnderVoltage");
-      }
-      if (unlicensedFeatureInUse) {
-        faults.add("UnlicensedFeatureInUse");
-      }
-
-      return faults;
-    }
   }
 }

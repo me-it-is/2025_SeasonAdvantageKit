@@ -49,6 +49,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.vision.Vision.PoseEstimate;
 import frc.robot.util.LocalADStarAK;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -333,6 +334,13 @@ public class Drive extends SubsystemBase {
   /** Resets the current odometry pose. */
   public void setPose(Pose2d pose) {
     poseEstimator.resetPosition(rawGyroRotation, getModulePositions(), pose);
+  }
+
+  public void updateEstimates(PoseEstimate poseEstimate) {
+    final var visionEstimated = poseEstimate.estimatedPose().estimatedPose.toPose2d();
+    final var stddevs = poseEstimate.standardDev();
+
+    addVisionMeasurement(visionEstimated, poseEstimate.estimatedPose().timestampSeconds, stddevs);
   }
 
   /** Adds a new timestamped vision measurement. */
