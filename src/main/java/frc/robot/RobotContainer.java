@@ -13,8 +13,6 @@
 
 package frc.robot;
 
-import static edu.wpi.first.wpilibj2.command.Commands.*;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -26,8 +24,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.DriveConstants;
-import frc.robot.Constants.VisionConstants;
-import frc.robot.commands.AutoAim;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
@@ -36,9 +32,6 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
-import frc.robot.subsystems.vision.Vision;
-import frc.robot.subsystems.vision.Vision.CamToEstimator;
-import java.util.List;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -50,7 +43,6 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
-  private final Vision vision;
   private final Superstructure superstructure;
 
   // Controller
@@ -95,13 +87,6 @@ public class RobotContainer {
                 new ModuleIO() {});
         break;
     }
-
-    vision =
-        new Vision(
-            List.of(
-                new CamToEstimator(VisionConstants.aprilCamOne, VisionConstants.poseEstimatorOne),
-                new CamToEstimator(VisionConstants.aprilCamTwo, VisionConstants.poseEstimatorTwo)),
-            drive::updateEstimates);
     superstructure = new Superstructure();
 
     // Set up auto routines
@@ -151,9 +136,6 @@ public class RobotContainer {
                 () -> -controller.getLeftY(),
                 () -> -controller.getLeftX(),
                 Rotation2d::new));
-
-    // Automatically align to April Tag
-    controller.y().whileTrue(new AutoAim(drive));
 
     // Switch to X pattern when X button is pressed
     controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
