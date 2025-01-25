@@ -41,6 +41,9 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.generated.TunerConstants;
+import frc.robot.util.FaultChecker;
+import frc.robot.util.HealthChecker;
+
 import java.util.Queue;
 
 /**
@@ -49,7 +52,7 @@ import java.util.Queue;
  *
  * <p>Device configuration and other behaviors not exposed by TunerConstants can be customized here.
  */
-public class ModuleIOTalonFX implements ModuleIO {
+public class ModuleIOTalonFX implements ModuleIO, HealthChecker {
   private final SwerveModuleConstants constants;
 
   // Hardware objects
@@ -259,4 +262,19 @@ public class ModuleIOTalonFX implements ModuleIO {
               rotation.getRotations());
         });
   }
+  
+  public FaultChecker turnTalonFaultChecker = new FaultChecker("turn talon");
+  public FaultChecker driveTalonFaultChecker = new FaultChecker("drive talon");
+
+  @Override
+  public boolean checkHealth() {
+    turnTalonFaultChecker.updateFaults();
+    driveTalonFaultChecker.updateFaults();
+
+    turnTalonFaultChecker.sendNotifications();
+    driveTalonFaultChecker.sendNotifications();
+
+    return !(turnTalonFaultChecker.checkForAnyFaults() || driveTalonFaultChecker.checkForAnyFaults());
+  }
+
 }
