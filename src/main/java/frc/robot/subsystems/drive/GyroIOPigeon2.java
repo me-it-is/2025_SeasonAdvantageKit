@@ -26,6 +26,7 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.util.HealthChecker;
 import java.util.Queue;
 import frc.robot.util.FaultChecker;
+import frc.robot.util.Fault;
 
 /** IO implementation for Pigeon 2. */
 public class GyroIOPigeon2 implements GyroIO, HealthChecker {
@@ -47,6 +48,20 @@ public class GyroIOPigeon2 implements GyroIO, HealthChecker {
     yawTimestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();
     yawPositionQueue = PhoenixOdometryThread.getInstance().registerSignal(pigeon.getYaw());
     pigeon.getAccumGyroX();
+
+    pigeonFaults.addFault(new Fault(pigeon::getFault_BootDuringEnable));
+    pigeonFaults.addFault(new Fault(pigeon::getFault_BootIntoMotion));
+    pigeonFaults.addFault(new Fault(pigeon::getFault_BootupAccelerometer));
+    pigeonFaults.addFault(new Fault(pigeon::getFault_BootupGyroscope));
+    pigeonFaults.addFault(new Fault(pigeon::getFault_BootupMagnetometer));
+    pigeonFaults.addFault(new Fault(pigeon::getFault_DataAcquiredLate));
+    pigeonFaults.addFault(new Fault(pigeon::getFault_Hardware));
+    pigeonFaults.addFault(new Fault(pigeon::getFault_LoopTimeSlow));
+    pigeonFaults.addFault(new Fault(pigeon::getFault_SaturatedAccelerometer));
+    pigeonFaults.addFault(new Fault(pigeon::getFault_SaturatedGyroscope));
+    pigeonFaults.addFault(new Fault(pigeon::getFault_SaturatedMagnetometer));
+    pigeonFaults.addFault(new Fault(pigeon::getFault_Undervoltage));
+    pigeonFaults.addFault(new Fault(pigeon::getFault_UnlicensedFeatureInUse));
   }
 
   @Override
