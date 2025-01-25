@@ -191,6 +191,7 @@ public class ModuleIOTalonFX implements ModuleIO, HealthChecker {
 
     addFaultsToTalon(driveTalon, driveTalonFaultChecker);
     addFaultsToTalon(turnTalon, turnTalonFaultChecker);
+    addFaultsToEncoders(cancoder, CANcoderFaultChecker);
   }
 
   private void addFaultsToTalon(TalonFX talon, FaultChecker faultCheckerForTalon) {
@@ -217,6 +218,14 @@ public class ModuleIOTalonFX implements ModuleIO, HealthChecker {
     turnTalonFaultChecker.addFault(new Fault(talon::getFault_Undervoltage));
     turnTalonFaultChecker.addFault(new Fault(talon::getFault_UnlicensedFeatureInUse));
     turnTalonFaultChecker.addFault(new Fault(talon::getFault_UsingFusedCANcoderWhileUnlicensed));
+  }
+
+  private void addFaultsToEncoders(CANcoder encoder, FaultChecker faultCheckerForCANcoder) {
+    faultCheckerForCANcoder.addFault(new Fault(encoder::getFault_BadMagnet));
+    faultCheckerForCANcoder.addFault(new Fault(encoder::getFault_BootDuringEnable));
+    faultCheckerForCANcoder.addFault(new Fault(encoder::getFault_Hardware));
+    faultCheckerForCANcoder.addFault(new Fault(encoder::getFault_Undervoltage));
+    faultCheckerForCANcoder.addFault(new Fault(encoder::getFault_UnlicensedFeatureInUse));
   }
 
   @Override
@@ -300,16 +309,20 @@ public class ModuleIOTalonFX implements ModuleIO, HealthChecker {
 
   public FaultChecker turnTalonFaultChecker = new FaultChecker("turn talon");
   public FaultChecker driveTalonFaultChecker = new FaultChecker("drive talon");
+  public FaultChecker CANcoderFaultChecker = new FaultChecker("swerve CANcoder");
 
   @Override
   public boolean checkHealth() {
     turnTalonFaultChecker.updateFaults();
     driveTalonFaultChecker.updateFaults();
+    CANcoderFaultChecker.updateFaults();
 
     turnTalonFaultChecker.sendNotifications();
     driveTalonFaultChecker.sendNotifications();
+    CANcoderFaultChecker.sendNotifications();
 
     return !(turnTalonFaultChecker.checkForAnyFaults()
-        || driveTalonFaultChecker.checkForAnyFaults());
+        || driveTalonFaultChecker.checkForAnyFaults()
+        || CANcoderFaultChecker.checkForAnyFaults());
   }
 }
