@@ -224,6 +224,8 @@ public class ModuleIOTalonFX implements ModuleIO, HealthChecker {
 
   @Override
   public void updateInputs(ModuleIOInputs inputs) {
+    checkHealth();
+
     // Refresh all signals
     var driveStatus =
         BaseStatusSignal.refreshAll(drivePosition, driveVelocity, driveAppliedVolts, driveCurrent);

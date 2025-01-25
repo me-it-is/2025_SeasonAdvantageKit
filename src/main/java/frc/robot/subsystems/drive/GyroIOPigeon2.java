@@ -66,6 +66,8 @@ public class GyroIOPigeon2 implements GyroIO, HealthChecker {
 
   @Override
   public void updateInputs(GyroIOInputs inputs) {
+    checkHealth();
+
     inputs.connected = BaseStatusSignal.refreshAll(yaw, yawVelocity).equals(StatusCode.OK);
 
     inputs.yawPosition = Rotation2d.fromDegrees(yaw.getValueAsDouble());
