@@ -44,7 +44,6 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.util.Fault;
 import frc.robot.util.FaultChecker;
 import frc.robot.util.HealthChecker;
-
 import java.util.Queue;
 
 /**
@@ -310,7 +309,7 @@ public class ModuleIOTalonFX implements ModuleIO, HealthChecker {
     turnTalonFaultChecker.sendNotifications();
     driveTalonFaultChecker.sendNotifications();
 
-    return !(turnTalonFaultChecker.checkForAnyFaults() || driveTalonFaultChecker.checkForAnyFaults());
+    return !(turnTalonFaultChecker.checkForAnyFaults()
+        || driveTalonFaultChecker.checkForAnyFaults());
   }
-
 }
