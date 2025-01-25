@@ -44,7 +44,6 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.util.Fault;
 import frc.robot.util.FaultChecker;
 import frc.robot.util.HealthChecker;
-
 import java.util.Queue;
 
 /**
@@ -292,7 +291,7 @@ public class ModuleIOTalonFX implements ModuleIO, HealthChecker {
               rotation.getRotations());
         });
   }
-  
+
   public FaultChecker turnTalonFaultChecker = new FaultChecker("turn talon");
   public FaultChecker driveTalonFaultChecker = new FaultChecker("drive talon");
 
@@ -304,7 +303,7 @@ public class ModuleIOTalonFX implements ModuleIO, HealthChecker {
     turnTalonFaultChecker.sendNotifications();
     driveTalonFaultChecker.sendNotifications();
 
-    return !(turnTalonFaultChecker.checkForAnyFaults() || driveTalonFaultChecker.checkForAnyFaults());
+    return !(turnTalonFaultChecker.checkForAnyFaults()
+        || driveTalonFaultChecker.checkForAnyFaults());
   }
-
 }
