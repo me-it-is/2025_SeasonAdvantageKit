@@ -43,7 +43,6 @@ import edu.wpi.first.units.measure.Voltage;
 import frc.robot.generated.TunerConstants;
 import frc.robot.util.Fault;
 import frc.robot.util.FaultChecker;
-import frc.robot.util.HealthChecker;
 import java.util.Queue;
 
 /**
@@ -52,7 +51,7 @@ import java.util.Queue;
  *
  * <p>Device configuration and other behaviors not exposed by TunerConstants can be customized here.
  */
-public class ModuleIOTalonFX implements ModuleIO, HealthChecker {
+public class ModuleIOTalonFX implements ModuleIO {
   private final SwerveModuleConstants<
           TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
       constants;
@@ -230,7 +229,7 @@ public class ModuleIOTalonFX implements ModuleIO, HealthChecker {
 
   @Override
   public void updateInputs(ModuleIOInputs inputs) {
-    checkHealth();
+    updateFaults();
 
     // Refresh all signals
     var driveStatus =
@@ -313,8 +312,7 @@ public class ModuleIOTalonFX implements ModuleIO, HealthChecker {
   public FaultChecker driveTalonFaultChecker = new FaultChecker("drive talon");
   public FaultChecker CANcoderFaultChecker = new FaultChecker("swerve CANcoder");
 
-  @Override
-  public boolean checkHealth() {
+  public boolean updateFaults() {
     turnTalonFaultChecker.updateFaults();
     driveTalonFaultChecker.updateFaults();
     CANcoderFaultChecker.updateFaults();
