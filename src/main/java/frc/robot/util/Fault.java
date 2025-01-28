@@ -13,8 +13,8 @@ public class Fault {
   Function<Boolean, StatusSignal<Boolean>> functionToCheckFault;
   NotificationLevel level = NotificationLevel.WARNING;
   boolean hasFault;
-  Optional<Long> minimumTimeBetweenNotifacations = Optional.empty();
-  Instant lastNotifacation = Instant.now();
+  Optional<Long> minimumTimeBetweenNotifications = Optional.empty();
+  Instant lastNotification = Instant.now();
 
   public Fault(Function<Boolean, StatusSignal<Boolean>> functionToCheckFault) {
     this.functionToCheckFault = functionToCheckFault;
@@ -23,10 +23,10 @@ public class Fault {
 
   public Fault(
       Function<Boolean, StatusSignal<Boolean>> functionToCheckFault,
-      long minimumTimeBetweenNotifacations) {
+      long minimumTimeBetweenNotification) {
     this.functionToCheckFault = functionToCheckFault;
     faultName = functionToCheckFault.toString().replace("getFault_", "");
-    this.minimumTimeBetweenNotifacations = Optional.of(minimumTimeBetweenNotifacations);
+    this.minimumTimeBetweenNotifications = Optional.of(minimumTimeBetweenNotification);
   }
 
   public Fault(Function<Boolean, StatusSignal<Boolean>> functionToCheckFault, String name) {
@@ -37,10 +37,10 @@ public class Fault {
   public Fault(
       Function<Boolean, StatusSignal<Boolean>> functionToCheckFault,
       String name,
-      long minimumTimeBetweenNotifacations) {
+      long minimumTimeBetweenNotifications) {
     this.functionToCheckFault = functionToCheckFault;
     faultName = name;
-    this.minimumTimeBetweenNotifacations = Optional.of(minimumTimeBetweenNotifacations);
+    this.minimumTimeBetweenNotifications = Optional.of(minimumTimeBetweenNotifications);
   }
 
   public Fault(
@@ -59,7 +59,7 @@ public class Fault {
     this.functionToCheckFault = functionToCheckFault;
     faultName = name;
     level = notificationLevel;
-    this.minimumTimeBetweenNotifacations = Optional.of(minimumTimeBetweenNotifacations);
+    this.minimumTimeBetweenNotifications = Optional.of(minimumTimeBetweenNotifacations);
   }
 
   public void updateFault() {
@@ -67,13 +67,13 @@ public class Fault {
   }
 
   public void sendNoftifacation(String subsystemName) {
-    Duration timeSenseLastNotification = Duration.between(lastNotifacation, Instant.now());
-    if (minimumTimeBetweenNotifacations.isPresent()) {
-      if (timeSenseLastNotification.toSeconds() >= minimumTimeBetweenNotifacations.get()) {
+    Duration timeSenseLastNotification = Duration.between(lastNotification, Instant.now());
+    if (minimumTimeBetweenNotifications.isPresent()) {
+      if (timeSenseLastNotification.toSeconds() >= minimumTimeBetweenNotifications.get()) {
         Elastic.sendNotification(
             new Notification(level, subsystemName + "fault", faultName + " fault"));
       }
-      lastNotifacation = Instant.now();
+      lastNotification = Instant.now();
     }
   }
 }
