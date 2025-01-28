@@ -1,6 +1,5 @@
 package frc.robot.util;
 
-import frc.robot.util.Elastic.Notification;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,8 +33,7 @@ public class FaultChecker {
 
   public void sendNotifications() {
     for (Fault f : faults) {
-      Elastic.sendNotification(
-          new Notification(f.level, subsystemName + "fault", f.faultName + " fault"));
+      f.sendNoftifacation(subsystemName);
     }
   }
 
