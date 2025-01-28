@@ -5,7 +5,6 @@ import frc.robot.util.Elastic.Notification;
 import frc.robot.util.Elastic.Notification.NotificationLevel;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Optional;
 import java.util.function.Function;
 
 public class Fault {
@@ -13,8 +12,9 @@ public class Fault {
   Function<Boolean, StatusSignal<Boolean>> functionToCheckFault;
   NotificationLevel level = NotificationLevel.WARNING;
   boolean hasFault;
-  Optional<Long> minimumTimeBetweenNotifications = Optional.empty();
+  long minimumTimeBetweenNotifications = Long.MAX_VALUE;
   Instant lastNotification = Instant.now();
+  boolean hasSentNotification = false;
 
   public Fault(Function<Boolean, StatusSignal<Boolean>> functionToCheckFault) {
     this.functionToCheckFault = functionToCheckFault;
@@ -26,7 +26,7 @@ public class Fault {
       long minimumTimeBetweenNotification) {
     this.functionToCheckFault = functionToCheckFault;
     faultName = functionToCheckFault.toString().replace("getFault_", "");
-    this.minimumTimeBetweenNotifications = Optional.of(minimumTimeBetweenNotification);
+    this.minimumTimeBetweenNotifications = minimumTimeBetweenNotification;
   }
 
   public Fault(Function<Boolean, StatusSignal<Boolean>> functionToCheckFault, String name) {
@@ -40,7 +40,7 @@ public class Fault {
       long minimumTimeBetweenNotifications) {
     this.functionToCheckFault = functionToCheckFault;
     faultName = name;
-    this.minimumTimeBetweenNotifications = Optional.of(minimumTimeBetweenNotifications);
+    this.minimumTimeBetweenNotifications = minimumTimeBetweenNotifications;
   }
 
   public Fault(
@@ -59,7 +59,7 @@ public class Fault {
     this.functionToCheckFault = functionToCheckFault;
     faultName = name;
     level = notificationLevel;
-    this.minimumTimeBetweenNotifications = Optional.of(minimumTimeBetweenNotifacations);
+    this.minimumTimeBetweenNotifications = minimumTimeBetweenNotifacations;
   }
 
   public void updateFault() {
@@ -68,12 +68,11 @@ public class Fault {
 
   public void sendNoftifacation(String subsystemName) {
     Duration timeSenseLastNotification = Duration.between(lastNotification, Instant.now());
-    if (minimumTimeBetweenNotifications.isPresent()) {
-      if (timeSenseLastNotification.toSeconds() >= minimumTimeBetweenNotifications.get()) {
-        Elastic.sendNotification(
-            new Notification(level, subsystemName + "fault", faultName + " fault"));
-      }
-      lastNotification = Instant.now();
+    if (timeSenseLastNotification.toSeconds() >= minimumTimeBetweenNotifications
+        || !hasSentNotification) {
+      Elastic.sendNotification(
+          new Notification(level, subsystemName + "fault", faultName + " fault"));
     }
+    lastNotification = Instant.now();
   }
 }
