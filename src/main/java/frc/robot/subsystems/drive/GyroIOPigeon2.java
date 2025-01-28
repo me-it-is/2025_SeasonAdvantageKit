@@ -25,11 +25,10 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import frc.robot.generated.TunerConstants;
 import frc.robot.util.Fault;
 import frc.robot.util.FaultChecker;
-import frc.robot.util.HealthChecker;
 import java.util.Queue;
 
 /** IO implementation for Pigeon 2. */
-public class GyroIOPigeon2 implements GyroIO, HealthChecker {
+public class GyroIOPigeon2 implements GyroIO {
   private final Pigeon2 pigeon =
       new Pigeon2(
           TunerConstants.DrivetrainConstants.Pigeon2Id,
@@ -66,7 +65,7 @@ public class GyroIOPigeon2 implements GyroIO, HealthChecker {
 
   @Override
   public void updateInputs(GyroIOInputs inputs) {
-    checkHealth();
+    updateFaults();
 
     inputs.connected = BaseStatusSignal.refreshAll(yaw, yawVelocity).equals(StatusCode.OK);
 
@@ -91,8 +90,7 @@ public class GyroIOPigeon2 implements GyroIO, HealthChecker {
 
   public FaultChecker pigeonFaults = new FaultChecker("pigeon2");
 
-  @Override
-  public boolean checkHealth() {
+  public boolean updateFaults() {
     pigeonFaults.updateFaults();
     pigeonFaults.sendNotifications();
     return !pigeonFaults.checkForAnyFaults();
