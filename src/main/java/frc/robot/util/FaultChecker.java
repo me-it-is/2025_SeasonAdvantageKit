@@ -30,6 +30,8 @@ public class FaultChecker {
   public void addFault(Fault fault) {
     if (faults != null) {
       this.faults.add(fault);
+    } else {
+      faults = new ArrayList<>();
     }
   }
 
