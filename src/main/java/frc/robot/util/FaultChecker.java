@@ -28,7 +28,9 @@ public class FaultChecker {
   }
 
   public void addFault(Fault fault) {
-    faults.add(fault);
+    if (faults != null) {
+      this.faults.add(fault);
+    }
   }
 
   public void sendNotifications() {
