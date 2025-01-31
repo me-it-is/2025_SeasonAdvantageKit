@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FaultChecker {
-  public List<Fault> faults;
+  public List<Fault> faults = new ArrayList<>();
   public String subsystemName;
 
   public FaultChecker(String subsytemName) {
