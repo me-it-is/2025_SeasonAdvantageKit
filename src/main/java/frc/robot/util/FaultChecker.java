@@ -24,6 +24,9 @@ public class FaultChecker {
     }
     for (Fault f : errorFaults) {
       f.updateFault();
+      if (f.hasFault != f.hadFault) {
+        f.sendNoftifacation(subsystemName);
+      }
     }
   }
 

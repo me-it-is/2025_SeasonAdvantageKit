@@ -30,7 +30,11 @@ public class Fault {
     level = notificationLevel;
   }
 
+  /**
+   * Updates whether the fault is active and the state in the last call
+   */
   public void updateFault() {
+    hadFault = hasFault;
     hasFault = functionToCheckFault.apply(true).getValue();
   }
 
