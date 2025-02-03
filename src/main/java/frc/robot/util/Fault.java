@@ -36,7 +36,7 @@ public class Fault {
     hasFault = functionToCheckFault.apply(true).getValue();
   }
 
-  public void sendNoftifacation(String subsystemName) {
+  public void sendNotification(String subsystemName) {
     Elastic.sendNotification(
         new Notification(
             level, subsystemName + "fault", faultName + " fault" + (hasFault ? "" : " resolved")));

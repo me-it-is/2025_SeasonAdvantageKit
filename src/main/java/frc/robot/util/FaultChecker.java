@@ -19,22 +19,22 @@ public class FaultChecker {
     for (Fault f : warningFaults) {
       f.updateFault();
       if (f.hasFault != f.hadFault) {
-        f.sendNoftifacation(subsystemName);
+        f.sendNotification(subsystemName);
       }
     }
     for (Fault f : errorFaults) {
       f.updateFault();
       if (f.hasFault != f.hadFault) {
-        f.sendNoftifacation(subsystemName);
+        f.sendNotification(subsystemName);
       }
     }
   }
 
   public List<Fault> getFaults() {
-    return Stream.concat(getWarriningFaults().stream(), getErrorFaults().stream()).toList();
+    return Stream.concat(getWarningFaults().stream(), getErrorFaults().stream()).toList();
   }
 
-  public List<Fault> getWarriningFaults() {
+  public List<Fault> getWarningFaults() {
     List<Fault> errorFaults = new ArrayList<>();
     for (Fault f : warningFaults) {
       if (f.hasFault) {
@@ -65,15 +65,15 @@ public class FaultChecker {
 
   public void sendNotifications() {
     for (Fault f : warningFaults) {
-      f.sendNoftifacation(subsystemName);
+      f.sendNotification(subsystemName);
     }
     for (Fault f : errorFaults) {
-      f.sendNoftifacation(subsystemName);
+      f.sendNotification(subsystemName);
     }
   }
 
   public boolean hasFault() {
-    return getWarriningFaults().size() != 0;
+    return getWarningFaults().size() != 0;
   }
 
   public boolean hasErrorFault() {
