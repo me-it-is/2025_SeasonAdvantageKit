@@ -13,8 +13,8 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Newtons;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -26,8 +26,8 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Force;
 import java.util.List;
 import java.util.Map;
 import org.photonvision.PhotonCamera;
@@ -67,7 +67,7 @@ public final class Constants {
 
     public static final PIDController tipControllerX = new PIDController(0.25, 0, 0.1);
     public static final PIDController tipControllerY = new PIDController(0.25, 0, 0.1);
-    public static final Angle tipDeadband = Degrees.of(5);
+    public static final Force tipDeadband = Newtons.of(3);
   }
 
   public static class VisionConstants {
