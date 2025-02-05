@@ -43,6 +43,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
+  private final Superstructure superstructure;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -86,6 +87,7 @@ public class RobotContainer {
                 new ModuleIO() {});
         break;
     }
+    superstructure = new Superstructure();
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -121,8 +123,8 @@ public class RobotContainer {
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive,
-            () -> MathUtil.applyDeadband(-controller.getLeftY(), DriveConstants.DRIVE_DEADBAND),
-            () -> MathUtil.applyDeadband(-controller.getLeftX(), DriveConstants.DRIVE_DEADBAND),
+            () -> MathUtil.applyDeadband(controller.getLeftY(), DriveConstants.DRIVE_DEADBAND),
+            () -> MathUtil.applyDeadband(controller.getLeftX(), DriveConstants.DRIVE_DEADBAND),
             () -> MathUtil.applyDeadband(-controller.getRightX(), DriveConstants.DRIVE_DEADBAND)));
 
     // Lock to 0° when A button is held
@@ -148,6 +150,10 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
                     drive)
                 .ignoringDisable(true));
+  }
+
+  public void driveTipCorrect() {
+    drive.runVelocity(drive.calculateTipCorrection());
   }
 
   /**

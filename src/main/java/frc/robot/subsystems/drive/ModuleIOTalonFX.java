@@ -41,6 +41,8 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.generated.TunerConstants;
+import frc.robot.util.Fault;
+import frc.robot.util.FaultChecker;
 import java.util.Queue;
 
 /**
@@ -185,10 +187,50 @@ public class ModuleIOTalonFX implements ModuleIO {
         turnAppliedVolts,
         turnCurrent);
     ParentDevice.optimizeBusUtilizationForAll(driveTalon, turnTalon);
+
+    addFaultsToTalon(driveTalon, driveTalonFaultChecker);
+    addFaultsToTalon(turnTalon, turnTalonFaultChecker);
+    addFaultsToEncoders(cancoder, CANcoderFaultChecker);
+  }
+
+  private void addFaultsToTalon(TalonFX talon, FaultChecker faultCheckerForTalon) {
+    turnTalonFaultChecker.addFault(new Fault(talon::getFault_BootDuringEnable));
+    turnTalonFaultChecker.addFault(new Fault(talon::getFault_BridgeBrownout));
+    turnTalonFaultChecker.addFault(new Fault(talon::getFault_DeviceTemp));
+    turnTalonFaultChecker.addFault(new Fault(talon::getFault_ForwardHardLimit));
+    turnTalonFaultChecker.addFault(new Fault(talon::getFault_ForwardSoftLimit));
+    turnTalonFaultChecker.addFault(new Fault(talon::getFault_FusedSensorOutOfSync));
+    turnTalonFaultChecker.addFault(new Fault(talon::getFault_Hardware));
+    turnTalonFaultChecker.addFault(new Fault(talon::getFault_MissingDifferentialFX));
+    turnTalonFaultChecker.addFault(new Fault(talon::getFault_MissingHardLimitRemote));
+    turnTalonFaultChecker.addFault(new Fault(talon::getFault_MissingSoftLimitRemote));
+    turnTalonFaultChecker.addFault(new Fault(talon::getFault_OverSupplyV));
+    turnTalonFaultChecker.addFault(new Fault(talon::getFault_ProcTemp));
+    turnTalonFaultChecker.addFault(new Fault(talon::getFault_RemoteSensorDataInvalid));
+    turnTalonFaultChecker.addFault(new Fault(talon::getFault_RemoteSensorPosOverflow));
+    turnTalonFaultChecker.addFault(new Fault(talon::getFault_RemoteSensorReset));
+    turnTalonFaultChecker.addFault(new Fault(talon::getFault_ReverseHardLimit));
+    turnTalonFaultChecker.addFault(new Fault(talon::getFault_ReverseSoftLimit));
+    turnTalonFaultChecker.addFault(new Fault(talon::getFault_StaticBrakeDisabled));
+    turnTalonFaultChecker.addFault(new Fault(talon::getFault_StatorCurrLimit));
+    turnTalonFaultChecker.addFault(new Fault(talon::getFault_SupplyCurrLimit));
+    turnTalonFaultChecker.addFault(new Fault(talon::getFault_Undervoltage));
+    turnTalonFaultChecker.addFault(new Fault(talon::getFault_UnlicensedFeatureInUse));
+    turnTalonFaultChecker.addFault(new Fault(talon::getFault_UsingFusedCANcoderWhileUnlicensed));
+  }
+
+  private void addFaultsToEncoders(CANcoder encoder, FaultChecker faultCheckerForCANcoder) {
+    faultCheckerForCANcoder.addFault(new Fault(encoder::getFault_BadMagnet));
+    faultCheckerForCANcoder.addFault(new Fault(encoder::getFault_BootDuringEnable));
+    faultCheckerForCANcoder.addFault(new Fault(encoder::getFault_Hardware));
+    faultCheckerForCANcoder.addFault(new Fault(encoder::getFault_Undervoltage));
+    faultCheckerForCANcoder.addFault(new Fault(encoder::getFault_UnlicensedFeatureInUse));
   }
 
   @Override
   public void updateInputs(ModuleIOInputs inputs) {
+    updateFaults();
+
     // Refresh all signals
     var driveStatus =
         BaseStatusSignal.refreshAll(drivePosition, driveVelocity, driveAppliedVolts, driveCurrent);
@@ -264,5 +306,23 @@ public class ModuleIOTalonFX implements ModuleIO {
           case TorqueCurrentFOC -> positionTorqueCurrentRequest.withPosition(
               rotation.getRotations());
         });
+  }
+
+  public FaultChecker turnTalonFaultChecker = new FaultChecker("turn talon");
+  public FaultChecker driveTalonFaultChecker = new FaultChecker("drive talon");
+  public FaultChecker CANcoderFaultChecker = new FaultChecker("swerve CANcoder");
+
+  public boolean updateFaults() {
+    turnTalonFaultChecker.updateFaults();
+    driveTalonFaultChecker.updateFaults();
+    CANcoderFaultChecker.updateFaults();
+
+    turnTalonFaultChecker.sendNotifications();
+    driveTalonFaultChecker.sendNotifications();
+    CANcoderFaultChecker.sendNotifications();
+
+    return turnTalonFaultChecker.isHealthy()
+        && driveTalonFaultChecker.isHealthy()
+        && CANcoderFaultChecker.isHealthy();
   }
 }

@@ -13,7 +13,12 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.RobotBase;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Meters;
+
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
 
 /**
  * This class defines the runtime mode used by AdvantageKit. The mode is always "real" when running
@@ -21,8 +26,8 @@ import edu.wpi.first.wpilibj.RobotBase;
  * (log replay from a file).
  */
 public final class Constants {
-  public static final Mode simMode = Mode.REAL;
-  public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
+  public static final Mode currentMode =
+      Mode.REAL; // RobotBase.isReal() ? Mode.REAL : Mode.SIM; robot thinks it's fake wut
 
   // Phisical values of the robot
   public static final double ROBOT_MASS_KG = 74.088;
@@ -42,5 +47,12 @@ public final class Constants {
 
   public static class DriveConstants {
     public static final double DRIVE_DEADBAND = 0.02;
+    public static final Distance TAG_DISTANCE = Meters.of(0.3);
+    public static final PIDController translationController = new PIDController(0.4, 0.001, 0);
+    public static final PIDController rotationController = new PIDController(0.3, 0, 0);
+
+    public static final PIDController tipControllerX = new PIDController(0.25, 0, 0.1);
+    public static final PIDController tipControllerY = new PIDController(0.25, 0, 0.1);
+    public static final Angle tipDeadband = Degrees.of(5);
   }
 }
