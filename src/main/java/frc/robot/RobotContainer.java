@@ -152,6 +152,10 @@ public class RobotContainer {
                 .ignoringDisable(true));
   }
 
+  public void driveTipCorrect() {
+    drive.runVelocity(drive.calculateTipCorrection());
+  }
+
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *

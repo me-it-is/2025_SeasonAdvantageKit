@@ -365,6 +365,14 @@ public class Drive extends SubsystemBase {
     };
   }
 
+  public double getXTipRad() {
+    return gyroInputs.xRotation.in(Radians);
+  }
+
+  public double getYTipRad() {
+    return gyroInputs.yRotation.in(Radians);
+  }
+
   public ChassisSpeeds calculateTipCorrection() {
     Constants.DriveConstants.tipControllerX.setSetpoint(0);
     Constants.DriveConstants.tipControllerY.setSetpoint(0);

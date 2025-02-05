@@ -120,7 +120,9 @@ public class Robot extends LoggedRobot {
 
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+    robotContainer.driveTipCorrect();
+  }
 
   /** This function is called once when teleop is enabled. */
   @Override
