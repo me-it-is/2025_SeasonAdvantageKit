@@ -1,11 +1,14 @@
 package frc.robot.util;
 
-import frc.robot.util.Elastic.Notification;
+import frc.robot.util.Elastic.Notification.NotificationLevel;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class FaultChecker {
-  public List<Fault> faults;
+  public List<Fault> warningFaults = new ArrayList<>();
+  public List<Fault> errorFaults = new ArrayList<>();
+
   public String subsystemName;
 
   public FaultChecker(String subsytemName) {
@@ -13,33 +16,88 @@ public class FaultChecker {
   }
 
   public void updateFaults() {
-    for (Fault f : faults) {
+    for (Fault f : warningFaults) {
       f.updateFault();
+      if (f.hasFault != f.hadFault) {
+        f.sendNotification(subsystemName);
+      }
+    }
+    for (Fault f : errorFaults) {
+      f.updateFault();
+      if (f.hasFault != f.hadFault) {
+        f.sendNotification(subsystemName);
+      }
     }
   }
 
-  public List<String> getFaults() {
-    List<String> stringFaults = new ArrayList<>();
-    for (Fault f : faults) {
+  public List<Fault> getFaults() {
+    return Stream.concat(getWarningFaults().stream(), getErrorFaults().stream()).toList();
+  }
+
+  public List<Fault> getWarningFaults() {
+    List<Fault> errorFaults = new ArrayList<>();
+    for (Fault f : warningFaults) {
       if (f.hasFault) {
-        stringFaults.add(f.faultName);
+        errorFaults.add(f);
       }
     }
-    return stringFaults;
+    return errorFaults;
+  }
+
+  public List<Fault> getErrorFaults() {
+    List<Fault> errorFaults = new ArrayList<>();
+    for (Fault f : errorFaults) {
+      if (f.hasFault) {
+        errorFaults.add(f);
+      }
+    }
+    return errorFaults;
   }
 
   public void addFault(Fault fault) {
-    faults.add(fault);
-  }
-
-  public void sendNotifications() {
-    for (Fault f : faults) {
-      Elastic.sendNotification(
-          new Notification(f.level, subsystemName + "fault", f.faultName + " fault"));
+    if (warningFaults != null && fault.level == NotificationLevel.WARNING) {
+      this.warningFaults.add(fault);
+    }
+    if (errorFaults != null && fault.level == NotificationLevel.ERROR) {
+      this.errorFaults.add(fault);
     }
   }
 
-  public boolean checkForAnyFaults() {
-    return getFaults().size() != 0;
+  public void sendNotifications() {
+    for (Fault f : warningFaults) {
+      f.sendNotification(subsystemName);
+    }
+    for (Fault f : errorFaults) {
+      f.sendNotification(subsystemName);
+    }
+  }
+
+  public boolean hasFault() {
+    return getWarningFaults().size() != 0;
+  }
+
+  public boolean hasErrorFault() {
+    return getErrorFaults().size() != 0;
+  }
+
+  /**
+   * @return true if no warnings or errors
+   */
+  public boolean isHealthy() {
+    return (!hasFault()) && !(hasErrorFault());
+  }
+
+  /**
+   * @return true if no warrnings
+   */
+  public boolean isClean() {
+    return !hasFault();
+  }
+
+  /**
+   * @return true if no errors
+   */
+  public boolean isAlive() {
+    return !hasErrorFault();
   }
 }

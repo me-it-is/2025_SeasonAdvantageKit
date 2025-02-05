@@ -26,6 +26,7 @@ import com.pathplanner.lib.util.PathPlannerLogging;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -372,14 +373,28 @@ public class Drive extends SubsystemBase {
     };
   }
 
+  public double getXTipRad() {
+    return gyroInputs.xRotation.in(Radians);
+  }
+
+  public double getYTipRad() {
+    return gyroInputs.yRotation.in(Radians);
+  }
+
   public ChassisSpeeds calculateTipCorrection() {
     Constants.DriveConstants.tipControllerX.setSetpoint(0);
     Constants.DriveConstants.tipControllerY.setSetpoint(0);
 
     double xSpeed =
-        Constants.DriveConstants.tipControllerX.calculate(gyroInputs.xRotation.in(Radians));
+        Constants.DriveConstants.tipControllerX.calculate(
+            MathUtil.applyDeadband(
+                gyroInputs.xRotation.in(Radians),
+                Constants.DriveConstants.tipDeadband.in(Radians)));
     double ySpeed =
-        Constants.DriveConstants.tipControllerX.calculate(gyroInputs.yRotation.in(Radians));
+        Constants.DriveConstants.tipControllerX.calculate(
+            MathUtil.applyDeadband(
+                gyroInputs.yRotation.in(Radians),
+                Constants.DriveConstants.tipDeadband.in(Radians)));
 
     return new ChassisSpeeds(xSpeed, ySpeed, 0);
   }

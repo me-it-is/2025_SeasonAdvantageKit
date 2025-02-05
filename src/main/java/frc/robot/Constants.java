@@ -13,6 +13,7 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -20,6 +21,8 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -39,8 +42,8 @@ import org.photonvision.PhotonPoseEstimator.PoseStrategy;
  * (log replay from a file).
  */
 public final class Constants {
-  public static final Mode simMode = Mode.REAL;
-  public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
+  public static final Mode currentMode =
+      Mode.REAL; // RobotBase.isReal() ? Mode.REAL : Mode.SIM; robot thinks it's fake wut
 
   // Phisical values of the robot
   public static final double ROBOT_MASS_KG = 74.088;
@@ -66,9 +69,7 @@ public final class Constants {
 
     public static final PIDController tipControllerX = new PIDController(0.25, 0, 0.1);
     public static final PIDController tipControllerY = new PIDController(0.25, 0, 0.1);
-
-    public static final double tipSpeedFactor = 1;
-    public static final double tipAngleFactor = 0.5;
+    public static final Angle tipDeadband = Degrees.of(5);
   }
 
   public static class VisionConstants {
