@@ -13,9 +13,11 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.RobotBase;
 
@@ -51,8 +53,6 @@ public final class Constants {
 
     public static final PIDController tipControllerX = new PIDController(0.25, 0, 0.1);
     public static final PIDController tipControllerY = new PIDController(0.25, 0, 0.1);
-
-    public static final double tipSpeedFactor = 1;
-    public static final double tipAngleFactor = 0.5;
+    public static final Angle tipDeadband = Degrees.of(5);
   }
 }
