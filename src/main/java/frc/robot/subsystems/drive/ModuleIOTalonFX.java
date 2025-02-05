@@ -321,8 +321,8 @@ public class ModuleIOTalonFX implements ModuleIO {
     driveTalonFaultChecker.sendNotifications();
     CANcoderFaultChecker.sendNotifications();
 
-    return !(turnTalonFaultChecker.checkForAnyFaults()
-        || driveTalonFaultChecker.checkForAnyFaults()
-        || CANcoderFaultChecker.checkForAnyFaults());
+    return turnTalonFaultChecker.isHealthy()
+        && driveTalonFaultChecker.isHealthy()
+        && CANcoderFaultChecker.isHealthy();
   }
 }
