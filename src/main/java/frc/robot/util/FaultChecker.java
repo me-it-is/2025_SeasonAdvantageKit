@@ -63,11 +63,14 @@ public class FaultChecker {
     }
   }
 
-  public void sendNotifications() {
-    for (Fault f : warningFaults) {
+  public void sendErrorNotifications() {
+    for (Fault f : errorFaults) {
       f.sendNotification(subsystemName);
     }
-    for (Fault f : errorFaults) {
+  }
+
+  public void sendWarningNotifications() {
+    for (Fault f : warningFaults) {
       f.sendNotification(subsystemName);
     }
   }
