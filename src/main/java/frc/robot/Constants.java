@@ -62,7 +62,7 @@ public final class Constants {
   public static class DriveConstants {
     public static final double DRIVE_DEADBAND = 0.02;
     public static final Distance TAG_DISTANCE = Meters.of(0.3);
-    public static final PIDController translationController = new PIDController(0.4, 0.001, 0);
+    public static final PIDController translationController = new PIDController(0.2, 0, 0.15);
     public static final PIDController rotationController = new PIDController(0.3, 0, 0);
 
     public static final PIDController tipControllerX = new PIDController(0.25, 0, 0.1);

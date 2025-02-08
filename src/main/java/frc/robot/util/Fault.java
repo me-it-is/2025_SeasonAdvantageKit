@@ -1,7 +1,6 @@
 package frc.robot.util;
 
 import com.ctre.phoenix6.StatusSignal;
-import frc.robot.util.Elastic.Notification;
 import frc.robot.util.Elastic.Notification.NotificationLevel;
 import java.util.function.Function;
 
@@ -37,8 +36,8 @@ public class Fault {
   }
 
   public void sendNotification(String subsystemName) {
-    Elastic.sendNotification(
-        new Notification(
-            level, subsystemName + "fault", faultName + " fault" + (hasFault ? "" : " resolved")));
+    /*Elastic.sendNotification(
+    new Notification(
+        level, subsystemName + "fault", faultName + " fault" + (hasFault ? "" : " resolved")));*/
   }
 }
