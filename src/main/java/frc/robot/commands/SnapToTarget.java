@@ -34,18 +34,15 @@ public class SnapToTarget extends Command {
     Pose2d scorePose = getClosestScoringPose(drivePose);
 
     // make path between start and end pose on the fly
-    PathConstraints constraints = new PathConstraints(4.5, 3.5, 7, 10); //TODO estimated values fix
+    PathConstraints constraints = new PathConstraints(4.5, 3.5, 7, 10); // TODO estimated values fix
     List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(drivePose, scorePose);
     PathPlannerPath path =
         new PathPlannerPath(
             waypoints,
             constraints,
-            null, // this is only relevant for pre-planned paths, so can be null for on-the-fly paths
-            new GoalEndState(
-                0.0,
-                Rotation2d.fromDegrees(
-                    0.0))
-            );
+            null, // this is only relevant for pre-planned paths, so can be null for on-the-fly
+            // paths
+            new GoalEndState(0.0, Rotation2d.fromDegrees(0.0)));
 
     Command pathFollow = AutoBuilder.followPath(path);
     CommandScheduler.getInstance().schedule(pathFollow);
