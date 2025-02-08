@@ -25,6 +25,7 @@ public class FaultChecker {
   public void updateFaults() {
     for (Fault f : warningFaults) {
       f.updateFault();
+      System.out.println("updateing warningFaults");
       if (f.hasFault != f.hadFault) {
         System.out.println("log fault");
         f.logFault(subsystemName, stringLog);
@@ -32,6 +33,7 @@ public class FaultChecker {
     }
     for (Fault f : errorFaults) {
       f.updateFault();
+      System.out.println("updateing errorFaults");
       if (f.hasFault != f.hadFault) {
         System.out.println("notify fault");
         f.sendNotification(subsystemName);
