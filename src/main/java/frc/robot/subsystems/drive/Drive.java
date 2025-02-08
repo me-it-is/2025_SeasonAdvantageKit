@@ -373,28 +373,30 @@ public class Drive extends SubsystemBase {
     };
   }
 
-  public double getXTipRad() {
-    return gyroInputs.xRotation.in(Radians);
-  }
-
-  public double getYTipRad() {
-    return gyroInputs.yRotation.in(Radians);
-  }
-
   public ChassisSpeeds calculateTipCorrection() {
     Constants.DriveConstants.tipControllerX.setSetpoint(0);
     Constants.DriveConstants.tipControllerY.setSetpoint(0);
 
+    double tipAngle =
+        Math.atan(
+            Math.sqrt(
+                Math.pow(gyroInputs.xRotation.in(Radians), 2)
+                    + Math.pow(gyroInputs.yRotation.in(Radians), 2)));
+    double fNormal = Constants.ROBOT_MASS_KG * 9.81 * Math.cos(tipAngle);
+    double tipMag = fNormal * Math.sin(tipAngle); // projection of normal force onto horizontal
+    double angle =
+        Math.atan2(
+            gyroInputs.yRotation.in(Radians),
+            gyroInputs.xRotation.in(Radians)); // direction of tip vector relative to x-axis
+
     double xSpeed =
         Constants.DriveConstants.tipControllerX.calculate(
             MathUtil.applyDeadband(
-                gyroInputs.xRotation.in(Radians),
-                Constants.DriveConstants.tipDeadband.in(Radians)));
+                tipMag * Math.cos(angle), Constants.DriveConstants.tipDeadband.in(Newtons)));
     double ySpeed =
         Constants.DriveConstants.tipControllerX.calculate(
             MathUtil.applyDeadband(
-                gyroInputs.yRotation.in(Radians),
-                Constants.DriveConstants.tipDeadband.in(Radians)));
+                tipMag * Math.sin(angle), Constants.DriveConstants.tipDeadband.in(Newtons)));
 
     return new ChassisSpeeds(xSpeed, ySpeed, 0);
   }
