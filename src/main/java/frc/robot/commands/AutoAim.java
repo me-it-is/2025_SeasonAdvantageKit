@@ -24,56 +24,54 @@ public class AutoAim extends Command {
 
   @Override
   public void execute() {
+    PhotonTrackedTarget target;
     Pose2d curPose = drive.getPose();
-    var resultsOne = VisionConstants.aprilCamOne.getAllUnreadResults();
-    var resultsTwo = VisionConstants.aprilCamTwo.getAllUnreadResults();
+    var camOne = VisionConstants.aprilCamOne.getAllUnreadResults();
+    var camTwo = VisionConstants.aprilCamTwo.getAllUnreadResults();
 
-    if (!resultsOne.isEmpty() || !resultsTwo.isEmpty()) {
-      var resultOne = resultsOne.get(resultsOne.size() - 1);
+    if (!camOne.isEmpty() && !camTwo.isEmpty()) {
+      var resultOne = camOne.get(camOne.size() - 1);
       var targetOne = resultOne.getBestTarget();
-      var resultTwo = resultsTwo.get(resultsTwo.size() - 1);
+      var resultTwo = camTwo.get(camTwo.size() - 1);
       var targetTwo = resultTwo.getBestTarget();
+      target = targetOne.getPoseAmbiguity() < targetTwo.getPoseAmbiguity() ? targetOne : targetTwo;
+    } else if (!camOne.isEmpty()) {
+      var resultOne = camOne.get(camOne.size() - 1);
+      target = resultOne.getBestTarget();
+    } else if (!camTwo.isEmpty()) {
+      var resultTwo = camTwo.get(camTwo.size() - 1);
+      target = resultTwo.getBestTarget();
+    } else {
+      target = null;
+    }
 
-      PhotonTrackedTarget target;
-      if (targetOne != null && targetTwo != null) {
-        target =
-            targetOne.getPoseAmbiguity() < targetTwo.getPoseAmbiguity() ? targetOne : targetTwo;
-      } else if (targetOne != null) {
-        target = targetOne;
-      } else if (targetTwo != null) {
-        target = targetTwo;
-      } else {
-        target = null;
-      }
+    if (target != null) {
+      List<Integer> key =
+          VisionConstants.tagToHeight.keySet().stream()
+              .filter(k -> k.contains(target.getFiducialId()))
+              .collect(Collectors.toList())
+              .get(0);
+      double distance =
+          PhotonUtils.calculateDistanceToTargetMeters(
+              VisionConstants.kCameraHeight,
+              VisionConstants.tagToHeight.get(key).in(Units.Meters),
+              VisionConstants.kCameraPitchRadians,
+              target.getPitch());
 
-      if (target != null) {
-        List<Integer> key =
-            VisionConstants.tagToHeight.keySet().stream()
-                .filter(k -> k.contains(target.getFiducialId()))
-                .collect(Collectors.toList())
-                .get(0);
-        double distance =
-            PhotonUtils.calculateDistanceToTargetMeters(
-                VisionConstants.kCameraHeight,
-                VisionConstants.tagToHeight.get(key).in(Units.Meters),
-                VisionConstants.kCameraPitchRadians,
-                target.getPitch());
+      // apply pid controller outputs to drivetrain controlling method
+      double moveOutput =
+          DriveConstants.translationController.calculate(
+              distance, DriveConstants.TAG_DISTANCE.in(Units.Meters));
+      double turnOutput =
+          DriveConstants.rotationController.calculate(
+              -curPose.getRotation().getRadians(), target.getYaw());
 
-        // apply pid controller outputs to drivetrain controlling method
-        double moveOutput =
-            DriveConstants.translationController.calculate(
-                distance, DriveConstants.TAG_DISTANCE.in(Units.Meters));
-        double turnOutput =
-            DriveConstants.rotationController.calculate(
-                -curPose.getRotation().getRadians(), target.getYaw());
-
-        ChassisSpeeds speeds =
-            new ChassisSpeeds(
-                moveOutput * drive.getMaxLinearSpeedMetersPerSec(),
-                0,
-                turnOutput * drive.getMaxAngularSpeedRadPerSec());
-        drive.runVelocity(speeds);
-      }
+      ChassisSpeeds speeds =
+          new ChassisSpeeds(
+              moveOutput * drive.getMaxLinearSpeedMetersPerSec(),
+              0,
+              turnOutput * drive.getMaxAngularSpeedRadPerSec());
+      drive.runVelocity(speeds);
     }
   }
 
