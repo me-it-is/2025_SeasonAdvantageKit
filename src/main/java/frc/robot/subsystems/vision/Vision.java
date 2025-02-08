@@ -58,7 +58,14 @@ public class Vision extends SubsystemBase {
 
   public Pose3d[] getSeenTags() {
     return cameras.stream()
-        .flatMap(c -> c.photonCamera().getLatestResult().targets.stream())
+        .flatMap(
+            c ->
+                c
+                    .photonCamera()
+                    .getAllUnreadResults()
+                    .get(c.photonCamera().getAllUnreadResults().size() - 1)
+                    .targets
+                    .stream())
         .map(PhotonTrackedTarget::getFiducialId)
         .map(VisionConstants.aprilTagFieldLayout::getTagPose)
         .map(Optional::get)
@@ -80,7 +87,8 @@ public class Vision extends SubsystemBase {
   }
 
   private static Optional<EstimateAndInfo> updateAngGetEstimate(CamToEstimator camToEstimator) {
-    final var latestResult = camToEstimator.photonCamera.getLatestResult();
+    var results = camToEstimator.photonCamera.getAllUnreadResults();
+    final var latestResult = results.get(results.size() - 1);
     if (!latestResult.hasTargets()) {
       return Optional.empty();
     }

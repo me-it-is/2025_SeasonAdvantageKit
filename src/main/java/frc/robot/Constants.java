@@ -28,8 +28,6 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Force;
-import java.util.List;
-import java.util.Map;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
@@ -93,8 +91,8 @@ public final class Constants {
     public static final Matrix<N3, N1> kMultiTagStdDevs =
         VecBuilder.fill(0.5, 0.5, Double.POSITIVE_INFINITY);
 
-    public static final AprilTagFieldLayout aprilTagFieldLayout =
-        AprilTagFields.kDefaultField.loadAprilTagLayoutField();
+    public static AprilTagFieldLayout aprilTagFieldLayout =
+        AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
 
     public static final PhotonCamera aprilCamOne = new PhotonCamera("aprilOne");
     public static final PhotonCamera aprilCamTwo = new PhotonCamera("aprilTwo");
@@ -111,12 +109,6 @@ public final class Constants {
             VisionConstants.robotToCam); // TODO need diff config for second camera
 
     // a map of tag ids to corresponding tag heights on the field
-    public static final Map<List<Integer>, Distance> tagToHeight =
-        Map.of(
-            List.of(1, 2, 12, 13), Meters.of(1.40335), // coral station
-            List.of(3, 16), Meters.of(1.216152), // processor
-            List.of(4, 5, 14, 15), Meters.of(1.796542), // barge
-            List.of(6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22), Meters.of(0.22225) // reef
-            );
+
   }
 }

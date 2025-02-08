@@ -1,14 +1,14 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.drive.Drive;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
@@ -18,7 +18,6 @@ public class AutoAim extends Command {
 
   public AutoAim(Drive drive) {
     this.drive = drive;
-
     addRequirements(drive);
   }
 
@@ -62,6 +61,21 @@ public class AutoAim extends Command {
       double moveOutput =
           DriveConstants.translationController.calculate(
               distance, DriveConstants.TAG_DISTANCE.in(Units.Meters));
+      Optional<Pose3d> tagPose =
+          VisionConstants.aprilTagFieldLayout.getTagPose(target.getFiducialId());
+      double moveOutput = 0.0;
+      if (tagPose.isPresent()) {
+        double tagHeight = tagPose.get().getZ();
+        double distance =
+            PhotonUtils.calculateDistanceToTargetMeters(
+                VisionConstants.kCameraHeight,
+                tagHeight,
+                VisionConstants.kCameraPitchRadians,
+                target.getPitch());
+        moveOutput =
+            DriveConstants.translationController.calculate(
+                distance, DriveConstants.TAG_DISTANCE.in(Units.Meters));
+      }
       double turnOutput =
           DriveConstants.rotationController.calculate(
               -curPose.getRotation().getRadians(), target.getYaw());
