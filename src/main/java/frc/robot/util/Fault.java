@@ -20,23 +20,56 @@ public class Fault {
       Objects.requireNonNull(payload);
     }
   }
-
+  /**
+   * 
+   * @param functionToCheckFault function that indicates whether a particular fault has occurred 
+   * (e.g. TalonFX.getFault_DeviceTemp indicated whether a talon is overheated)
+   */
   public Fault(Function<Boolean, StatusSignal<Boolean>> functionToCheckFault) {
     this.functionToCheckFault = functionToCheckFault;
+    // Extracts the fault name from the name of the function
+    // getFault_hardware -> hardware
     faultName = functionToCheckFault.toString().replace("getFault_", "");
   }
 
+/**
+   * 
+   * @param functionToCheckFault function that indicates whether a particular fault has occurred 
+   * (e.g. TalonFX.getFault_DeviceTemp indicated whether a talon is overheated)
+   * 
+   * @param name the name of the fault
+   */
   public Fault(Function<Boolean, StatusSignal<Boolean>> functionToCheckFault, String name) {
     this.functionToCheckFault = functionToCheckFault;
-    faultName = name;
+    this.faultName = name;
   }
-
+  /**
+   * 
+   * @param functionToCheckFault function that indicates whether a particular fault has occurred 
+   * (e.g. TalonFX.getFault_DeviceTemp indicated whether a talon is overheated)
+   * @param notificationLevel the sevarity of the fault (see {@link NotificationLevel}). 
+   * NotificationLevel.INFO is ignored 
+   */
   public Fault(
       Function<Boolean, StatusSignal<Boolean>> functionToCheckFault,
       NotificationLevel notificationLevel) {
     this.functionToCheckFault = functionToCheckFault;
-    faultName = functionToCheckFault.toString().replace("getFault_", "");
-    level = notificationLevel;
+    this.faultName = functionToCheckFault.toString().replace("getFault_", "");
+    this.level = notificationLevel;
+  }
+  /**
+   * 
+   * @param functionToCheckFault function that indicates whether a particular fault has occurred 
+   * (e.g. TalonFX.getFault_DeviceTemp indicated whether a talon is overheated)
+   * @param notificationLevel the sevarity of the fault (see {@link NotificationLevel}). 
+   * NotificationLevel.INFO is ignored 
+   * @param name the name of the fault
+   */
+  public Fault(Function<Boolean, StatusSignal<Boolean>> functionToCheckFault,
+  NotificationLevel notificationLevel, String name) {
+    this.functionToCheckFault = functionToCheckFault;
+    this.faultName = name;
+    this.level = notificationLevel;
   }
 
   /** Updates whether the fault is active and the state in the last call */
@@ -45,18 +78,24 @@ public class Fault {
     hasFault = functionToCheckFault.apply(true).getValue();
   }
 
-  public FaultInfo getFaultString(String subsystemName) {
+  private FaultInfo getFaultString(String subsystemName) {
     return new FaultInfo(
         subsystemName + "fault", faultName + " fault" + (hasFault ? "" : " resolved"));
   }
 
-  public void sendNotification(String subsystemName) {
-    FaultInfo faultInfo = getFaultString(subsystemName);
+  /**
+   * @param commponentName the name of the commponent that has the fault
+   */
+  public void sendNotification(String commponentName) {
+    FaultInfo faultInfo = getFaultString(commponentName);
     Elastic.sendNotification(new Notification(level, faultInfo.header, faultInfo.payload));
   }
-
-  public void logFault(String subsystemName, StringLogEntry logEntry) {
-    FaultInfo faultString = getFaultString(subsystemName);
+  /**
+   * @param commponentName the name of the commponent that has the fault
+   * @param logEntry the log to add the fault to
+   */
+  public void logFault(String commponentName, StringLogEntry logEntry) {
+    FaultInfo faultString = getFaultString(commponentName);
     logEntry.append(faultString.header + ". " + faultString.payload);
   }
 }

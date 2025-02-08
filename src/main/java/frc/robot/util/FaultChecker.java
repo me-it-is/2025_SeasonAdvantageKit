@@ -17,8 +17,8 @@ public class FaultChecker {
   private DataLog log = DataLogManager.getLog();
   private StringLogEntry stringLog = new StringLogEntry(log, subsystemName);
 
-  public FaultChecker(String subsytemName) {
-    this.subsystemName = subsytemName;
+  public FaultChecker(String commponentName) {
+    this.subsystemName = commponentName;
     DataLogManager.start();
   }
 
