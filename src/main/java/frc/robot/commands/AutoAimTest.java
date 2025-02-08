@@ -1,0 +1,93 @@
+package frc.robot.commands;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.VisionConstants;
+import frc.robot.subsystems.drive.Drive;
+import org.photonvision.PhotonUtils;
+import org.photonvision.targeting.PhotonTrackedTarget;
+
+public class AutoAimTest extends Command {
+  private Drive drive;
+  private CommandXboxController controller;
+  private double targetYaw;
+  private double targetRange;
+
+  public AutoAimTest(Drive drive, CommandXboxController controller) {
+    this.drive = drive;
+    this.controller = controller;
+    this.targetYaw = 0.0;
+    this.targetRange = 0.0;
+    addRequirements(drive);
+  }
+
+  @Override
+  public void execute() {
+    double forward =
+        -controller.getLeftY() * DriveConstants.maxTranslationSpeed.in(Units.MetersPerSecond);
+    double strafe =
+        -controller.getLeftX() * DriveConstants.maxTranslationSpeed.in(Units.MetersPerSecond);
+    double turn =
+        -controller.getRightX() * DriveConstants.maxRotVelocity.in(Units.RadiansPerSecond);
+
+    PhotonTrackedTarget target = null;
+    Pose2d curPose = drive.getPose();
+    var camOne = VisionConstants.aprilCamOne.getAllUnreadResults();
+    var camTwo = VisionConstants.aprilCamTwo.getAllUnreadResults();
+
+    if (!camOne.isEmpty() && !camTwo.isEmpty()) {
+      var resultOne = camOne.get(camOne.size() - 1);
+      var resultTwo = camTwo.get(camTwo.size() - 1);
+      if (resultOne.hasTargets() && resultTwo.hasTargets()) {
+        var targetOne = resultOne.getBestTarget();
+        var targetTwo = resultTwo.getBestTarget();
+        target =
+            targetOne.getPoseAmbiguity() < targetTwo.getPoseAmbiguity() ? targetOne : targetTwo;
+      }
+    } else if (!camOne.isEmpty()) {
+      var resultOne = camOne.get(camOne.size() - 1);
+      if (resultOne.hasTargets()) {
+        target = resultOne.getBestTarget();
+      }
+    } else if (!camTwo.isEmpty()) {
+      var resultTwo = camTwo.get(camTwo.size() - 1);
+      if (resultTwo.hasTargets()) {
+        target = resultTwo.getBestTarget();
+      }
+    }
+
+    if (target != null) {
+      System.out.println("target id is: " + target.getFiducialId());
+      if (target.getFiducialId() == 22) {
+        // Found Tag 22, record its information
+        System.out.println("found tag 22");
+        targetYaw = target.getYaw();
+        targetRange =
+            PhotonUtils.calculateDistanceToTargetMeters(
+                VisionConstants.camChassisZOffset, // Measured with a tape measure, or in CAD.
+                0.22225, // From 2025 game manual for ID 22
+                VisionConstants.kCameraPitchRadians, // Measured with a protractor, or in CAD.
+                Units.Degrees.of(target.getPitch()).in(Units.Radians));
+      }
+    } else {
+      System.out.println("no target found");
+    }
+
+    // Auto-align when requested
+    turn =
+        DriveConstants.rotationController.calculate(curPose.getRotation().getDegrees(), targetYaw)
+            * DriveConstants.maxRotVelocity.in(Units.RadiansPerSecond);
+    forward =
+        DriveConstants.translationController.calculate(VisionConstants.tagDistSetpoint, targetRange)
+            * DriveConstants.maxTranslationSpeed.in(Units.MetersPerSecond);
+
+    System.out.println("target range: " + targetRange);
+    System.out.println("forward: " + forward + " strafe: " + strafe + " turn: " + turn);
+    // Command drivetrain motors based on target speeds
+    drive.runVelocity(new ChassisSpeeds(forward, strafe, turn));
+  }
+}

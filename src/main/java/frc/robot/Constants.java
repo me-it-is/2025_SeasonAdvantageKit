@@ -14,7 +14,9 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Newtons;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -26,8 +28,10 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Force;
+import edu.wpi.first.units.measure.LinearVelocity;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
@@ -58,9 +62,11 @@ public final class Constants {
   }
 
   public static class DriveConstants {
+    public static final LinearVelocity maxTranslationSpeed = MetersPerSecond.of(10);
+    public static final AngularVelocity maxRotVelocity = RadiansPerSecond.of(4 * Math.PI);
     public static final double DRIVE_DEADBAND = 0.02;
     public static final Distance TAG_DISTANCE = Meters.of(0.3);
-    public static final PIDController translationController = new PIDController(0.2, 0, 0.15);
+    public static final PIDController translationController = new PIDController(0.5, 0.001, 0);
     public static final PIDController rotationController = new PIDController(0.3, 0, 0);
 
     public static final PIDController tipControllerX = new PIDController(0.25, 0, 0.1);
@@ -81,7 +87,7 @@ public final class Constants {
     public static final double camChassisZOffset = 0.1143;
 
     public static final double tagDistSetpoint = 0.1;
-    public static final double kCameraPitchRadians = Math.PI / 2;
+    public static final double kCameraPitchRadians = Math.PI / 3;
     public static final Transform3d robotToCamOne =
         new Transform3d(
             new Translation3d(camChassisXOffset, camChassisYOffset, camChassisZOffset),

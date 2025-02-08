@@ -65,6 +65,8 @@ public class AutoAim extends Command {
           VisionConstants.aprilTagFieldLayout.getTagPose(target.getFiducialId());
       double moveOutput = 0.0;
       if (tagPose.isPresent()) {
+        System.out.println("tag pose rot: " + tagPose.get().getRotation().toString());
+        System.out.println("tag pose translation: " + tagPose.get().getTranslation().toString());
         double tagHeight = tagPose.get().getZ();
         double distance =
             PhotonUtils.calculateDistanceToTargetMeters(
