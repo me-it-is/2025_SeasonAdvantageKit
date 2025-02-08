@@ -65,8 +65,6 @@ public class GyroIOPigeon2 implements GyroIO {
 
   @Override
   public void updateInputs(GyroIOInputs inputs) {
-    updateFaults();
-
     inputs.connected = BaseStatusSignal.refreshAll(yaw, yawVelocity).equals(StatusCode.OK);
 
     inputs.yawPosition = Rotation2d.fromDegrees(yaw.getValueAsDouble());
@@ -90,7 +88,8 @@ public class GyroIOPigeon2 implements GyroIO {
 
   public FaultChecker pigeonFaults = new FaultChecker("pigeon2");
 
-  public void updateFaults() {
+  @Override
+  public void updateFault() {
     pigeonFaults.updateFaults();
   }
 }

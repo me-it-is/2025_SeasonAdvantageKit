@@ -44,7 +44,6 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.util.Fault;
 import frc.robot.util.FaultChecker;
 
-import java.time.Period;
 import java.util.Queue;
 
 /**
@@ -231,8 +230,6 @@ public class ModuleIOTalonFX implements ModuleIO {
 
   @Override
   public void updateInputs(ModuleIOInputs inputs) {
-    updateFaults();
-
     // Refresh all signals
     var driveStatus =
         BaseStatusSignal.refreshAll(drivePosition, driveVelocity, driveAppliedVolts, driveCurrent);
@@ -313,7 +310,7 @@ public class ModuleIOTalonFX implements ModuleIO {
   public FaultChecker turnTalonFaultChecker = new FaultChecker("turn talon");
   public FaultChecker driveTalonFaultChecker = new FaultChecker("drive talon");
   public FaultChecker CANcoderFaultChecker = new FaultChecker("swerve CANcoder");
-  
+
   @Override
   public void updateFaults() {
     turnTalonFaultChecker.updateFaults();
