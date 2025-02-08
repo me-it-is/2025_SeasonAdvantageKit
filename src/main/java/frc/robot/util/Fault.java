@@ -7,6 +7,9 @@ import frc.robot.util.Elastic.Notification.NotificationLevel;
 import java.util.Objects;
 import java.util.function.Function;
 
+/**
+ * Encodes the status of a fault as well as the required resorces to update and notify the driver
+ */
 public class Fault {
   String faultName;
   Function<Boolean, StatusSignal<Boolean>> functionToCheckFault;
