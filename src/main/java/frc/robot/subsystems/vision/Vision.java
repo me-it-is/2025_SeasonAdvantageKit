@@ -58,6 +58,7 @@ public class Vision extends SubsystemBase {
 
   public Pose3d[] getSeenTags() {
     return cameras.stream()
+        .filter(c -> !c.photonCamera().getAllUnreadResults().isEmpty())
         .flatMap(
             c ->
                 c
@@ -88,18 +89,23 @@ public class Vision extends SubsystemBase {
 
   private static Optional<EstimateAndInfo> updateAngGetEstimate(CamToEstimator camToEstimator) {
     var results = camToEstimator.photonCamera.getAllUnreadResults();
-    final var latestResult = results.get(results.size() - 1);
-    if (!latestResult.hasTargets()) {
+    if (!results.isEmpty()) {
+      final var latestResult = results.get(results.size() - 1);
+      if (!latestResult.hasTargets()) {
+        return Optional.empty();
+      }
+
+      final var estimatedPose = camToEstimator.estimator.update(latestResult);
+      if (estimatedPose.isEmpty()) {
+        return Optional.empty();
+      }
+      final var ambiguity = latestResult.getBestTarget().getPoseAmbiguity();
+      return Optional.of(
+          new EstimateAndInfo(
+              estimatedPose.get(), camToEstimator.photonCamera().getName(), ambiguity));
+    } else {
       return Optional.empty();
     }
-    final var estimatedPose = camToEstimator.estimator.update(latestResult);
-    if (estimatedPose.isEmpty()) {
-      return Optional.empty();
-    }
-    final var ambiguity = latestResult.getBestTarget().getPoseAmbiguity();
-    return Optional.of(
-        new EstimateAndInfo(
-            estimatedPose.get(), camToEstimator.photonCamera().getName(), ambiguity));
   }
 
   private static Predicate<EstimateAndInfo> isAmbiguityLess(double maxAmbiguity) {

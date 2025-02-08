@@ -68,7 +68,7 @@ public class AutoAim extends Command {
         double tagHeight = tagPose.get().getZ();
         double distance =
             PhotonUtils.calculateDistanceToTargetMeters(
-                VisionConstants.kCameraHeight,
+                VisionConstants.camChassisZOffset,
                 tagHeight,
                 VisionConstants.kCameraPitchRadians,
                 target.getPitch());

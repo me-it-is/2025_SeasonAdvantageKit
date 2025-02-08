@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.GoalEndState;
+import com.pathplanner.lib.path.IdealStartingState;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.Waypoint;
@@ -40,7 +41,11 @@ public class SnapToTarget extends Command {
         new PathPlannerPath(
             waypoints,
             constraints,
-            null, // this is only relevant for pre-planned paths, so can be null for on-the-fly
+            new IdealStartingState(
+                0,
+                drivePose
+                    .getRotation()), // this is only relevant for pre-planned paths, so can be null
+            // for on-the-fly
             // paths
             new GoalEndState(0.0, Rotation2d.fromDegrees(0.0)));
 

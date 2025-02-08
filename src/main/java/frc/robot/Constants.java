@@ -76,17 +76,20 @@ public final class Constants {
     public static final Distance maxCamDistToTag = Meters.of(0.8);
     public static final Distance maxVertDisp = Meters.of(0.2);
 
-    public static final double camChassisXOffset = 0.3;
-    public static final double camChassisYOffset = 0.3;
-    public static final double camChassisZOffset = 0.0;
+    public static final double camChassisXOffset = 0.0;
+    public static final double camChassisYOffset = -0.254;
+    public static final double camChassisZOffset = 0.1143;
 
-    public static final double tagDistSetpoint = 0.0;
-    public static final double kCameraHeight = 0.1;
-    public static final double kCameraPitchRadians = 0;
-    public static final Transform3d robotToCam =
+    public static final double tagDistSetpoint = 0.1;
+    public static final double kCameraPitchRadians = Math.PI / 2;
+    public static final Transform3d robotToCamOne =
         new Transform3d(
             new Translation3d(camChassisXOffset, camChassisYOffset, camChassisZOffset),
-            new Rotation3d(0, 0, 0));
+            new Rotation3d(0, kCameraPitchRadians, 0));
+    public static final Transform3d robotToCamTwo =
+        new Transform3d(
+            new Translation3d(camChassisXOffset, -camChassisYOffset, camChassisZOffset),
+            new Rotation3d(0, kCameraPitchRadians, 0));
 
     public static final Matrix<N3, N1> kMultiTagStdDevs =
         VecBuilder.fill(0.5, 0.5, Double.POSITIVE_INFINITY);
@@ -101,14 +104,11 @@ public final class Constants {
         new PhotonPoseEstimator(
             aprilTagFieldLayout,
             PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-            VisionConstants.robotToCam);
+            VisionConstants.robotToCamOne);
     public static final PhotonPoseEstimator poseEstimatorTwo =
         new PhotonPoseEstimator(
             aprilTagFieldLayout,
             PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-            VisionConstants.robotToCam); // TODO need diff config for second camera
-
-    // a map of tag ids to corresponding tag heights on the field
-
+            VisionConstants.robotToCamTwo);
   }
 }
