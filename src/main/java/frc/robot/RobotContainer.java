@@ -26,8 +26,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.DriveConstants;
-import frc.robot.Constants.VisionConstants;
-import frc.robot.commands.AutoAimTest;
+import frc.robot.commands.AutoAim;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
@@ -37,8 +36,6 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.vision.Vision;
-import frc.robot.subsystems.vision.Vision.CamToEstimator;
-import java.util.List;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -51,7 +48,6 @@ public class RobotContainer {
   // Subsystems
   private final Drive drive;
   private final Vision vision;
-  private final Superstructure superstructure;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -96,13 +92,7 @@ public class RobotContainer {
         break;
     }
 
-    vision =
-        new Vision(
-            List.of(
-                new CamToEstimator(VisionConstants.aprilCamOne, VisionConstants.poseEstimatorOne),
-                new CamToEstimator(VisionConstants.aprilCamTwo, VisionConstants.poseEstimatorTwo)),
-            drive::updateEstimates);
-    superstructure = new Superstructure();
+    vision = new Vision(drive::updateEstimates);
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -153,7 +143,7 @@ public class RobotContainer {
                 Rotation2d::new));
 
     // Automatically align to April Tag
-    controller.y().whileTrue(new AutoAimTest(drive, controller));
+    controller.y().whileTrue(new AutoAim(drive, vision));
 
     // Switch to X pattern when X button is pressed
     controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));

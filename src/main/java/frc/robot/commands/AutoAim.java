@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.vision.Vision;
 import java.util.Optional;
 import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonTrackedTarget;
@@ -15,18 +16,21 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 /** Auto align to specified April Tag. */
 public class AutoAim extends Command {
   private final Drive drive;
+  private final Vision vision;
+  private PhotonTrackedTarget target = null;
 
-  public AutoAim(Drive drive) {
+  public AutoAim(Drive drive, Vision vision) {
     this.drive = drive;
-    addRequirements(drive);
+    this.vision = vision;
+    addRequirements(drive, vision);
   }
 
   @Override
   public void execute() {
     PhotonTrackedTarget target;
     Pose2d curPose = drive.getPose();
-    var camOne = VisionConstants.aprilCamOne.getAllUnreadResults();
-    var camTwo = VisionConstants.aprilCamTwo.getAllUnreadResults();
+    var camOne = vision.getCameraOne().getAllUnreadResults();
+    var camTwo = vision.getCameraTwo().getAllUnreadResults();
 
     if (!camOne.isEmpty() && !camTwo.isEmpty()) {
       var resultOne = camOne.get(camOne.size() - 1);
@@ -67,6 +71,7 @@ public class AutoAim extends Command {
       if (tagPose.isPresent()) {
         System.out.println("tag pose rot: " + tagPose.get().getRotation().toString());
         System.out.println("tag pose translation: " + tagPose.get().getTranslation().toString());
+        System.out.println("tag id is: " + target.getFiducialId());
         double tagHeight = tagPose.get().getZ();
         double distance =
             PhotonUtils.calculateDistanceToTargetMeters(
@@ -88,6 +93,8 @@ public class AutoAim extends Command {
               0,
               turnOutput * drive.getMaxAngularSpeedRadPerSec());
       drive.runVelocity(speeds);
+    } else {
+      System.out.println("no target detected");
     }
   }
 

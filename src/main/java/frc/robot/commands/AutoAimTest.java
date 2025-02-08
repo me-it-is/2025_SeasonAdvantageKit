@@ -8,21 +8,24 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.vision.Vision;
 import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 public class AutoAimTest extends Command {
   private Drive drive;
+  private Vision vision;
   private CommandXboxController controller;
   private double targetYaw;
   private double targetRange;
 
-  public AutoAimTest(Drive drive, CommandXboxController controller) {
+  public AutoAimTest(Drive drive, Vision vision, CommandXboxController controller) {
     this.drive = drive;
+    this.vision = vision;
     this.controller = controller;
     this.targetYaw = 0.0;
     this.targetRange = 0.0;
-    addRequirements(drive);
+    addRequirements(drive, vision);
   }
 
   @Override
@@ -36,8 +39,8 @@ public class AutoAimTest extends Command {
 
     PhotonTrackedTarget target = null;
     Pose2d curPose = drive.getPose();
-    var camOne = VisionConstants.aprilCamOne.getAllUnreadResults();
-    var camTwo = VisionConstants.aprilCamTwo.getAllUnreadResults();
+    var camOne = vision.getCameraOne().getAllUnreadResults();
+    var camTwo = vision.getCameraTwo().getAllUnreadResults();
 
     if (!camOne.isEmpty() && !camTwo.isEmpty()) {
       var resultOne = camOne.get(camOne.size() - 1);
@@ -72,18 +75,18 @@ public class AutoAimTest extends Command {
                 0.22225, // From 2025 game manual for ID 22
                 VisionConstants.kCameraPitchRadians, // Measured with a protractor, or in CAD.
                 Units.Degrees.of(target.getPitch()).in(Units.Radians));
+        turn =
+            DriveConstants.rotationController.calculate(
+                    curPose.getRotation().getDegrees(), targetYaw)
+                * DriveConstants.maxRotVelocity.in(Units.RadiansPerSecond);
+        forward =
+            DriveConstants.translationController.calculate(
+                    VisionConstants.tagDistSetpoint, targetRange)
+                * DriveConstants.maxTranslationSpeed.in(Units.MetersPerSecond);
       }
     } else {
       System.out.println("no target found");
     }
-
-    // Auto-align when requested
-    turn =
-        DriveConstants.rotationController.calculate(curPose.getRotation().getDegrees(), targetYaw)
-            * DriveConstants.maxRotVelocity.in(Units.RadiansPerSecond);
-    forward =
-        DriveConstants.translationController.calculate(VisionConstants.tagDistSetpoint, targetRange)
-            * DriveConstants.maxTranslationSpeed.in(Units.MetersPerSecond);
 
     System.out.println("target range: " + targetRange);
     System.out.println("forward: " + forward + " strafe: " + strafe + " turn: " + turn);

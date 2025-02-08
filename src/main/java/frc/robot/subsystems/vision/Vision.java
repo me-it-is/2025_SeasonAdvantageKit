@@ -31,8 +31,25 @@ public class Vision extends SubsystemBase {
   private List<CamToEstimator> cameras;
   private final Consumer<PoseEstimate> dtUpdateEstimate;
 
-  public Vision(List<CamToEstimator> cameras, Consumer<PoseEstimate> dtUpdateEstimate) {
-    this.cameras = cameras;
+  public static final PhotonCamera aprilCamOne = new PhotonCamera("aprilOne");
+  public static final PhotonCamera aprilCamTwo = new PhotonCamera("aprilTwo");
+
+  public static final PhotonPoseEstimator poseEstimatorOne =
+      new PhotonPoseEstimator(
+          VisionConstants.aprilTagFieldLayout,
+          PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+          VisionConstants.robotToCamOne);
+  public static final PhotonPoseEstimator poseEstimatorTwo =
+      new PhotonPoseEstimator(
+          VisionConstants.aprilTagFieldLayout,
+          PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+          VisionConstants.robotToCamTwo);
+
+  public Vision(Consumer<PoseEstimate> dtUpdateEstimate) {
+    this.cameras =
+        List.of(
+            new CamToEstimator(aprilCamOne, poseEstimatorOne),
+            new CamToEstimator(aprilCamTwo, poseEstimatorTwo));
     this.dtUpdateEstimate = dtUpdateEstimate;
     for (final var camToEstimator : this.cameras) {
       camToEstimator.estimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
@@ -161,5 +178,13 @@ public class Vision extends SubsystemBase {
 
   private static boolean rollIsInBounds(EstimateAndInfo estimateAndInfo) {
     return Math.abs(estimateAndInfo.visionEstimate.estimatedPose.getRotation().getY()) < 0.2;
+  }
+
+  public PhotonCamera getCameraOne() {
+    return aprilCamOne;
+  }
+
+  public PhotonCamera getCameraTwo() {
+    return aprilCamTwo;
   }
 }
