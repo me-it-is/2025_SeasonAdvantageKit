@@ -4,6 +4,7 @@ import com.ctre.phoenix6.StatusSignal;
 import edu.wpi.first.util.datalog.StringLogEntry;
 import frc.robot.util.Elastic.Notification;
 import frc.robot.util.Elastic.Notification.NotificationLevel;
+import java.util.Objects;
 import java.util.function.Function;
 
 public class Fault {
@@ -12,6 +13,13 @@ public class Fault {
   NotificationLevel level = NotificationLevel.WARNING;
   boolean hasFault;
   boolean hadFault;
+
+  private record FaultInfo(String header, String payload) {
+    public FaultInfo {
+      Objects.requireNonNull(header);
+      Objects.requireNonNull(payload);
+    }
+  }
 
   public Fault(Function<Boolean, StatusSignal<Boolean>> functionToCheckFault) {
     this.functionToCheckFault = functionToCheckFault;
@@ -37,18 +45,18 @@ public class Fault {
     hasFault = functionToCheckFault.apply(true).getValue();
   }
 
-  public Tuple<String, String> getFaultString(String subsystemName) {
-    return new Tuple<String, String>(
+  public FaultInfo getFaultString(String subsystemName) {
+    return new FaultInfo(
         subsystemName + "fault", faultName + " fault" + (hasFault ? "" : " resolved"));
   }
 
   public void sendNotification(String subsystemName) {
-    Tuple<String, String> faultString = getFaultString(subsystemName);
-    Elastic.sendNotification(new Notification(level, faultString.getT(), faultString.getV()));
+    FaultInfo faultInfo = getFaultString(subsystemName);
+    Elastic.sendNotification(new Notification(level, faultInfo.header, faultInfo.payload));
   }
 
   public void logFault(String subsystemName, StringLogEntry logEntry) {
-    Tuple<String, String> faultString = getFaultString(subsystemName);
-    logEntry.append(faultString.getT() + ". " + faultString.getV());
+    FaultInfo faultString = getFaultString(subsystemName);
+    logEntry.append(faultString.header + ". " + faultString.payload);
   }
 }
