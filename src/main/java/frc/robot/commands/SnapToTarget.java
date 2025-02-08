@@ -10,6 +10,7 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -36,7 +37,8 @@ public class SnapToTarget extends Command {
 
     // make path between start and end pose on the fly
     PathConstraints constraints = new PathConstraints(4.5, 3.5, 7, 10); // TODO estimated values fix
-    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(drivePose, scorePose);
+    // rotation of the waypoints are the direction of travelxx
+    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(new Pose2d(drivePose.getTranslation(), scorePose.getRotation()), scorePose);
     PathPlannerPath path =
         new PathPlannerPath(
             waypoints,
@@ -77,7 +79,12 @@ public class SnapToTarget extends Command {
           minPose = scoringPoses.get(i);
         }
       }
-      return minPose;
+      Translation2d driveTranslation = drivePose.getTranslation();
+      Translation2d scorringTranslation = minPose.getTranslation();
+      
+      Translation2d movementVector = scorringTranslation.minus(driveTranslation);
+      Rotation2d directionToScore = movementVector.getAngle();
+      return new Pose2d(scorringTranslation, directionToScore);
     }
     return drivePose;
   }
