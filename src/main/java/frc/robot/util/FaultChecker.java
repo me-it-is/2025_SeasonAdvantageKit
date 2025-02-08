@@ -4,6 +4,9 @@ import frc.robot.util.Elastic.Notification.NotificationLevel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.datalog.StringLogEntry;
 
 public class FaultChecker {
   public List<Fault> warningFaults = new ArrayList<>();
@@ -11,15 +14,18 @@ public class FaultChecker {
 
   public String subsystemName;
 
+  private DataLog log = DataLogManager.getLog();
+  private StringLogEntry stringLog = new StringLogEntry(log, subsystemName);
   public FaultChecker(String subsytemName) {
     this.subsystemName = subsytemName;
+    DataLogManager.start();
   }
 
   public void updateFaults() {
     for (Fault f : warningFaults) {
       f.updateFault();
       if (f.hasFault != f.hadFault) {
-        f.sendNotification(subsystemName);
+        f.logFault(subsystemName, stringLog);
       }
     }
     for (Fault f : errorFaults) {
@@ -60,18 +66,6 @@ public class FaultChecker {
     }
     if (errorFaults != null && fault.level == NotificationLevel.ERROR) {
       this.errorFaults.add(fault);
-    }
-  }
-
-  public void sendErrorNotifications() {
-    for (Fault f : errorFaults) {
-      f.sendNotification(subsystemName);
-    }
-  }
-
-  public void sendWarningNotifications() {
-    for (Fault f : warningFaults) {
-      f.sendNotification(subsystemName);
     }
   }
 
