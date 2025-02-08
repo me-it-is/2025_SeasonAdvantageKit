@@ -1,12 +1,12 @@
 package frc.robot.util;
 
+import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.datalog.StringLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 import frc.robot.util.Elastic.Notification.NotificationLevel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
-import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.util.datalog.DataLog;
-import edu.wpi.first.util.datalog.StringLogEntry;
 
 public class FaultChecker {
   public List<Fault> warningFaults = new ArrayList<>();
@@ -16,6 +16,7 @@ public class FaultChecker {
 
   private DataLog log = DataLogManager.getLog();
   private StringLogEntry stringLog = new StringLogEntry(log, subsystemName);
+
   public FaultChecker(String subsytemName) {
     this.subsystemName = subsytemName;
     DataLogManager.start();

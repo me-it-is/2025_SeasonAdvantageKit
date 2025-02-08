@@ -1,7 +1,6 @@
 package frc.robot.util;
 
 import com.ctre.phoenix6.StatusSignal;
-
 import edu.wpi.first.util.datalog.StringLogEntry;
 import frc.robot.util.Elastic.Notification;
 import frc.robot.util.Elastic.Notification.NotificationLevel;
@@ -39,14 +38,13 @@ public class Fault {
   }
 
   public Tuple<String, String> getFaultString(String subsystemName) {
-    return new Tuple<String, String>(subsystemName + "fault", faultName + " fault" + (hasFault ? "" : " resolved"));
+    return new Tuple<String, String>(
+        subsystemName + "fault", faultName + " fault" + (hasFault ? "" : " resolved"));
   }
 
   public void sendNotification(String subsystemName) {
     Tuple<String, String> faultString = getFaultString(subsystemName);
-    Elastic.sendNotification(
-        new Notification(
-            level, faultString.getT(), faultString.getV()));
+    Elastic.sendNotification(new Notification(level, faultString.getT(), faultString.getV()));
   }
 
   public void logFault(String subsystemName, StringLogEntry logEntry) {
