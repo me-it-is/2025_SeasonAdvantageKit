@@ -92,6 +92,6 @@ public class GyroIOPigeon2 implements GyroIO {
 
   public boolean updateFaults() {
     pigeonFaults.updateFaults();
-    return !pigeonFaults.isHealthy();
+    return pigeonFaults.isHealthy();
   }
 }
