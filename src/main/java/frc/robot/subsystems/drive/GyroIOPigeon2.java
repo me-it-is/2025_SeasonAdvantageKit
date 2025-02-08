@@ -90,8 +90,7 @@ public class GyroIOPigeon2 implements GyroIO {
 
   public FaultChecker pigeonFaults = new FaultChecker("pigeon2");
 
-  public boolean updateFaults() {
+  public void updateFaults() {
     pigeonFaults.updateFaults();
-    return pigeonFaults.isHealthy();
   }
 }

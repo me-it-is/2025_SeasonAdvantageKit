@@ -43,6 +43,8 @@ import edu.wpi.first.units.measure.Voltage;
 import frc.robot.generated.TunerConstants;
 import frc.robot.util.Fault;
 import frc.robot.util.FaultChecker;
+
+import java.time.Period;
 import java.util.Queue;
 
 /**
@@ -311,14 +313,11 @@ public class ModuleIOTalonFX implements ModuleIO {
   public FaultChecker turnTalonFaultChecker = new FaultChecker("turn talon");
   public FaultChecker driveTalonFaultChecker = new FaultChecker("drive talon");
   public FaultChecker CANcoderFaultChecker = new FaultChecker("swerve CANcoder");
-
-  public boolean updateFaults() {
+  
+  @Override
+  public void updateFaults() {
     turnTalonFaultChecker.updateFaults();
     driveTalonFaultChecker.updateFaults();
     CANcoderFaultChecker.updateFaults();
-
-    return turnTalonFaultChecker.isHealthy()
-        && driveTalonFaultChecker.isHealthy()
-        && CANcoderFaultChecker.isHealthy();
   }
 }

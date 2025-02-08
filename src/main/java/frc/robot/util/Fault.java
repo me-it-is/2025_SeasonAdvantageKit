@@ -24,9 +24,8 @@ public class Fault {
     }
   }
   /**
-   * 
-   * @param functionToCheckFault function that indicates whether a particular fault has occurred 
-   * (e.g. TalonFX.getFault_DeviceTemp indicated whether a talon is overheated)
+   * @param functionToCheckFault function that indicates whether a particular fault has occurred
+   *     (e.g. TalonFX.getFault_DeviceTemp indicated whether a talon is overheated)
    */
   public Fault(Function<Boolean, StatusSignal<Boolean>> functionToCheckFault) {
     this.functionToCheckFault = functionToCheckFault;
@@ -35,11 +34,9 @@ public class Fault {
     faultName = functionToCheckFault.toString().replace("getFault_", "");
   }
 
-/**
-   * 
-   * @param functionToCheckFault function that indicates whether a particular fault has occurred 
-   * (e.g. TalonFX.getFault_DeviceTemp indicated whether a talon is overheated)
-   * 
+  /**
+   * @param functionToCheckFault function that indicates whether a particular fault has occurred
+   *     (e.g. TalonFX.getFault_DeviceTemp indicated whether a talon is overheated)
    * @param name the name of the fault
    */
   public Fault(Function<Boolean, StatusSignal<Boolean>> functionToCheckFault, String name) {
@@ -47,11 +44,10 @@ public class Fault {
     this.faultName = name;
   }
   /**
-   * 
-   * @param functionToCheckFault function that indicates whether a particular fault has occurred 
-   * (e.g. TalonFX.getFault_DeviceTemp indicated whether a talon is overheated)
-   * @param notificationLevel the sevarity of the fault (see {@link NotificationLevel}). 
-   * NotificationLevel.INFO is ignored 
+   * @param functionToCheckFault function that indicates whether a particular fault has occurred
+   *     (e.g. TalonFX.getFault_DeviceTemp indicated whether a talon is overheated)
+   * @param notificationLevel the sevarity of the fault (see {@link NotificationLevel}).
+   *     NotificationLevel.INFO is ignored
    */
   public Fault(
       Function<Boolean, StatusSignal<Boolean>> functionToCheckFault,
@@ -61,15 +57,16 @@ public class Fault {
     this.level = notificationLevel;
   }
   /**
-   * 
-   * @param functionToCheckFault function that indicates whether a particular fault has occurred 
-   * (e.g. TalonFX.getFault_DeviceTemp indicated whether a talon is overheated)
-   * @param notificationLevel the sevarity of the fault (see {@link NotificationLevel}). 
-   * NotificationLevel.INFO is ignored 
+   * @param functionToCheckFault function that indicates whether a particular fault has occurred
+   *     (e.g. TalonFX.getFault_DeviceTemp indicated whether a talon is overheated)
+   * @param notificationLevel the sevarity of the fault (see {@link NotificationLevel}).
+   *     NotificationLevel.INFO is ignored
    * @param name the name of the fault
    */
-  public Fault(Function<Boolean, StatusSignal<Boolean>> functionToCheckFault,
-  NotificationLevel notificationLevel, String name) {
+  public Fault(
+      Function<Boolean, StatusSignal<Boolean>> functionToCheckFault,
+      NotificationLevel notificationLevel,
+      String name) {
     this.functionToCheckFault = functionToCheckFault;
     this.faultName = name;
     this.level = notificationLevel;
