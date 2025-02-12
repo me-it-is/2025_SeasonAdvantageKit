@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.VisionConstants;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -62,7 +63,6 @@ public class Vision extends SubsystemBase {
 
   @Override
   public void periodic() {
-
     var allUnreadResults =
         this.cameras.stream()
             .flatMap(c -> c.photonCamera().getAllUnreadResults().stream())
@@ -80,17 +80,34 @@ public class Vision extends SubsystemBase {
     .filter(Vision::rollIsInBounds)
     .map(Vision::generatePoseEstimate)
     .forEach(dtUpdateEstimate); // updates drivetrain swerve pose estimator with vision measurement*/
+    allUnreadResults.forEach(
+        res -> {
+          if (res.getBestTarget() == null) {
+            System.out.println("Null best target");
+          } else {
+            int fiducialId = res.getBestTarget().getFiducialId();
+            System.out.println("Processing tag ID: " + fiducialId);
 
-    System.out.println(allUnreadResults);
+            Optional<Pose3d> pose = VisionConstants.aprilTagFieldLayout.getTagPose(fiducialId);
+            if (pose.isEmpty()) {
+              System.out.println("No pose found for tag ID: " + fiducialId);
+            } else {
+              bestTags.add(pose.get());
+            }
+          }
+        });
 
+    bestTags.clear(); // clear to only have latest results
     allUnreadResults.stream()
+        .filter(result -> result.hasTargets())
         .map(res -> res.getBestTarget())
+        .filter(Objects::nonNull)
         .map(PhotonTrackedTarget::getFiducialId)
+        .filter(Objects::nonNull)
         .map(VisionConstants.aprilTagFieldLayout::getTagPose)
         .filter(Optional::isPresent)
         .map(Optional::get)
-        .forEach(res -> bestTags.add(res)); // this will probably crash whelp
-    // .toArray(Pose3d[]::new);
+        .forEach(bestTags::add);
   }
 
   public List<Pose3d> getBestTags() {
