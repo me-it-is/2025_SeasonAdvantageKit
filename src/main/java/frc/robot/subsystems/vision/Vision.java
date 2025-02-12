@@ -92,7 +92,7 @@ public class Vision extends SubsystemBase {
             if (pose.isEmpty()) {
               System.out.println("No pose found for tag ID: " + fiducialId);
             } else {
-              bestTags.add(pose.get());
+              System.out.println("pose of tag is: " + pose.get());
             }
           }
         });
