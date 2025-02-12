@@ -1,15 +1,15 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.DriveConstants;
-import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.vision.Vision;
-import org.photonvision.PhotonUtils;
+import java.util.List;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 public class AutoAimTest extends Command {
@@ -39,10 +39,14 @@ public class AutoAimTest extends Command {
 
     PhotonTrackedTarget target = null;
     Pose2d curPose = drive.getPose();
-    var camOne = vision.getCameraOne().getAllUnreadResults();
-    var camTwo = vision.getCameraTwo().getAllUnreadResults();
-
-    if (!camOne.isEmpty() && !camTwo.isEmpty()) {
+    // var camOne = vision.getCameraOne().getAllUnreadResults();
+    List<Pose3d> bestTaggies = vision.getBestTags();
+    if (bestTaggies != null) {
+      if (bestTaggies.size() != 0) {
+        System.out.println("pose is: " + bestTaggies.get(0));
+      }
+    }
+    /*if (!camOne.isEmpty() && !camTwo.isEmpty()) {
       var resultOne = camOne.get(camOne.size() - 1);
       var resultTwo = camTwo.get(camTwo.size() - 1);
       if (resultOne.hasTargets() && resultTwo.hasTargets()) {
@@ -55,8 +59,9 @@ public class AutoAimTest extends Command {
       var resultOne = camOne.get(camOne.size() - 1);
       if (resultOne.hasTargets()) {
         target = resultOne.getBestTarget();
-      }
-    } else if (!camTwo.isEmpty()) {
+    }
+
+    if (!camTwo.isEmpty()) {
       var resultTwo = camTwo.get(camTwo.size() - 1);
       if (resultTwo.hasTargets()) {
         target = resultTwo.getBestTarget();
@@ -86,7 +91,7 @@ public class AutoAimTest extends Command {
       }
     } else {
       System.out.println("no target found");
-    }
+    }*/
 
     System.out.println("target range: " + targetRange);
     System.out.println("forward: " + forward + " strafe: " + strafe + " turn: " + turn);

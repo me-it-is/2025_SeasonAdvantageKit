@@ -26,7 +26,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.DriveConstants;
-import frc.robot.commands.AutoAim;
+import frc.robot.commands.AutoAimTest;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
@@ -143,7 +143,7 @@ public class RobotContainer {
                 Rotation2d::new));
 
     // Automatically align to April Tag
-    controller.y().whileTrue(new AutoAim(drive, vision));
+    controller.y().whileTrue(new AutoAimTest(drive, vision, controller));
 
     // Switch to X pattern when X button is pressed
     controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));

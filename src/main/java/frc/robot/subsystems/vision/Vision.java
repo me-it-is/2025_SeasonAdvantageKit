@@ -7,6 +7,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.VisionConstants;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -15,6 +16,7 @@ import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 public class Vision extends SubsystemBase {
@@ -45,6 +47,8 @@ public class Vision extends SubsystemBase {
           PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
           VisionConstants.robotToCamTwo);
 
+  private List<Pose3d> bestTags = new ArrayList<>();
+
   public Vision(Consumer<PoseEstimate> dtUpdateEstimate) {
     this.cameras =
         List.of(
@@ -58,36 +62,39 @@ public class Vision extends SubsystemBase {
 
   @Override
   public void periodic() {
-    this.cameras.stream()
-        .map(Vision::updateAngGetEstimate)
-        .flatMap(Optional::stream)
-        .filter(Vision::isUsingTwoTags)
-        .filter(Vision::zIsRight)
-        .filter(Vision::isOnField)
-        .filter(Vision::maxDistanceIsInThreshold)
-        .filter(Vision.isAmbiguityLess(0.25))
-        .filter(Vision::pitchIsInBounds)
-        .filter(Vision::rollIsInBounds)
-        .map(Vision::generatePoseEstimate)
-        .forEach(
-            dtUpdateEstimate); // updates drivetrain swerve pose estimator with vision measurement
-  }
 
-  public Pose3d[] getSeenTags() {
-    return cameras.stream()
-        .filter(c -> !c.photonCamera().getAllUnreadResults().isEmpty())
-        .flatMap(
-            c ->
-                c
-                    .photonCamera()
-                    .getAllUnreadResults()
-                    .get(c.photonCamera().getAllUnreadResults().size() - 1)
-                    .targets
-                    .stream())
+    var allUnreadResults =
+        this.cameras.stream()
+            .flatMap(c -> c.photonCamera().getAllUnreadResults().stream())
+            .toList();
+
+    /*this.cameras.stream()
+    .map(c -> Vision.updateAngGetEstimate(c, allUnreadResults))
+    .flatMap(Optional::stream)
+    .filter(Vision::isUsingTwoTags)
+    .filter(Vision::zIsRight)
+    .filter(Vision::isOnField)
+    .filter(Vision::maxDistanceIsInThreshold)
+    .filter(Vision.isAmbiguityLess(0.25))
+    .filter(Vision::pitchIsInBounds)
+    .filter(Vision::rollIsInBounds)
+    .map(Vision::generatePoseEstimate)
+    .forEach(dtUpdateEstimate); // updates drivetrain swerve pose estimator with vision measurement*/
+
+    System.out.println(allUnreadResults);
+
+    allUnreadResults.stream()
+        .map(res -> res.getBestTarget())
         .map(PhotonTrackedTarget::getFiducialId)
         .map(VisionConstants.aprilTagFieldLayout::getTagPose)
+        .filter(Optional::isPresent)
         .map(Optional::get)
-        .toArray(Pose3d[]::new);
+        .forEach(res -> bestTags.add(res)); // this will probably crash whelp
+    // .toArray(Pose3d[]::new);
+  }
+
+  public List<Pose3d> getBestTags() {
+    return this.bestTags;
   }
 
   private static PoseEstimate generatePoseEstimate(EstimateAndInfo estimateAndInfo) {
@@ -104,8 +111,8 @@ public class Vision extends SubsystemBase {
     return new PoseEstimate(estimateAndInfo.visionEstimate, stdDevs);
   }
 
-  private static Optional<EstimateAndInfo> updateAngGetEstimate(CamToEstimator camToEstimator) {
-    var results = camToEstimator.photonCamera.getAllUnreadResults();
+  private static Optional<EstimateAndInfo> updateAngGetEstimate(
+      CamToEstimator camToEstimator, List<PhotonPipelineResult> results) {
     if (!results.isEmpty()) {
       final var latestResult = results.get(results.size() - 1);
       if (!latestResult.hasTargets()) {

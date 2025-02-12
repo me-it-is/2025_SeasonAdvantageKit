@@ -38,7 +38,9 @@ public class SnapToTarget extends Command {
     // make path between start and end pose on the fly
     PathConstraints constraints = new PathConstraints(4.5, 3.5, 7, 10); // TODO estimated values fix
     // rotation of the waypoints are the direction of travelxx
-    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(new Pose2d(drivePose.getTranslation(), scorePose.getRotation()), scorePose);
+    List<Waypoint> waypoints =
+        PathPlannerPath.waypointsFromPoses(
+            new Pose2d(drivePose.getTranslation(), scorePose.getRotation()), scorePose);
     PathPlannerPath path =
         new PathPlannerPath(
             waypoints,
@@ -81,7 +83,7 @@ public class SnapToTarget extends Command {
       }
       Translation2d driveTranslation = drivePose.getTranslation();
       Translation2d scorringTranslation = minPose.getTranslation();
-      
+
       Translation2d movementVector = scorringTranslation.minus(driveTranslation);
       Rotation2d directionToScore = movementVector.getAngle();
       return new Pose2d(scorringTranslation, directionToScore);
