@@ -83,6 +83,10 @@ public final class Constants {
     public static final double camChassisYOffset = -0.254;
     public static final double camChassisZOffset = 0.1143;
 
+    // TODO placeholder offsets, need tuning
+    public static final Distance tagXOffset = Meters.of(0.1);
+    public static final Distance tagYOffset = Meters.of(0.2);
+
     public static final double tagDistSetpoint = 0.1;
     public static final double kCameraPitchRadians = Math.PI / 3;
     public static final Transform3d robotToCamOne =

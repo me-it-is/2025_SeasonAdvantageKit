@@ -10,7 +10,9 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -37,20 +39,22 @@ public class SnapToTarget extends Command {
 
     // make path between start and end pose on the fly
     PathConstraints constraints = new PathConstraints(4.5, 3.5, 7, 10); // TODO estimated values fix
-    // rotation of the waypoints are the direction of travelxx
+    // final pose should be slightly offset from april tag position
+    Pose2d finalPose =
+        scorePose.plus(
+            new Transform2d(
+                VisionConstants.tagXOffset.in(Units.Meters)
+                    * (DriverStation.getAlliance().get() == Alliance.Blue ? 1 : -1),
+                VisionConstants.tagYOffset.in(Units.Meters),
+                new Rotation2d()));
     List<Waypoint> waypoints =
         PathPlannerPath.waypointsFromPoses(
-            new Pose2d(drivePose.getTranslation(), scorePose.getRotation()), scorePose);
+            new Pose2d(drivePose.getTranslation(), scorePose.getRotation()), finalPose);
     PathPlannerPath path =
         new PathPlannerPath(
             waypoints,
             constraints,
-            new IdealStartingState(
-                0,
-                drivePose
-                    .getRotation()), // this is only relevant for pre-planned paths, so can be null
-            // for on-the-fly
-            // paths
+            new IdealStartingState(0, drivePose.getRotation()),
             new GoalEndState(0.0, Rotation2d.fromDegrees(0.0)));
 
     Command pathFollow = AutoBuilder.followPath(path);
@@ -82,11 +86,18 @@ public class SnapToTarget extends Command {
         }
       }
       Translation2d driveTranslation = drivePose.getTranslation();
-      Translation2d scorringTranslation = minPose.getTranslation();
+      Translation2d scoringTranslation = minPose.getTranslation();
+      // mirror pose if red alliance to account for field to robot coordinate conversion
+      if (alliance.get() == Alliance.Red) {
+        scoringTranslation =
+            new Translation2d(
+                VisionConstants.kFieldWidth.in(Units.Meters) - scoringTranslation.getX(),
+                scoringTranslation.getY());
+      }
 
-      Translation2d movementVector = scorringTranslation.minus(driveTranslation);
+      Translation2d movementVector = scoringTranslation.minus(driveTranslation);
       Rotation2d directionToScore = movementVector.getAngle();
-      return new Pose2d(scorringTranslation, directionToScore);
+      return new Pose2d(scoringTranslation, directionToScore);
     }
     return drivePose;
   }
