@@ -8,7 +8,9 @@ import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.VisionConstants;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -49,6 +51,7 @@ public class Vision extends SubsystemBase {
           VisionConstants.robotToCamTwo);
 
   private List<Pose3d> bestTags = new ArrayList<>();
+  private Map<Pose3d, Integer> poseToTag = new HashMap<>();
 
   public Vision(Consumer<PoseEstimate> dtUpdateEstimate) {
     this.cameras =
