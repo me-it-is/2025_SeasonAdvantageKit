@@ -33,6 +33,9 @@ public class Vision extends SubsystemBase {
   /** static class containing Photon Camera and corresponding Photon Pose Estimator */
   public static record CamToEstimator(PhotonCamera photonCamera, PhotonPoseEstimator estimator) {}
 
+  /** Tag id and tag Pose3d on field */
+  public static record TagInfo(Integer tagId, Optional<Pose3d> tagPose) {}
+
   private List<CamToEstimator> cameras;
   private final Consumer<PoseEstimate> dtUpdateEstimate;
 
@@ -49,9 +52,7 @@ public class Vision extends SubsystemBase {
           VisionConstants.aprilTagFieldLayout,
           PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
           VisionConstants.robotToCamTwo);
-
-  private List<Pose3d> bestTags = new ArrayList<>();
-  private Map<Pose3d, Integer> poseToTag = new HashMap<>();
+  private List<TagInfo> bestTags = new ArrayList<>();
 
   public Vision(Consumer<PoseEstimate> dtUpdateEstimate) {
     this.cameras =
@@ -107,13 +108,11 @@ public class Vision extends SubsystemBase {
         .filter(Objects::nonNull)
         .map(PhotonTrackedTarget::getFiducialId)
         .filter(Objects::nonNull)
-        .map(VisionConstants.aprilTagFieldLayout::getTagPose)
-        .filter(Optional::isPresent)
-        .map(Optional::get)
+        .map(tagId -> new TagInfo(tagId, VisionConstants.aprilTagFieldLayout.getTagPose(tagId)))
         .forEach(bestTags::add);
   }
 
-  public List<Pose3d> getBestTags() {
+  public List<TagInfo> getBestTags() {
     return this.bestTags;
   }
 

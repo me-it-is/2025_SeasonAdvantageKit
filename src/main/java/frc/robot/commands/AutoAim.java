@@ -12,6 +12,8 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.Vision.TagInfo;
+
 import java.util.List;
 import org.photonvision.PhotonUtils;
 
@@ -48,19 +50,19 @@ public class AutoAim extends Command {
     double turn =
         -controller.getRightX() * DriveConstants.maxRotVelocity.in(Units.RadiansPerSecond);
 
+    int targetId = -1;
     Pose3d target = null;
     Pose2d curPose = drive.getPose();
-    List<Pose3d> bestTaggies = vision.getBestTags();
+    List<TagInfo> bestTaggies = vision.getBestTags();
     if (bestTaggies != null) {
       if (bestTaggies.size() != 0) {
-        System.out.println("pose is: " + bestTaggies.get(0));
+        TagInfo tagInfo = bestTaggies.get(bestTaggies.size() - 1);
+        targetId = tagInfo.tagId();
+        target = tagInfo.tagPose().get();
+        System.out.println("pose is: " + target);
       }
     }
 
-    List<Pose3d> targets = vision.getBestTags();
-    if (targets.size() != 0) {
-      target = targets.get(targets.size() - 1);
-    }
     if (target == null) {
       System.out.println("no target found");
       drive.runVelocity(new ChassisSpeeds(0.0, 0.0, 0.0));
@@ -70,9 +72,9 @@ public class AutoAim extends Command {
       targetYaw = Radians.of(target.getRotation().getZ()).in(Units.Degrees);
       targetRange =
           PhotonUtils.calculateDistanceToTargetMeters(
-              VisionConstants.camChassisZOffset, // Measured with a tape measure, or in CAD.
-              VisionConstants.aprilTagFieldLayout.getTagPose(0).get().getTranslation().getZ(), // TODO set tag id
-              VisionConstants.kCameraPitchRadians, // Measured with a protractor, or in CAD.
+              VisionConstants.camChassisZOffset,
+              VisionConstants.aprilTagFieldLayout.getTagPose(targetId).get().getTranslation().getZ(),
+              VisionConstants.kCameraPitchRadians,
               target.getRotation().getX());
 
       double curRot = curPose.getRotation().getDegrees();
