@@ -84,17 +84,17 @@ public class Vision extends SubsystemBase {
         res -> {
           if (res.getBestTarget() == null) {
             System.out.println("Null best target");
-          } else {
-            int fiducialId = res.getBestTarget().getFiducialId();
-            System.out.println("Processing tag ID: " + fiducialId);
-
-            Optional<Pose3d> pose = VisionConstants.aprilTagFieldLayout.getTagPose(fiducialId);
-            if (pose.isEmpty()) {
-              System.out.println("No pose found for tag ID: " + fiducialId);
-            } else {
-              System.out.println("pose of tag is: " + pose.get());
-            }
+            return;
           }
+          int fiducialId = res.getBestTarget().getFiducialId();
+          System.out.println("Processing tag ID: " + fiducialId);
+
+          Optional<Pose3d> pose = VisionConstants.aprilTagFieldLayout.getTagPose(fiducialId);
+          if (pose.isEmpty()) {
+            System.out.println("No pose found for tag ID: " + fiducialId);
+            return;
+          }
+          System.out.println("pose of tag is: " + pose.get());
         });
 
     bestTags.clear(); // clear to only have latest results
