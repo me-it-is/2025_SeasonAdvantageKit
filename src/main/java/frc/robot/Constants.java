@@ -13,6 +13,7 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Newtons;
@@ -28,6 +29,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Force;
@@ -82,6 +84,9 @@ public final class Constants {
     public static final double camChassisXOffset = 0.0;
     public static final double camChassisYOffset = -0.254;
     public static final double camChassisZOffset = 0.1143;
+
+    public static final Angle minAngError = Degrees.of(5);
+    public static final Distance minTransError = Meters.of(0.05);
 
     // TODO placeholder offsets, need tuning
     public static final Distance tagXOffset = Meters.of(0.1);
