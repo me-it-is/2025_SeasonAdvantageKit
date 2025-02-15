@@ -1,11 +1,10 @@
 package frc.robot.commands;
 
-import static edu.wpi.first.units.Units.Radians;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.DriveConstants;
@@ -20,9 +19,11 @@ public class AutoAim extends Command {
   private Drive drive;
   private Vision vision;
   private CommandXboxController controller;
+  private Timer timer;
+  private double initTime;
+
   private double targetYaw;
   private double targetRange;
-
   private double angErr;
   private double transErr;
 
@@ -37,6 +38,8 @@ public class AutoAim extends Command {
 
   @Override
   public void initialize() {
+    timer = new Timer();
+    initTime = timer.get();
     angErr = VisionConstants.minAngError.in(Units.Degrees);
     transErr = VisionConstants.minTransError.in(Units.Meters);
   }
@@ -56,6 +59,7 @@ public class AutoAim extends Command {
     List<TagInfo> bestTaggies = vision.getBestTags();
     if (bestTaggies != null) {
       if (bestTaggies.size() != 0) {
+        System.out.println("all tag data: " + bestTaggies);
         TagInfo tagInfo = bestTaggies.get(bestTaggies.size() - 1);
         targetId = tagInfo.tagId();
         target = tagInfo.tagPose().get();
@@ -69,15 +73,15 @@ public class AutoAim extends Command {
       return;
     }
     System.out.println("found tag");
-    targetYaw = Radians.of(target.getRotation().getZ()).in(Units.Degrees);
+    targetYaw = PhotonUtils.getYawToPose(curPose, target.toPose2d()).getDegrees();
     targetRange =
         PhotonUtils.calculateDistanceToTargetMeters(
             VisionConstants.camChassisZOffset,
-            VisionConstants.aprilTagFieldLayout.getTagPose(targetId).get().getTranslation().getZ(),
+            target.getZ(),
             VisionConstants.kCameraPitchRadians,
             target.getRotation().getX());
 
-    double curRot = drive.getRotation().getDegrees() % 360;
+    double curRot = curPose.getRotation().getDegrees(); // drive.getRotation().getDegrees() % 360;
     angErr = Math.abs(curRot - targetYaw);
     System.out.println("cur ang rot: " + curRot);
     turn =
@@ -85,7 +89,7 @@ public class AutoAim extends Command {
             * DriveConstants.maxRotVelocity.in(Units.RadiansPerSecond);
     transErr = Math.abs(targetRange - VisionConstants.tagDistSetpoint);
     forward =
-        DriveConstants.translationController.calculate(VisionConstants.tagDistSetpoint, targetRange)
+        DriveConstants.translationController.calculate(targetRange, VisionConstants.tagDistSetpoint)
             * DriveConstants.maxTranslationSpeed.in(Units.MetersPerSecond);
     System.out.println("target range: " + targetRange);
     // Command drivetrain motors based on target speeds
@@ -96,8 +100,11 @@ public class AutoAim extends Command {
   public boolean isFinished() {
     System.out.println("cur angle error in degrees: " + angErr);
     System.out.println("cur translation error in meters: " + transErr);
-    if (angErr < VisionConstants.minAngError.in(Units.Degrees)
-        && transErr < VisionConstants.minTransError.in(Units.Meters)) {
+    double timeDiff = timer.get() - initTime;
+    System.out.println("time diff is: " + timeDiff);
+    if ((angErr < VisionConstants.minAngError.in(Units.Degrees)
+            && transErr < VisionConstants.minTransError.in(Units.Meters))
+        || timeDiff > 5) {
       return true;
     }
     return false;

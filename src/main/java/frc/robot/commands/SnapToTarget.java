@@ -36,7 +36,6 @@ public class SnapToTarget extends Command {
   public void initialize() {
     Pose2d drivePose = drive.getPose();
     Pose2d scorePose = getClosestScoringPose(drivePose);
-
     // make path between start and end pose on the fly
     PathConstraints constraints = new PathConstraints(4.5, 3.5, 7, 10); // TODO estimated values fix
     // final pose should be slightly offset from april tag position
@@ -47,9 +46,7 @@ public class SnapToTarget extends Command {
                     * (DriverStation.getAlliance().get() == Alliance.Blue ? 1 : -1),
                 VisionConstants.tagYOffset.in(Units.Meters),
                 new Rotation2d()));
-    List<Waypoint> waypoints =
-        PathPlannerPath.waypointsFromPoses(
-            new Pose2d(drivePose.getTranslation(), scorePose.getRotation()), finalPose);
+    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(drivePose, finalPose);
     PathPlannerPath path =
         new PathPlannerPath(
             waypoints,

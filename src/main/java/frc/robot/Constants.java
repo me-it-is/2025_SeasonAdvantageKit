@@ -63,10 +63,10 @@ public final class Constants {
   public static class DriveConstants {
     public static final LinearVelocity maxTranslationSpeed = MetersPerSecond.of(10);
     public static final AngularVelocity maxRotVelocity = RadiansPerSecond.of(4 * Math.PI);
-    public static final double DRIVE_DEADBAND = 0.02;
+    public static final double DRIVE_DEADBAND = 0.05;
     public static final Distance TAG_DISTANCE = Meters.of(0.3);
     public static final PIDController translationController = new PIDController(0.5, 0.001, 0);
-    public static final PIDController rotationController = new PIDController(0.07, 0, 0);
+    public static final PIDController rotationController = new PIDController(0.01, 0, 0);
 
     public static final PIDController tipControllerX = new PIDController(0.25, 0, 0.1);
     public static final PIDController tipControllerY = new PIDController(0.25, 0, 0.1);

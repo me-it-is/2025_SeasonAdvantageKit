@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.commands.AutoAim;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.SnapToTarget;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -132,25 +133,18 @@ public class RobotContainer {
             () -> MathUtil.applyDeadband(controller.getLeftX(), DriveConstants.DRIVE_DEADBAND),
             () -> MathUtil.applyDeadband(-controller.getRightX(), DriveConstants.DRIVE_DEADBAND)));
 
-    // Lock to 0° when A button is held
-    controller
-        .a()
-        .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                drive,
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX(),
-                Rotation2d::new));
+    // Rotate and translate to closest April Tag based on tag odometry
+    controller.b().whileTrue(new AutoAim(drive, vision, controller));
 
-    // Automatically align to April Tag
-    controller.y().onTrue(new AutoAim(drive, vision, controller));
+    // Automatically align to April Tag based on pose data
+    controller.y().onTrue(new SnapToTarget(drive));
 
     // Switch to X pattern when X button is pressed
     controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
-    // Reset gyro to 0° when B button is pressed
+    // Reset gyro to 0° when A button is pressed
     controller
-        .b()
+        .a()
         .onTrue(
             Commands.runOnce(
                     () ->
