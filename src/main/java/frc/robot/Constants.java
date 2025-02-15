@@ -66,7 +66,7 @@ public final class Constants {
     public static final double DRIVE_DEADBAND = 0.02;
     public static final Distance TAG_DISTANCE = Meters.of(0.3);
     public static final PIDController translationController = new PIDController(0.5, 0.001, 0);
-    public static final PIDController rotationController = new PIDController(0.3, 0, 0.05);
+    public static final PIDController rotationController = new PIDController(0.07, 0, 0);
 
     public static final PIDController tipControllerX = new PIDController(0.25, 0, 0.1);
     public static final PIDController tipControllerY = new PIDController(0.25, 0, 0.1);
@@ -92,7 +92,7 @@ public final class Constants {
     public static final Distance tagXOffset = Meters.of(0.1);
     public static final Distance tagYOffset = Meters.of(0.2);
 
-    public static final double tagDistSetpoint = 0.1;
+    public static final double tagDistSetpoint = 0.01;
     public static final double kCameraPitchRadians = Math.PI / 3;
     public static final Transform3d robotToCamOne =
         new Transform3d(

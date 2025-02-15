@@ -13,7 +13,6 @@ import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.Vision.TagInfo;
-
 import java.util.List;
 import org.photonvision.PhotonUtils;
 
@@ -23,6 +22,7 @@ public class AutoAim extends Command {
   private CommandXboxController controller;
   private double targetYaw;
   private double targetRange;
+
   private double angErr;
   private double transErr;
 
@@ -69,28 +69,27 @@ public class AutoAim extends Command {
       return;
     }
     System.out.println("found tag");
-      targetYaw = Radians.of(target.getRotation().getZ()).in(Units.Degrees);
-      targetRange =
-          PhotonUtils.calculateDistanceToTargetMeters(
-              VisionConstants.camChassisZOffset,
-              VisionConstants.aprilTagFieldLayout.getTagPose(targetId).get().getTranslation().getZ(),
-              VisionConstants.kCameraPitchRadians,
-              target.getRotation().getX());
+    targetYaw = Radians.of(target.getRotation().getZ()).in(Units.Degrees);
+    targetRange =
+        PhotonUtils.calculateDistanceToTargetMeters(
+            VisionConstants.camChassisZOffset,
+            VisionConstants.aprilTagFieldLayout.getTagPose(targetId).get().getTranslation().getZ(),
+            VisionConstants.kCameraPitchRadians,
+            target.getRotation().getX());
 
-      double curRot = curPose.getRotation().getDegrees();
-      angErr = Math.abs(curRot - targetYaw);
-      turn =
-          DriveConstants.rotationController.calculate(curPose.getRotation().getDegrees(), targetYaw)
-              * DriveConstants.maxRotVelocity.in(Units.RadiansPerSecond);
-      transErr = Math.abs(targetRange - VisionConstants.tagDistSetpoint);
-      forward =
-          DriveConstants.translationController.calculate(
-                  VisionConstants.tagDistSetpoint, targetRange)
-              * DriveConstants.maxTranslationSpeed.in(Units.MetersPerSecond);
-      System.out.println("target range: " + targetRange);
-      System.out.println("forward: " + forward + " strafe: " + strafe + " turn: " + turn);
-      // Command drivetrain motors based on target speeds
-      drive.runVelocity(new ChassisSpeeds(forward, strafe, turn));
+    double curRot = drive.getRotation().getDegrees() % 360;
+    angErr = Math.abs(curRot - targetYaw);
+    System.out.println("cur ang rot: " + curRot);
+    turn =
+        DriveConstants.rotationController.calculate(curRot, targetYaw)
+            * DriveConstants.maxRotVelocity.in(Units.RadiansPerSecond);
+    transErr = Math.abs(targetRange - VisionConstants.tagDistSetpoint);
+    forward =
+        DriveConstants.translationController.calculate(VisionConstants.tagDistSetpoint, targetRange)
+            * DriveConstants.maxTranslationSpeed.in(Units.MetersPerSecond);
+    System.out.println("target range: " + targetRange);
+    // Command drivetrain motors based on target speeds
+    drive.runVelocity(new ChassisSpeeds(forward, strafe, turn));
   }
 
   @Override

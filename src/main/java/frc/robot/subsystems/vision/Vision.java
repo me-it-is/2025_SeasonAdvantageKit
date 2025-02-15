@@ -8,9 +8,7 @@ import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.VisionConstants;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -72,36 +70,39 @@ public class Vision extends SubsystemBase {
             .flatMap(c -> c.photonCamera().getAllUnreadResults().stream())
             .toList();
 
-    /*this.cameras.stream()
-    .map(c -> Vision.updateAngGetEstimate(c, allUnreadResults))
-    .flatMap(Optional::stream)
-    .filter(Vision::isUsingTwoTags)
-    .filter(Vision::zIsRight)
-    .filter(Vision::isOnField)
-    .filter(Vision::maxDistanceIsInThreshold)
-    .filter(Vision.isAmbiguityLess(0.25))
-    .filter(Vision::pitchIsInBounds)
-    .filter(Vision::rollIsInBounds)
-    .map(Vision::generatePoseEstimate)
-    .forEach(dtUpdateEstimate); // updates drivetrain swerve pose estimator with vision measurement*/
+    this.cameras.stream()
+        .map(c -> Vision.updateAngGetEstimate(c, allUnreadResults))
+        .filter(Objects::nonNull)
+        .flatMap(Optional::stream)
+        .filter(Objects::nonNull)
+        .filter(Vision::isUsingTwoTags)
+        .filter(Vision::zIsRight)
+        .filter(Vision::isOnField)
+        .filter(Vision::maxDistanceIsInThreshold)
+        .filter(Vision.isAmbiguityLess(0.25))
+        .filter(Vision::pitchIsInBounds)
+        .filter(Vision::rollIsInBounds)
+        .map(Vision::generatePoseEstimate)
+        .forEach(
+            dtUpdateEstimate); // updates drivetrain swerve pose estimator with vision measurement
+
     allUnreadResults.forEach(
         res -> {
           if (res.getBestTarget() == null) {
-            System.out.println("Null best target");
             return;
           }
           int fiducialId = res.getBestTarget().getFiducialId();
-          System.out.println("Processing tag ID: " + fiducialId);
+          // System.out.println("Processing tag ID: " + fiducialId);
 
           Optional<Pose3d> pose = VisionConstants.aprilTagFieldLayout.getTagPose(fiducialId);
           if (pose.isEmpty()) {
-            System.out.println("No pose found for tag ID: " + fiducialId);
+            // System.out.println("No pose found for tag ID: " + fiducialId);
             return;
           }
-          System.out.println("pose of tag is: " + pose.get());
+          // System.out.println("pose of tag is: " + pose.get());
         });
 
-    bestTags.clear(); // clear to only have latest results
+    // bestTags.clear(); // clear to only have latest results
     allUnreadResults.stream()
         .filter(result -> result.hasTargets())
         .map(res -> res.getBestTarget())

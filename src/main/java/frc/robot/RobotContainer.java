@@ -143,7 +143,7 @@ public class RobotContainer {
                 Rotation2d::new));
 
     // Automatically align to April Tag
-    controller.y().whileTrue(new AutoAim(drive, vision, controller));
+    controller.y().onTrue(new AutoAim(drive, vision, controller));
 
     // Switch to X pattern when X button is pressed
     controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
