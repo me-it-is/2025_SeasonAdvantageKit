@@ -62,7 +62,11 @@ public final class Constants {
     // TODO verify actual chassis size
     public static final Distance chassisSize = Meters.of(0.9);
     public static final LinearVelocity maxTranslationSpeed = MetersPerSecond.of(10);
+    public static final LinearAcceleration maxTranslationAcceleration =
+        MetersPerSecondPerSecond.of(3.5);
     public static final AngularVelocity maxRotVelocity = RadiansPerSecond.of(4 * Math.PI);
+    public static final AngularAcceleration maxRotAcceleration =
+        RadiansPerSecondPerSecond.of(3 * Math.PI);
     public static final double DRIVE_DEADBAND = 0.05;
     public static final Distance TAG_DISTANCE = Meters.of(0.3);
     public static final PIDController translationController = new PIDController(0.5, 0.001, 0);

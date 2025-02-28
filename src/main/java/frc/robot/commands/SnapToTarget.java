@@ -37,7 +37,12 @@ public class SnapToTarget extends Command {
     Pose2d drivePose = drive.getPose();
     Pose2d scorePose = getClosestScoringPose(drivePose);
     // make path between start and end pose on the fly
-    PathConstraints constraints = new PathConstraints(4.5, 3.5, 7, 10); // TODO estimated values fix
+    PathConstraints constraints =
+        new PathConstraints(
+            Constants.DriveConstants.maxTranslationSpeed,
+            Constants.DriveConstants.maxTranslationAcceleration,
+            Constants.DriveConstants.maxRotVelocity,
+            Constants.DriveConstants.maxRotAcceleration); // TODO estimated values fix
     // final pose should be slightly offset from april tag position
     Pose2d finalPose =
         scorePose.plus(
