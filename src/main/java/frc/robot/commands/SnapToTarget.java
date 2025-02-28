@@ -12,7 +12,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.util.RobotMath;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
@@ -48,9 +49,9 @@ public class SnapToTarget extends Command {
     Pose2d finalPose =
         scorePose.plus(
             new Transform2d(
-                VisionConstants.kTagXOffset.in(Units.Meters)
-                    * (DriverStation.getAlliance().get() == Alliance.Blue ? 1 : -1),
-                VisionConstants.kTagYOffset.in(Units.Meters),
+                VisionConstants.kTagXOffset.times(
+                    (DriverStation.getAlliance().get() == Alliance.Blue ? 1 : -1)),
+                VisionConstants.kTagYOffset,
                 new Rotation2d()));
     List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(drivePose, finalPose);
     PathPlannerPath path =
@@ -81,10 +82,10 @@ public class SnapToTarget extends Command {
         return drivePose;
       }
       Pose2d minPose = scoringPoses.get(0);
-      double minDist = drivePose.getTranslation().getDistance(scoringPoses.get(0).getTranslation());
+      Distance minDist = RobotMath.distanceBetweenPoses(drivePose, scoringPoses.get(0));
       for (int i = 1; i < scoringPoses.size(); i++) {
-        double dist = drivePose.getTranslation().getDistance(scoringPoses.get(i).getTranslation());
-        if (dist < minDist) {
+        Distance dist = RobotMath.distanceBetweenPoses(drivePose, scoringPoses.get(i));
+        if (dist.lt(minDist)) {
           minPose = scoringPoses.get(i);
         }
       }
@@ -94,8 +95,8 @@ public class SnapToTarget extends Command {
       if (alliance.get() == Alliance.Red) {
         scoringTranslation =
             new Translation2d(
-                VisionConstants.kFieldWidth.in(Units.Meters) - scoringTranslation.getX(),
-                scoringTranslation.getY());
+                VisionConstants.kFieldWidth.minus(scoringTranslation.getMeasureX()),
+                scoringTranslation.getMeasureY());
       }
 
       Translation2d movementVector = scoringTranslation.minus(driveTranslation);
