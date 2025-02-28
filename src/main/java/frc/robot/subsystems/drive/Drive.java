@@ -69,7 +69,8 @@ public class Drive extends SubsystemBase {
           Math.max(
               Math.hypot(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
               Math.hypot(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)));
-
+  private boolean tipCorrectionEnabled = false;
+  private boolean visionConverge = false;
   // PathPlanner config constants
 
   private static final RobotConfig PP_CONFIG =
@@ -340,10 +341,17 @@ public class Drive extends SubsystemBase {
     poseEstimator.resetPosition(rawGyroRotation, getModulePositions(), pose);
   }
 
+  /** Whether to update more aggressively to vision measurement */
+  public void converge(boolean convergeFaster) {
+    visionConverge = convergeFaster;
+  }
+
   public void updateEstimates(PoseEstimate poseEstimate) {
     final var visionEstimated = poseEstimate.estimatedPose().estimatedPose.toPose2d();
-    final var stddevs = poseEstimate.standardDev();
+    final var stddevs =
+        visionConverge ? poseEstimate.standardDev().times(0.01) : poseEstimate.standardDev();
 
+    System.out.println("stddevs for vision measurement: " + stddevs);
     addVisionMeasurement(visionEstimated, poseEstimate.estimatedPose().timestampSeconds, stddevs);
   }
 
@@ -377,8 +385,7 @@ public class Drive extends SubsystemBase {
   }
 
   public ChassisSpeeds calculateTipCorrection() {
-    Constants.DriveConstants.tipControllerX.setSetpoint(0);
-    Constants.DriveConstants.tipControllerY.setSetpoint(0);
+    Constants.DriveConstants.tipController.setSetpoint(0);
 
     double tipAngle =
         Math.atan(
@@ -393,11 +400,11 @@ public class Drive extends SubsystemBase {
             gyroInputs.xRotation.in(Radians)); // direction of tip vector relative to x-axis
 
     double xSpeed =
-        Constants.DriveConstants.tipControllerX.calculate(
+        Constants.DriveConstants.tipController.calculate(
             MathUtil.applyDeadband(
                 tipMag * Math.cos(angle), Constants.DriveConstants.tipDeadband.in(Newtons)));
     double ySpeed =
-        Constants.DriveConstants.tipControllerX.calculate(
+        Constants.DriveConstants.tipController.calculate(
             MathUtil.applyDeadband(
                 tipMag * Math.sin(angle), Constants.DriveConstants.tipDeadband.in(Newtons)));
 
