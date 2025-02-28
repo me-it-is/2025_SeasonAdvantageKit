@@ -114,15 +114,16 @@ public class Vision extends SubsystemBase implements AutoCloseable {
   }
 
   private static PoseEstimate generatePoseEstimate(EstimateTuple estimateAndInfo) {
-    double maxDistance =
-        estimateAndInfo.visionEstimate.targetsUsed.stream()
-            .mapToDouble(target -> target.getBestCameraToTarget().getTranslation().getNorm())
-            .max()
-            .orElse(0.0);
+    Distance maxDistance =
+        Meters.of(
+            estimateAndInfo.visionEstimate.targetsUsed.stream()
+                .mapToDouble(target -> target.getBestCameraToTarget().getTranslation().getNorm())
+                .max()
+                .orElse(0.0));
 
     final var stdDevs =
         VisionConstants.kMultiTagStdDevs
-            .times(maxDistance)
+            .times(maxDistance.in(Meters))
             .times(4 / Math.pow(estimateAndInfo.visionEstimate.targetsUsed.size(), 2));
     return new PoseEstimate(estimateAndInfo.visionEstimate, stdDevs);
   }

@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.drive.Drive;
 import java.util.List;
@@ -39,10 +40,10 @@ public class SnapToTarget extends Command {
     // make path between start and end pose on the fly
     PathConstraints constraints =
         new PathConstraints(
-            Constants.DriveConstants.maxTranslationSpeed,
-            Constants.DriveConstants.maxTranslationAcceleration,
-            Constants.DriveConstants.maxRotVelocity,
-            Constants.DriveConstants.maxRotAcceleration); // TODO estimated values fix
+            DriveConstants.maxTranslationSpeed,
+            DriveConstants.maxTranslationAcceleration,
+            DriveConstants.maxRotVelocity,
+            DriveConstants.maxRotAcceleration); // TODO estimated values fix
     // final pose should be slightly offset from april tag position
     Pose2d finalPose =
         scorePose.plus(
