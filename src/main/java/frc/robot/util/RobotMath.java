@@ -1,5 +1,6 @@
 package frc.robot.util;
 
+import edu.wpi.first.math.geometry.Quaternion;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Unit;
 
@@ -94,5 +95,22 @@ public final class RobotMath {
 
   public static <U extends Unit> boolean isMeasureNaN(Measure<U> measure) {
     return Double.isNaN(measure.baseUnitMagnitude());
+  }
+
+  public static record QuaternionValue(String axisName, Double norm) {}
+  ;
+
+  public QuaternionValue quaternionToAxisAngle(String axis, Quaternion quaternion) {
+    switch (axis) {
+      case "w":
+        return new QuaternionValue("wAxis", quaternion.getW());
+      case "x":
+        return new QuaternionValue("xAxis", quaternion.getX());
+      case "y":
+        return new QuaternionValue("yAxis", quaternion.getY());
+      case "z":
+      default:
+        return new QuaternionValue("zAxis", quaternion.getZ());
+    }
   }
 }
