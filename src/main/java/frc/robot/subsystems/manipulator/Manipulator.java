@@ -24,28 +24,28 @@ import frc.robot.util.SparkMaxFaultChecker;
 import monologue.Logged;
 
 public class Manipulator extends SubsystemBase implements Logged, AutoCloseable {
-  private SparkMaxConfig config;
+  private SparkMaxConfig pivotConfig;
   private SparkMax pivot;
   private SparkMax rollers;
   private SparkAbsoluteEncoder pivotEncoder;
-  private SparkClosedLoopController controller;
+  private SparkClosedLoopController pivotController;
   private SparkMaxFaultChecker pivotChecker;
   private SparkMaxFaultChecker rollersChecker;
   private DigitalInput coralDetect;
 
   public Manipulator(SparkMax pivot, SparkMax rollers, DigitalInput linebreakSensor) {
-    config = new SparkMaxConfig();
+    pivotConfig = new SparkMaxConfig();
     this.pivot = pivot;
     this.rollers = rollers;
     this.coralDetect = linebreakSensor;
     pivotEncoder = pivot.getAbsoluteEncoder();
-    controller = pivot.getClosedLoopController();
+    pivotController = pivot.getClosedLoopController();
     pivotChecker = new SparkMaxFaultChecker(pivot);
     rollersChecker = new SparkMaxFaultChecker(rollers);
 
-    config.idleMode(IdleMode.kBrake);
-    config.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder).pid(kP, kI, kD);
-    pivot.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    pivotConfig.idleMode(IdleMode.kBrake);
+    pivotConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder).pid(kP, kI, kD);
+    pivot.configure(pivotConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   @Override
@@ -62,7 +62,7 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
     return this.run(
         () -> {
           double ff = Math.cos(getEncoderPosition().in(Units.Radians)) * kFF;
-          controller.setReference(
+          pivotController.setReference(
               setpoint, ControlType.kPosition, ClosedLoopSlot.kSlot0, ff, ArbFFUnits.kPercentOut);
         });
   }
