@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import edu.wpi.first.math.geometry.Translation3d;
 import org.junit.jupiter.api.Test;
 
 class RobotMathTest {
@@ -181,5 +182,102 @@ class RobotMathTest {
     assertFalse(isMeasureNaN(Meters.of(0)));
     assertFalse(isMeasureNaN(Inches.of(Double.POSITIVE_INFINITY)));
     assertFalse(isMeasureNaN(Inches.of(Double.NEGATIVE_INFINITY)));
+  }
+
+  @Test
+  void testDistanceBetweenTranslations() {
+    assertEquals(
+        distanceBetweenTranslations(new Translation3d(), new Translation3d()), Meters.zero());
+    assertEquals(
+        distanceBetweenTranslations(new Translation3d(), new Translation3d(1, 0, 0)), Meters.of(1));
+    assertEquals(
+        distanceBetweenTranslations(new Translation3d(), new Translation3d(0, 1, 0)), Meters.of(1));
+    assertEquals(
+        distanceBetweenTranslations(new Translation3d(), new Translation3d(0, 0, 1)), Meters.of(1));
+    assertEquals(
+        distanceBetweenTranslations(new Translation3d(1, 0, 0), new Translation3d()), Meters.of(1));
+    assertEquals(
+        distanceBetweenTranslations(new Translation3d(0, 1, 0), new Translation3d()), Meters.of(1));
+    assertEquals(
+        distanceBetweenTranslations(new Translation3d(0, 0, 1), new Translation3d()), Meters.of(1));
+    assertEquals(
+        distanceBetweenTranslations(new Translation3d(), new Translation3d(1, 1, 0)),
+        Meters.of(Math.sqrt(2)));
+    assertEquals(
+        distanceBetweenTranslations(new Translation3d(), new Translation3d(0, 1, 1)),
+        Meters.of(Math.sqrt(2)));
+    assertEquals(
+        distanceBetweenTranslations(new Translation3d(), new Translation3d(1, 0, 1)),
+        Meters.of(Math.sqrt(2)));
+    assertEquals(
+        distanceBetweenTranslations(new Translation3d(1, 1, 0), new Translation3d()),
+        Meters.of(Math.sqrt(2)));
+    assertEquals(
+        distanceBetweenTranslations(new Translation3d(0, 1, 1), new Translation3d()),
+        Meters.of(Math.sqrt(2)));
+    assertEquals(
+        distanceBetweenTranslations(new Translation3d(1, 0, 1), new Translation3d()),
+        Meters.of(Math.sqrt(2)));
+    assertEquals(
+        distanceBetweenTranslations(new Translation3d(), new Translation3d(1, 1, 1)),
+        Meters.of(Math.sqrt(3)));
+    assertEquals(
+        distanceBetweenTranslations(new Translation3d(1, 1, 1), new Translation3d()),
+        Meters.of(Math.sqrt(3)));
+    assertTrue(
+        Double.isInfinite(
+            distanceBetweenTranslations(
+                    new Translation3d(), new Translation3d(Double.POSITIVE_INFINITY, 0, 0))
+                .in(Meters)));
+    assertTrue(
+        Double.isInfinite(
+            distanceBetweenTranslations(
+                    new Translation3d(), new Translation3d(0, Double.POSITIVE_INFINITY, 0))
+                .in(Meters)));
+    assertTrue(
+        Double.isInfinite(
+            distanceBetweenTranslations(
+                    new Translation3d(), new Translation3d(0, 0, Double.POSITIVE_INFINITY))
+                .in(Meters)));
+    assertTrue(
+        Double.isInfinite(
+            distanceBetweenTranslations(
+                    new Translation3d(Double.POSITIVE_INFINITY, 0, 0), new Translation3d())
+                .in(Meters)));
+    assertTrue(
+        Double.isInfinite(
+            distanceBetweenTranslations(
+                    new Translation3d(0, Double.POSITIVE_INFINITY, 0), new Translation3d())
+                .in(Meters)));
+    assertTrue(
+        Double.isInfinite(
+            distanceBetweenTranslations(
+                    new Translation3d(0, 0, Double.POSITIVE_INFINITY), new Translation3d())
+                .in(Meters)));
+
+    assertTrue(
+        Double.isNaN(
+            distanceBetweenTranslations(new Translation3d(Double.NaN, 0, 0), new Translation3d())
+                .in(Meters)));
+    assertTrue(
+        Double.isNaN(
+            distanceBetweenTranslations(new Translation3d(0, Double.NaN, 0), new Translation3d())
+                .in(Meters)));
+    assertTrue(
+        Double.isNaN(
+            distanceBetweenTranslations(new Translation3d(0, 0, Double.NaN), new Translation3d())
+                .in(Meters)));
+    assertTrue(
+        Double.isNaN(
+            distanceBetweenTranslations(new Translation3d(), new Translation3d(Double.NaN, 0, 0))
+                .in(Meters)));
+    assertTrue(
+        Double.isNaN(
+            distanceBetweenTranslations(new Translation3d(), new Translation3d(0, Double.NaN, 0))
+                .in(Meters)));
+    assertTrue(
+        Double.isNaN(
+            distanceBetweenTranslations(new Translation3d(), new Translation3d(0, 0, Double.NaN))
+                .in(Meters)));
   }
 }
