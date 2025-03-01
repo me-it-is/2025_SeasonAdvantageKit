@@ -184,10 +184,11 @@ public class Vision extends SubsystemBase implements AutoCloseable {
   private static boolean isOnField(Pose3d pose) {
     final var poseX = pose.getMeasureX();
     final var poseY = pose.getMeasureY();
+    final var poseZ = pose.getMeasureZ();
 
     return RobotMath.measureWithinBounds(poseX, Meters.zero(), VisionConstants.kFieldWidth)
         && RobotMath.measureWithinBounds(poseY, Meters.zero(), VisionConstants.kFieldHeight)
-        && zIsRight(pose, VisionConstants.kMaxVertDisp);
+        && RobotMath.measureWithinBounds(poseZ, Meters.zero(), VisionConstants.kMaxVertDisp);
   }
 
   /**
@@ -197,16 +198,6 @@ public class Vision extends SubsystemBase implements AutoCloseable {
    */
   private static boolean isOnField(EstimateTuple estTuple) {
     return isOnField(estTuple.visionEstimate.estimatedPose);
-  }
-
-  /**
-   * Checks if robot pose estimate has a vertical displacement below specified threshold
-   *
-   * @param estTuple the {@link EstimateTuple} to check.
-   * @return true if less then threshold, false otherwise.
-   */
-  private static boolean zIsRight(Pose3d estPose, Distance zThresh) {
-    return estPose.getMeasureZ().lt(zThresh);
   }
 
   /**
