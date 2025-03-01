@@ -79,7 +79,7 @@ public final class Constants {
     public static final int ROLLER_ID = 17;
     public static final int LINE_BREAK_PORT = -1;
 
-    public static final Angle fullRoll = Rotations.of(0.4);
+    public static final Angle fullRoll = Degrees.of(130);
     public static final Angle rotTolerance = Rotations.of(0.02);
     public static final double defaultRollerSpeed = 1.0;
     public static final double kP = 0.1;

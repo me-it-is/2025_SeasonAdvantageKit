@@ -173,10 +173,10 @@ public class RobotContainer implements Logged {
 
     // intake coral and move pivot
     opController
-        .a()
+        .rightBumper()
         .onTrue(
             manipulator
-                .spinRollers()
+                .spinRollers(true)
                 .until(manipulator::hasCoral)
                 .andThen(
                     sequence(
@@ -184,8 +184,25 @@ public class RobotContainer implements Logged {
                         manipulator
                             .setAngle(ManipulatorConstants.fullRoll.in(Units.Rotations))
                             .until(() -> manipulator.atAngle(true)))));
-    // reset pivot
-    opController.b().onTrue(manipulator.setAngle(0.0).until(() -> manipulator.atAngle(false)));
+
+    // outtake coral and reset pivot
+    opController
+        .leftBumper()
+        .onTrue(
+            manipulator
+                .spinRollers(false)
+                .withTimeout(1.0)
+                .andThen(
+                    sequence(
+                        manipulator.stopRollers(),
+                        manipulator.setAngle(0.0).until(() -> manipulator.atAngle(false)))));
+
+    // intake and release algae
+    opController
+        .axisGreaterThan(1, 0.5)
+        .onTrue(
+            manipulator.spinRollers(
+                Math.signum(opController.getRightTriggerAxis()) == 1.0 ? true : false));
   }
 
   public void driveTipCorrect() {

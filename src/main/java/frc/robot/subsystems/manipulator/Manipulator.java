@@ -77,8 +77,8 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
         < ManipulatorConstants.rotTolerance.in(Rotations);
   }
 
-  public Command spinRollers() {
-    return this.runOnce(() -> rollers.set(defaultRollerSpeed));
+  public Command spinRollers(boolean forward) {
+    return this.runOnce(() -> rollers.set(defaultRollerSpeed * (forward == true ? 1 : -1)));
   }
 
   public Command stopRollers() {
