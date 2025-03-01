@@ -59,7 +59,7 @@ public class SnapToTarget extends Command {
             waypoints,
             constraints,
             new IdealStartingState(0, drivePose.getRotation()),
-            new GoalEndState(0, Rotation2d.kZero));
+            new GoalEndState(0, finalPose.getRotation()));
 
     Command pathFollow = AutoBuilder.followPath(path);
     CommandScheduler.getInstance().schedule(pathFollow);
@@ -103,9 +103,7 @@ public class SnapToTarget extends Command {
               VisionConstants.kFieldWidth.minus(scoringTranslation.getMeasureX()),
               scoringTranslation.getMeasureY());
     }
-
-    Translation2d movementVector = scoringTranslation.minus(driveTranslation);
-    Rotation2d directionToScore = movementVector.getAngle();
+    Rotation2d directionToScore = minPose.getRotation();
     return new Pose2d(scoringTranslation, directionToScore);
   }
 }
