@@ -185,9 +185,19 @@ public class RobotContainer implements Logged {
   }
 
   private void configureAutos() {
-    NamedCommands.registerCommand("test", print("test"));
     NamedCommands.registerCommand("score", pickupAction(GameState.L4_SCORE, true));
-    autoChooser.addOption("left leave", AutoBuilder.buildAuto("left leave"));
+    NamedCommands.registerCommand("hps pickup", pickupAction(GameState.HUMAN_PLAYER_STATION, false));
+    NamedCommands.registerCommand("remove algae", pickupAction(GameState.L2_ALGAE, false));
+
+    autoChooser.addDefaultOption("top leave", AutoBuilder.buildAuto("top leave"));
+    autoChooser.addOption("middle leave", AutoBuilder.buildAuto("middle leave"));
+    autoChooser.addOption("bottom leave", AutoBuilder.buildAuto("bottom leave"));
+    autoChooser.addOption("top leave single score", AutoBuilder.buildAuto("top leave single score"));
+    autoChooser.addOption("top leave double score", AutoBuilder.buildAuto("top leave double score"));
+    autoChooser.addOption("bottom leave single score", AutoBuilder.buildAuto("bottom leave single score"));
+    autoChooser.addOption("bottom leave double score", AutoBuilder.buildAuto("bottom leave double score"));
+    autoChooser.addOption("top remove algae", AutoBuilder.buildAuto("top remove algae"));
+    autoChooser.addOption("bottom remove algae", AutoBuilder.buildAuto("bottom remove algae"));
   }
 
   public void resetPose() {
@@ -255,7 +265,13 @@ public class RobotContainer implements Logged {
 
     // elevator dead reckoning
     new Trigger(() -> (Math.abs(opController.getRawAxis(0)) > 0.5))
-        .whileTrue(runOnce(() -> elevator.move(ElevatorConstants.deadReckoningSpeed * Math.signum(opController.getRawAxis(0))), elevator))
+        .whileTrue(
+            runOnce(
+                () ->
+                    elevator.move(
+                        ElevatorConstants.deadReckoningSpeed
+                            * Math.signum(opController.getRawAxis(0))),
+                elevator))
         .onFalse(runOnce(() -> elevator.move(0), elevator));
 
     opController.a().onTrue(pickupAction(GameState.L1_SCORE, true));
