@@ -24,15 +24,16 @@ import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.GameState;
 import frc.robot.Constants.ManipulatorConstants;
 import frc.robot.commands.AutoAim;
 import frc.robot.commands.DriveCommands;
@@ -171,38 +172,44 @@ public class RobotContainer implements Logged {
                     drive)
                 .ignoringDisable(true));
 
-    // intake coral and move pivot
-    opController
-        .rightBumper()
-        .onTrue(
-            manipulator
-                .spinRollers(true)
-                .until(manipulator::hasCoral)
-                .andThen(
-                    sequence(
-                        manipulator.stopRollers(),
-                        manipulator
-                            .setAngle(ManipulatorConstants.fullRoll.in(Units.Rotations))
-                            .until(() -> manipulator.atAngle(true)))));
+    // intake coral
+    opController.rightBumper().onTrue(manipulator.spinRollers(true).until(manipulator::hasCoral));
 
-    // outtake coral and reset pivot
+    // outtake coral
     opController
         .leftBumper()
         .onTrue(
             manipulator
                 .spinRollers(false)
-                .withTimeout(1.0)
-                .andThen(
-                    sequence(
-                        manipulator.stopRollers(),
-                        manipulator.setAngle(0.0).until(() -> manipulator.atAngle(false)))));
+                .withTimeout(ManipulatorConstants.defaultPickupActionTime));
 
     // intake and release algae
-    opController
-        .axisGreaterThan(1, 0.5)
+    new Trigger(() -> (Math.abs(opController.getRawAxis(1)) > 0.5))
         .onTrue(
-            manipulator.spinRollers(
-                Math.signum(opController.getRightTriggerAxis()) == 1.0 ? true : false));
+            pickupAction(
+                GameState.L2_ALGAE, Math.signum(opController.getRawAxis(1)) == 1.0 ? true : false));
+
+    opController.a().onTrue(pickupAction(GameState.L1_SCORE, true));
+    opController.b().onTrue(pickupAction(GameState.L2_SCORE, true));
+    opController.y().onTrue(pickupAction(GameState.L3_SCORE, true));
+    opController.x().onTrue(pickupAction(GameState.L4_SCORE, true));
+
+    // human player station intake
+    opController.povUp().onTrue(pickupAction(GameState.HUMAN_PLAYER_STATION, false));
+  }
+
+  // TODO add elevator movement (extend then retract once finished) once subsystems are tested and
+  // merged
+  private Command pickupAction(GameState state, boolean eject) {
+    return manipulator
+        .setAngle(state)
+        .until(() -> manipulator.atAngle(state))
+        .andThen(
+            sequence(
+                manipulator
+                    .spinRollers(eject)
+                    .withTimeout(ManipulatorConstants.defaultPickupActionTime),
+                manipulator.stopRollers()));
   }
 
   public void driveTipCorrect() {

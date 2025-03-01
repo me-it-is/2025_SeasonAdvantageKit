@@ -19,6 +19,8 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
+import frc.robot.Constants.GameState;
 import frc.robot.Constants.ManipulatorConstants;
 import frc.robot.util.SparkMaxFaultChecker;
 import monologue.Logged;
@@ -58,7 +60,12 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
     rollersChecker.checkFaults();
   }
 
-  public Command setAngle(double setpoint) {
+  private double getAngle(GameState state) {
+    return Constants.reefMap.get(state).angle().in(Units.Rotations);
+  }
+
+  public Command setAngle(GameState state) {
+    double setpoint = getAngle(state);
     return this.run(
         () -> {
           double ff = Math.cos(getEncoderPosition().in(Units.Radians)) * kFF;
@@ -71,9 +78,9 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
     return Rotations.of(pivotEncoder.getPosition());
   }
 
-  public boolean atAngle(boolean scoring) {
-    double loc = scoring ? ManipulatorConstants.fullRoll.in(Rotations) : 0.0;
-    return Math.abs(getEncoderPosition().in(Rotations) - loc)
+  public boolean atAngle(GameState state) {
+    double setpoint = getAngle(state);
+    return Math.abs(getEncoderPosition().in(Rotations) - setpoint)
         < ManipulatorConstants.rotTolerance.in(Rotations);
   }
 
