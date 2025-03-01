@@ -3,11 +3,11 @@ package frc.robot.subsystems.climber;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClimberConstants;
+import monologue.Logged;
 
-public class Climber extends SubsystemBase implements AutoCloseable {
+public class Climber extends SubsystemBase implements AutoCloseable, Logged {
 
   private SparkMax motorController;
   private DigitalInput m_limSwitchUpper;
@@ -24,8 +24,8 @@ public class Climber extends SubsystemBase implements AutoCloseable {
 
   @Override
   public void periodic() {
-    SmartDashboard.putBoolean("lim motor up?", m_limSwitchUpper.get());
-    SmartDashboard.putBoolean("lim motor low?", m_limSwitchLower.get());
+    this.log("lim motor up?", m_limSwitchUpper.get());
+    this.log("lim motor low?", m_limSwitchLower.get());
   }
 
   @Override
