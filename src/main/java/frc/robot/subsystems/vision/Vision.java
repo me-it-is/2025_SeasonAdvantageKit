@@ -85,10 +85,9 @@ public class Vision extends SubsystemBase implements AutoCloseable {
         .filter(Objects::nonNull)
         .flatMap(Optional::stream)
         .filter(Objects::nonNull)
-        .filter(v -> zIsRight(v, VisionConstants.kMaxVertDisp))
         .filter(Vision::isOnField)
         .filter(Vision::maxDistanceIsInThreshold)
-        .filter(Vision.isAmbiguityLess(0.25))
+        .filter(Vision.isAmbiguityLess(VisionConstants.kMaxTagAmbiguity))
         .filter(v -> pitchIsInBounds(v, VisionConstants.kPitchBounds))
         .filter(v -> rollIsInBounds(v, VisionConstants.kRollBounds))
         .map(Vision::generatePoseEstimate)
@@ -185,9 +184,11 @@ public class Vision extends SubsystemBase implements AutoCloseable {
   private static boolean isOnField(Pose3d pose) {
     final var poseX = pose.getMeasureX();
     final var poseY = pose.getMeasureY();
+    final var poseZ = pose.getMeasureZ();
 
     return RobotMath.measureWithinBounds(poseX, Meters.zero(), VisionConstants.kFieldWidth)
-        && RobotMath.measureWithinBounds(poseY, Meters.zero(), VisionConstants.kFieldHeight);
+        && RobotMath.measureWithinBounds(poseY, Meters.zero(), VisionConstants.kFieldHeight)
+        && RobotMath.measureWithinBounds(poseZ, Meters.zero(), VisionConstants.kMaxVertDisp);
   }
 
   /**
@@ -197,16 +198,6 @@ public class Vision extends SubsystemBase implements AutoCloseable {
    */
   private static boolean isOnField(EstimateTuple estTuple) {
     return isOnField(estTuple.visionEstimate.estimatedPose);
-  }
-
-  /**
-   * Checks if robot pose estimate has a vertical displacement below specified threshold
-   *
-   * @param estTuple the {@link EstimateTuple} to check.
-   * @return true if less then threshold, false otherwise.
-   */
-  private static boolean zIsRight(EstimateTuple estTuple, Distance zThresh) {
-    return estTuple.visionEstimate.estimatedPose.getMeasureZ().lt(zThresh);
   }
 
   /**

@@ -59,7 +59,7 @@ public class SnapToTarget extends Command {
             waypoints,
             constraints,
             new IdealStartingState(0, drivePose.getRotation()),
-            new GoalEndState(0.0, Rotation2d.fromDegrees(0.0)));
+            new GoalEndState(0, finalPose.getRotation()));
 
     Command pathFollow = AutoBuilder.followPath(path);
     CommandScheduler.getInstance().schedule(pathFollow);
@@ -68,41 +68,42 @@ public class SnapToTarget extends Command {
   public Pose2d getClosestScoringPose(Pose2d drivePose) {
     AprilTagFieldLayout layout = VisionConstants.aprilTagFieldLayout;
     Optional<Alliance> alliance = DriverStation.getAlliance();
-    if (alliance.isPresent()) {
-      List<Pose2d> scoringPoses;
-      int startTagId = alliance.get() == Alliance.Blue ? 17 : 6;
-      scoringPoses =
-          IntStream.rangeClosed(startTagId, startTagId + 5)
-              .mapToObj(id -> layout.getTagPose(id).orElse(null))
-              .filter(pose3d -> pose3d != null)
-              .map(Pose3d::toPose2d)
-              .toList();
-
-      if (scoringPoses.isEmpty()) {
-        return drivePose;
-      }
-      Pose2d minPose = scoringPoses.get(0);
-      Distance minDist = RobotMath.distanceBetweenPoses(drivePose, scoringPoses.get(0));
-      for (int i = 1; i < scoringPoses.size(); i++) {
-        Distance dist = RobotMath.distanceBetweenPoses(drivePose, scoringPoses.get(i));
-        if (dist.lt(minDist)) {
-          minPose = scoringPoses.get(i);
-        }
-      }
-      Translation2d driveTranslation = drivePose.getTranslation();
-      Translation2d scoringTranslation = minPose.getTranslation();
-      // mirror pose if red alliance to account for field to robot coordinate conversion
-      if (alliance.get() == Alliance.Red) {
-        scoringTranslation =
-            new Translation2d(
-                VisionConstants.kFieldWidth.minus(scoringTranslation.getMeasureX()),
-                scoringTranslation.getMeasureY());
-      }
-
-      Translation2d movementVector = scoringTranslation.minus(driveTranslation);
-      Rotation2d directionToScore = movementVector.getAngle();
-      return new Pose2d(scoringTranslation, directionToScore);
+    if (!alliance.isPresent()) {
+      return drivePose;
     }
-    return drivePose;
+
+    List<Pose2d> scoringPoses;
+    int startTagId = alliance.get() == Alliance.Blue ? 17 : 6;
+    scoringPoses =
+        IntStream.rangeClosed(startTagId, startTagId + 5)
+            .mapToObj(id -> layout.getTagPose(id).orElse(null))
+            .filter(pose3d -> pose3d != null)
+            .map(Pose3d::toPose2d)
+            .toList();
+
+    if (scoringPoses.isEmpty()) {
+      return drivePose;
+    }
+
+    Pose2d minPose = scoringPoses.get(0);
+    Distance minDist = RobotMath.distanceBetweenPoses(drivePose, scoringPoses.get(0));
+    for (int i = 1; i < scoringPoses.size(); i++) {
+      Distance dist = RobotMath.distanceBetweenPoses(drivePose, scoringPoses.get(i));
+      if (dist.lt(minDist)) {
+        minPose = scoringPoses.get(i);
+      }
+    }
+
+    Translation2d driveTranslation = drivePose.getTranslation();
+    Translation2d scoringTranslation = minPose.getTranslation();
+    // mirror pose if red alliance to account for field to robot coordinate conversion
+    if (alliance.get() == Alliance.Red) {
+      scoringTranslation =
+          new Translation2d(
+              VisionConstants.kFieldWidth.minus(scoringTranslation.getMeasureX()),
+              scoringTranslation.getMeasureY());
+    }
+    Rotation2d directionToScore = minPose.getRotation();
+    return new Pose2d(scoringTranslation, directionToScore);
   }
 }
