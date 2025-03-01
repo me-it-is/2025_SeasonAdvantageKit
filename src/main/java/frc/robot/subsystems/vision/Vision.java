@@ -85,10 +85,9 @@ public class Vision extends SubsystemBase implements AutoCloseable {
         .filter(Objects::nonNull)
         .flatMap(Optional::stream)
         .filter(Objects::nonNull)
-        .filter(v -> zIsRight(v, VisionConstants.kMaxVertDisp))
         .filter(Vision::isOnField)
         .filter(Vision::maxDistanceIsInThreshold)
-        .filter(Vision.isAmbiguityLess(0.25))
+        .filter(Vision.isAmbiguityLess(VisionConstants.kMaxTagAmbiguity))
         .filter(v -> pitchIsInBounds(v, VisionConstants.kPitchBounds))
         .filter(v -> rollIsInBounds(v, VisionConstants.kRollBounds))
         .map(Vision::generatePoseEstimate)
@@ -187,7 +186,8 @@ public class Vision extends SubsystemBase implements AutoCloseable {
     final var poseY = pose.getMeasureY();
 
     return RobotMath.measureWithinBounds(poseX, Meters.zero(), VisionConstants.kFieldWidth)
-        && RobotMath.measureWithinBounds(poseY, Meters.zero(), VisionConstants.kFieldHeight);
+        && RobotMath.measureWithinBounds(poseY, Meters.zero(), VisionConstants.kFieldHeight)
+        && zIsRight(pose, VisionConstants.kMaxVertDisp);
   }
 
   /**
@@ -205,8 +205,8 @@ public class Vision extends SubsystemBase implements AutoCloseable {
    * @param estTuple the {@link EstimateTuple} to check.
    * @return true if less then threshold, false otherwise.
    */
-  private static boolean zIsRight(EstimateTuple estTuple, Distance zThresh) {
-    return estTuple.visionEstimate.estimatedPose.getMeasureZ().lt(zThresh);
+  private static boolean zIsRight(Pose3d estPose, Distance zThresh) {
+    return estPose.getMeasureZ().lt(zThresh);
   }
 
   /**

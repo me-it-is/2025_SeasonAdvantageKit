@@ -86,6 +86,7 @@ public final class Constants {
     public static final Distance kMinCamDistToTag = Meters.of(0.1);
     public static final Distance kMaxCamDistToTag = Meters.of(2.0);
     public static final Distance kMaxVertDisp = Meters.of(2.5);
+    public static final double kMaxTagAmbiguity = 0.25;
     public static final Angle kRollBounds = Radians.of(0.2);
     public static final Angle kPitchBounds = Radians.of(0.2);
 
