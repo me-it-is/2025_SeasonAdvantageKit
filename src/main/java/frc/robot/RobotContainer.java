@@ -24,10 +24,8 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.DriveConstants;
-import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.ElevatorConstants.Stage;
 import frc.robot.commands.AutoAim;
 import frc.robot.commands.DriveCommands;
@@ -41,6 +39,9 @@ import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.vision.Vision;
+import monologue.Logged;
+import monologue.Monologue;
+
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -49,7 +50,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
  * subsystems, commands, and button mappings) should be declared here.
  */
-public class RobotContainer {
+public class RobotContainer implements Logged {
   // Subsystems
   private final Drive drive;
   private final Vision vision;
@@ -64,6 +65,7 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    Monologue.setupMonologue(this, "Robot", false, false);
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
@@ -138,25 +140,6 @@ public class RobotContainer {
             () -> MathUtil.applyDeadband(controller.getLeftY(), DriveConstants.DRIVE_DEADBAND),
             () -> MathUtil.applyDeadband(controller.getLeftX(), DriveConstants.DRIVE_DEADBAND),
             () -> MathUtil.applyDeadband(-controller.getRightX(), DriveConstants.DRIVE_DEADBAND)));
-    
-    opController.leftStick().whileTrue(runOnce(() -> elevator.move(0.1)))
-      .onFalse(runOnce(() -> elevator.move(0.1)));
-    // * 2 - 1 scalar from 0 to 1 to -1 to 1 
-    opController.axisGreaterThan(0, Constants.ElevatorConstants.deadRecogningDeadZone).whileTrue(
-      runOnce(() -> elevator.move(opController.getLeftTriggerAxis() * 2 - 1))).onFalse(runOnce(() -> elevator.move(0))
-    );  
-    // set elevator to stage 1
-    opController.a().onTrue(runOnce(() -> elevator.setSetpoint(Stage.STAGE_1)))
-      .onFalse(runOnce(() -> holdElevator()));
-    
-    opController.b().onTrue(runOnce(() -> elevator.setSetpoint(Stage.STAGE_2)))
-      .onFalse(runOnce(() -> holdElevator()));
-
-    opController.y().onTrue(runOnce(() -> elevator.setSetpoint(Stage.STAGE_3)))
-      .onFalse(runOnce(() -> holdElevator()));
-
-    opController.x().onTrue(runOnce(() -> elevator.setSetpoint(Stage.STAGE_4)))
-      .onFalse(runOnce(() -> holdElevator()));
 
     // Rotate and translate to closest April Tag based on tag odometry
     controller.b().whileTrue(new AutoAim(drive, vision, controller));
@@ -177,14 +160,31 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
                     drive)
                 .ignoringDisable(true));
+
+    // * 2 - 1 scalar from 0 to 1 to -1 to 1
+    opController.axisGreaterThan(0, Constants.ElevatorConstants.deadRecogningDeadZone).whileTrue(
+      runOnce(() -> elevator.move(opController.getLeftTriggerAxis() * 2 - 1))).onFalse(runOnce(() -> elevator.move(0))
+    );
+    // set elevator to stage 1
+    opController.a().onTrue(runOnce(() -> elevator.setSetpoint(Stage.STAGE_1)))
+      .onFalse(holdElevator());
+
+    opController.b().onTrue(runOnce(() -> elevator.setSetpoint(Stage.STAGE_2)))
+      .onFalse(holdElevator());
+
+    opController.y().onTrue(runOnce(() -> elevator.setSetpoint(Stage.STAGE_3)))
+      .onFalse(holdElevator());
+
+    opController.x().onTrue(runOnce(() -> elevator.setSetpoint(Stage.STAGE_4)))
+      .onFalse(holdElevator());
   }
 
   public void driveTipCorrect() {
     drive.runVelocity(drive.calculateTipCorrection());
   }
 
-  public void holdElevator() {
-    elevator.move(ElevatorConstants.restInput);
+  public Command holdElevator() {
+    return runOnce(() -> holdElevator());
   }
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.

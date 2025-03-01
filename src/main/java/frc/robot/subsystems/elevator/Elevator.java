@@ -83,17 +83,18 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
     pidControllerLeader.setReference(
         (setpoint.in(Meters) / ElevatorConstants.maxHeight.in(Meters)), ControlType.kPosition);
   }
-  @Override 
-  public void periodic() {
-    this.log("Elevator hight meters", getElevatorHeight().in(Meters)); 
-  }
   @Override
-  public void close() {
-    sparkMaxFollower.close();
-    sparkMaxLeader.close();
+  public void periodic() {
+    this.log("Elevator height meters", getElevatorHeight().in(Meters));
   }
 
   public Distance getElevatorHeight() {
     return Meters.of(encoder.getPosition()).minus(ElevatorConstants.encoderOffset);
+  }
+
+  @Override
+  public void close() {
+    sparkMaxFollower.close();
+    sparkMaxLeader.close();
   }
 }
