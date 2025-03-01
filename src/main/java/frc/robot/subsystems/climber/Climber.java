@@ -44,7 +44,7 @@ public class Climber extends SubsystemBase implements AutoCloseable, Logged {
     motorController.stopMotor();
   }
 
-  public SparkMax getmotor() {
+  public SparkMax getMotor() {
     return motorController;
   }
   // neutral signal SHOULD then default to brake mode
@@ -52,7 +52,11 @@ public class Climber extends SubsystemBase implements AutoCloseable, Logged {
     motorController.disable();
   }
 
-  public boolean isLimitSwitch() {
-    return m_limSwitchLower.get() || m_limSwitchUpper.get();
+  public boolean isTopSwitch() {
+    return m_limSwitchLower.get();
+  }
+
+  public boolean isBottomSwitch() {
+    return m_limSwitchUpper.get();
   }
 }

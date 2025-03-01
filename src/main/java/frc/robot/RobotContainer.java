@@ -30,6 +30,7 @@ import frc.robot.commands.AutoAim;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.SnapToTarget;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -49,9 +50,11 @@ public class RobotContainer {
   // Subsystems
   private final Drive drive;
   private final Vision vision;
+  private final Climber climber;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
+  private final CommandXboxController opController = new CommandXboxController(1);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -94,6 +97,7 @@ public class RobotContainer {
     }
 
     vision = new Vision(drive::updateEstimates);
+    climber = new Climber();
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -152,6 +156,19 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
                     drive)
                 .ignoringDisable(true));
+
+    opController
+        .leftTrigger()
+        .onTrue(
+            runOnce(() -> climber.setMotor(true), climber)
+                .until(() -> climber.isBottomSwitch())
+                .finallyDo(() -> climber.stopMotor()));
+    opController
+        .rightTrigger()
+        .onTrue(
+            runOnce(() -> climber.setMotor(false), climber)
+                .until(() -> climber.isTopSwitch())
+                .finallyDo(() -> climber.stopMotor()));
   }
 
   public void driveTipCorrect() {
