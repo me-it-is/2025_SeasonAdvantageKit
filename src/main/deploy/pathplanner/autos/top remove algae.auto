@@ -7,7 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "left leave"
+            "pathName": "top to score"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "remove algae"
           }
         }
       ]

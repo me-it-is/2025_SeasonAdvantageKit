@@ -7,7 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "left start to far coral score "
+            "pathName": "bottom to score"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "score"
           }
         }
       ]
