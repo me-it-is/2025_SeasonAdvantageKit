@@ -13,11 +13,7 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.Newtons;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -30,10 +26,14 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Force;
+import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.units.measure.Mass;
+import edu.wpi.first.units.measure.MomentOfInertia;
 
 /**
  * This class defines the runtime mode used by AdvantageKit. The mode is always "real" when running
@@ -44,9 +44,9 @@ public final class Constants {
   public static final Mode currentMode =
       Mode.REAL; // RobotBase.isReal() ? Mode.REAL : Mode.SIM; robot thinks it's fake wut
 
-  // TODO set these to actual robot
-  public static final double ROBOT_MASS_KG = 20;
-  public static final double ROBOT_MOI = 6.883;
+  // Phisical values of the robot
+  public static final Mass ROBOT_MASS_KG = Kilogram.of(74.088);
+  public static final MomentOfInertia ROBOT_MOI = KilogramSquareMeters.of(6.883);
   public static final double WHEEL_COF = 1.2;
 
   public static enum Mode {
@@ -61,15 +61,21 @@ public final class Constants {
   }
 
   public static class DriveConstants {
+    // TODO verify actual chassis size
+    public static final Distance chassisSize = Meters.of(0.9);
     public static final LinearVelocity maxTranslationSpeed = MetersPerSecond.of(10);
+    public static final LinearAcceleration maxTranslationAcceleration =
+        MetersPerSecondPerSecond.of(3.5);
     public static final AngularVelocity maxRotVelocity = RadiansPerSecond.of(4 * Math.PI);
+    public static final AngularAcceleration maxRotAcceleration =
+        RadiansPerSecondPerSecond.of(3 * Math.PI);
     public static final double DRIVE_DEADBAND = 0.05;
     public static final Distance TAG_DISTANCE = Meters.of(0.3);
     public static final PIDController translationController = new PIDController(0.5, 0.001, 0);
     public static final PIDController rotationController = new PIDController(0.03, 0.01, 0);
 
-    public static final PIDController tipControllerX = new PIDController(0.25, 0, 0.1);
-    public static final PIDController tipControllerY = new PIDController(0.25, 0, 0.1);
+    public static final PIDController tipController = new PIDController(0.25, 0, 0.1);
+    public static final double tipFF = 0.1;
     public static final Force tipDeadband = Newtons.of(3);
   }
 
@@ -77,31 +83,34 @@ public final class Constants {
     public static final Distance kFieldWidth = Meters.of(16.54);
     public static final Distance kFieldHeight = Meters.of(8.229);
 
-    public static final Distance minCamDistToTag = Meters.of(0.5);
-    public static final Distance maxCamDistToTag = Meters.of(0.8);
-    public static final Distance maxVertDisp = Meters.of(0.2);
+    public static final Distance kMinCamDistToTag = Meters.of(0.1);
+    public static final Distance kMaxCamDistToTag = Meters.of(2.0);
+    public static final Distance kMaxVertDisp = Meters.of(2.5);
+    public static final Angle kRollBounds = Radians.of(0.2);
+    public static final Angle kPitchBounds = Radians.of(0.2);
 
-    public static final double camChassisXOffset = 0.0;
-    public static final double camChassisYOffset = -0.254;
-    public static final double camChassisZOffset = 0.1143;
+    public static final Distance kCamChassisXOffset = Inches.of(0.0);
+    public static final Distance kCamChassisYOffset = Inches.of(-10);
+    public static final Distance KCamChassisZOffset = Inches.of(4.5);
 
-    public static final Angle minAngError = Degrees.of(5);
-    public static final Distance minTransError = Meters.of(0.05);
+    public static final Angle kMinAngError = Degrees.of(5);
+    public static final Distance kMinTransError = Meters.of(0.05);
 
     // TODO placeholder offsets, need tuning
-    public static final Distance tagXOffset = Meters.of(0.1);
-    public static final Distance tagYOffset = Meters.of(0.2);
+    public static final Distance kTagXOffset = Meters.of(0.1);
+    public static final Distance kTagYOffset = Meters.of(0.2);
 
-    public static final double tagDistSetpoint = 0.1;
-    public static final double kCameraPitchRadians = Math.PI / 3;
+    public static final Distance tagDistSetpoint = Meters.of(0.1);
+    public static final Angle kCameraPitch = Radians.of(Math.PI / 3);
     public static final Transform3d robotToCamOne =
         new Transform3d(
-            new Translation3d(camChassisXOffset, camChassisYOffset, camChassisZOffset),
-            new Rotation3d(0, kCameraPitchRadians, 0));
+            new Translation3d(kCamChassisXOffset, kCamChassisYOffset, KCamChassisZOffset),
+            new Rotation3d(0, kCameraPitch.in(Radians), 0));
     public static final Transform3d robotToCamTwo =
         new Transform3d(
-            new Translation3d(camChassisXOffset, -camChassisYOffset, camChassisZOffset),
-            new Rotation3d(0, kCameraPitchRadians, 0));
+            new Translation3d(
+                kCamChassisXOffset, kCamChassisYOffset.unaryMinus(), KCamChassisZOffset),
+            new Rotation3d(0, kCameraPitch.in(Radians), 0));
 
     public static final Matrix<N3, N1> kMultiTagStdDevs =
         VecBuilder.fill(0.5, 0.5, Double.POSITIVE_INFINITY);
