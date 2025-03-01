@@ -40,6 +40,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.GameState;
 import frc.robot.Constants.ManipulatorConstants;
 import frc.robot.Constants.VisionConstants;
@@ -54,6 +55,7 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.manipulator.Manipulator;
 import frc.robot.subsystems.vision.Vision;
 import monologue.Logged;
@@ -72,6 +74,7 @@ public class RobotContainer implements Logged {
   private final Vision vision;
   private final Manipulator manipulator;
   private final Climber climber;
+  private final Elevator elevator;
 
   // Controllers
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -118,14 +121,14 @@ public class RobotContainer implements Logged {
                 new ModuleIO() {});
         break;
     }
-
+    climber = new Climber();
+    elevator = new Elevator();
     vision = new Vision(drive::updateEstimates);
     manipulator =
         new Manipulator(
             new SparkMax(PIVOT_ID, MotorType.kBrushless),
             new SparkMax(ROLLER_ID, MotorType.kBrushless),
             new DigitalInput(LINE_BREAK_PORT));
-    climber = new Climber();
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -183,6 +186,7 @@ public class RobotContainer implements Logged {
 
   private void configureAutos() {
     NamedCommands.registerCommand("test", print("test"));
+    NamedCommands.registerCommand("score", pickupAction(GameState.L4_SCORE, true));
     autoChooser.addOption("left leave", AutoBuilder.buildAuto("left leave"));
   }
 
@@ -249,6 +253,11 @@ public class RobotContainer implements Logged {
             pickupAction(
                 GameState.L2_ALGAE, Math.signum(opController.getRawAxis(1)) == 1.0 ? true : false));
 
+    // elevator dead reckoning
+    new Trigger(() -> (Math.abs(opController.getRawAxis(0)) > 0.5))
+        .whileTrue(runOnce(() -> elevator.move(ElevatorConstants.deadReckoningSpeed * Math.signum(opController.getRawAxis(0))), elevator))
+        .onFalse(runOnce(() -> elevator.move(0), elevator));
+
     opController.a().onTrue(pickupAction(GameState.L1_SCORE, true));
     opController.b().onTrue(pickupAction(GameState.L2_SCORE, true));
     opController.y().onTrue(pickupAction(GameState.L3_SCORE, true));
@@ -271,17 +280,18 @@ public class RobotContainer implements Logged {
                 .finallyDo(() -> climber.stopMotor()));
   }
 
-  // TODO add elevator movement (extend then retract once finished) once subsystems are tested and
   private Command pickupAction(GameState state, boolean eject) {
-    return manipulator
-        .setAngle(state)
-        .until(() -> manipulator.atAngle(state))
-        .andThen(
-            sequence(
-                manipulator
-                    .spinRollers(eject)
-                    .withTimeout(ManipulatorConstants.defaultPickupActionTime),
-                manipulator.stopRollers()));
+    return sequence(
+        runOnce(() -> elevator.setSetpoint(state), elevator),
+        manipulator
+            .setAngle(state)
+            .until(() -> manipulator.atAngle(state))
+            .andThen(
+                sequence(
+                    manipulator
+                        .spinRollers(eject)
+                        .withTimeout(ManipulatorConstants.defaultPickupActionTime),
+                    manipulator.stopRollers())));
   }
 
   public void driveTipCorrect() {

@@ -27,6 +27,8 @@ import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Seconds;
 
+import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
@@ -100,7 +102,7 @@ public final class Constants {
 
   public static class DriveConstants {
     // TODO verify actual chassis size
-    public static final Distance chassisSize = Meters.of(0.9);
+    public static final Distance chassisSize = Inches.of(32);
     public static final LinearVelocity maxTranslationSpeed = MetersPerSecond.of(10);
     public static final LinearAcceleration maxTranslationAcceleration =
         MetersPerSecondPerSecond.of(3.5);
@@ -177,5 +179,35 @@ public final class Constants {
     public static final int kUpperLimSwitchId = 8;
     public static final int kLowerLimSwitchId = 9;
     public static final double kClimberMotorMult = 0.9;
+  }
+
+  public static class ElevatorConstants {
+    // set actual value later
+    public static final int sparkMaxCANId = 15;
+    public static final int sparkMaxFollowerCANId = 16;
+    public static final Distance maxHeight = Meters.of(1.72);
+    public static final Distance levelOneSetpoint = Inches.of(3.93);
+    public static final Distance levelTwoSetpoint = Inches.of(18.5);
+    public static final Distance levelThreeSetpoint = Inches.of(46.3);
+    public static final Distance levelFourSetpoint = Inches.of(67.3);
+    public static final double deadReckoningSpeed = 0.1;
+    public static final double deadRecogningDeadZone = 0.05;
+    public static final double restInput = 0.02;
+
+    public static final Distance encoderOffset = Meters.of(0);
+
+    public static class Config {
+      public static final boolean inverted = false;
+      public static final IdleMode idleMode = IdleMode.kBrake;
+
+      // factor to make full extension 1 (1 / num rotations per full extension)
+      public static final double positionConvertionFactor = 1 / 17.893;
+
+      public static final FeedbackSensor feedbackSensor = FeedbackSensor.kAbsoluteEncoder;
+      public static final double pidP = 0.8;
+      public static final double pidI = 0;
+      public static final double pidD = 0;
+      public static final double feedForward = 0.02;
+    }
   }
 }
