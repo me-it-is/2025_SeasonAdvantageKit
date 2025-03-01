@@ -44,7 +44,7 @@ public class SnapToTarget extends Command {
             DriveConstants.maxTranslationSpeed,
             DriveConstants.maxTranslationAcceleration,
             DriveConstants.maxRotVelocity,
-            DriveConstants.maxRotAcceleration); // TODO estimated values fix
+            DriveConstants.maxRotAcceleration);
     // final pose should be slightly offset from april tag position
     Pose2d finalPose =
         scorePose.plus(
@@ -93,8 +93,6 @@ public class SnapToTarget extends Command {
         minPose = scoringPoses.get(i);
       }
     }
-
-    Translation2d driveTranslation = drivePose.getTranslation();
     Translation2d scoringTranslation = minPose.getTranslation();
     // mirror pose if red alliance to account for field to robot coordinate conversion
     if (alliance.get() == Alliance.Red) {
