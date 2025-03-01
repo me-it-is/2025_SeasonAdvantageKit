@@ -70,10 +70,6 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
         (setpoint.in(Meters) / ElevatorConstants.maxHeight.in(Meters)), ControlType.kPosition);
   }
 
-  public boolean atSetpoint() {
-    return false;
-  }
-
   @Override
   public void periodic() {
     this.log("Elevator height meters", getElevatorHeight().in(Meters));

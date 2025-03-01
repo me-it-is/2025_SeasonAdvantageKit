@@ -69,7 +69,6 @@ public class Drive extends SubsystemBase {
           Math.max(
               Math.hypot(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
               Math.hypot(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)));
-  private boolean tipCorrectionEnabled = false;
   private boolean visionConverge = false;
   // PathPlanner config constants
 
@@ -385,32 +384,5 @@ public class Drive extends SubsystemBase {
       new Translation2d(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
       new Translation2d(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)
     };
-  }
-
-  public ChassisSpeeds calculateTipCorrection() {
-    Constants.DriveConstants.tipController.setSetpoint(0);
-
-    double tipAngle =
-        Math.atan(
-            Math.sqrt(
-                Math.pow(gyroInputs.xRotation.in(Radians), 2)
-                    + Math.pow(gyroInputs.yRotation.in(Radians), 2)));
-    double fNormal = Constants.ROBOT_MASS_KG.in(Kilograms) * 9.81 * Math.cos(tipAngle);
-    double tipMag = fNormal * Math.sin(tipAngle); // projection of normal force onto horizontal
-    double angle =
-        Math.atan2(
-            gyroInputs.yRotation.in(Radians),
-            gyroInputs.xRotation.in(Radians)); // direction of tip vector relative to x-axis
-
-    double xSpeed =
-        Constants.DriveConstants.tipController.calculate(
-            MathUtil.applyDeadband(
-                tipMag * Math.cos(angle), Constants.DriveConstants.tipDeadband.in(Newtons)));
-    double ySpeed =
-        Constants.DriveConstants.tipController.calculate(
-            MathUtil.applyDeadband(
-                tipMag * Math.sin(angle), Constants.DriveConstants.tipDeadband.in(Newtons)));
-
-    return new ChassisSpeeds(xSpeed, ySpeed, 0);
   }
 }

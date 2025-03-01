@@ -310,10 +310,6 @@ public class RobotContainer implements Logged {
                     manipulator.stopRollers())));
   }
 
-  public void driveTipCorrect() {
-    drive.runVelocity(drive.calculateTipCorrection());
-  }
-
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *

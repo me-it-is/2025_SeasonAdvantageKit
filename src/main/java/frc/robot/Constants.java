@@ -120,9 +120,9 @@ public final class Constants {
   }
 
   public static class ManipulatorConstants {
-    public static final int PIVOT_ID = 18;
-    public static final int ROLLER_ID = 17;
-    public static final int LINE_BREAK_PORT = -1;
+    public static final int PIVOT_ID = 3;
+    public static final int ROLLER_ID = 4;
+    public static final int LINE_BREAK_PORT = 2;
 
     public static final Angle fullRoll = Degrees.of(130);
     public static final Angle rotTolerance = Rotations.of(0.02);
@@ -175,16 +175,16 @@ public final class Constants {
   }
 
   public static class ClimberConstants {
-    public static final int kClimberMotorID = 14;
-    public static final int kUpperLimSwitchId = 8;
-    public static final int kLowerLimSwitchId = 9;
+    public static final int kClimberMotorID = 0;
+    public static final int kUpperLimSwitchId = 0;
+    public static final int kLowerLimSwitchId = 1;
     public static final double kClimberMotorMult = 0.9;
   }
 
   public static class ElevatorConstants {
     // set actual value later
-    public static final int sparkMaxCANId = 15;
-    public static final int sparkMaxFollowerCANId = 16;
+    public static final int sparkMaxCANId = 1;
+    public static final int sparkMaxFollowerCANId = 2;
     public static final Distance maxHeight = Meters.of(1.72);
     public static final Distance levelOneSetpoint = Inches.of(3.93);
     public static final Distance levelTwoSetpoint = Inches.of(18.5);
