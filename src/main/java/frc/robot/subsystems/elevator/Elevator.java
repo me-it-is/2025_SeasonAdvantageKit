@@ -15,8 +15,9 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.ElevatorConstants.Config;
+import monologue.Logged;
 
-public class Elevator extends SubsystemBase implements AutoCloseable {
+public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
   private SparkMax sparkMaxLeader =
       new SparkMax(ElevatorConstants.sparkMaxCANId, MotorType.kBrushless);
   private SparkMax sparkMaxFollower =
@@ -76,6 +77,8 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
   public void periodic() {
     pidControllerLeader.setReference(
         (setpoint.in(Meters) / ElevatorConstants.maxHeight.in(Meters)), ControlType.kPosition);
+
+    this.log("Elevator hight meters", getElevatorHeight().in(Meters));
   }
 
   @Override
