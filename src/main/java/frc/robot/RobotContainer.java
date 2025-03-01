@@ -47,6 +47,7 @@ import frc.robot.commands.AutoAim;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.SnapToTarget;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -70,6 +71,7 @@ public class RobotContainer implements Logged {
   private final Drive drive;
   private final Vision vision;
   private final Manipulator manipulator;
+  private final Climber climber;
 
   // Controllers
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -123,6 +125,7 @@ public class RobotContainer implements Logged {
             new SparkMax(PIVOT_ID, MotorType.kBrushless),
             new SparkMax(ROLLER_ID, MotorType.kBrushless),
             new DigitalInput(LINE_BREAK_PORT));
+    climber = new Climber();
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -253,6 +256,19 @@ public class RobotContainer implements Logged {
 
     // human player station intake
     opController.povUp().onTrue(pickupAction(GameState.HUMAN_PLAYER_STATION, false));
+
+    opController
+        .leftTrigger()
+        .onTrue(
+            runOnce(() -> climber.setMotor(true), climber)
+                .until(() -> climber.isBottomSwitch())
+                .finallyDo(() -> climber.stopMotor()));
+    opController
+        .rightTrigger()
+        .onTrue(
+            runOnce(() -> climber.setMotor(false), climber)
+                .until(() -> climber.isTopSwitch())
+                .finallyDo(() -> climber.stopMotor()));
   }
 
   // TODO add elevator movement (extend then retract once finished) once subsystems are tested and
