@@ -123,8 +123,7 @@ public class RobotContainer {
 
   private void configureAutos() {
     NamedCommands.registerCommand("test", print("test"));
-    NamedCommands.registerCommand("Score Coral", run(ScoreCoral, m_manipulator, ));
-    autoChooser.addOption("test drive", AutoBuilder.buildAuto("Example Auto"));
+    autoChooser.addOption("left leave", AutoBuilder.buildAuto("left leave"));
   }
 
   public void resetPose() {
