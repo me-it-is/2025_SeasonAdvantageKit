@@ -14,15 +14,21 @@
 package frc.robot;
 
 import static edu.wpi.first.wpilibj2.command.Commands.*;
+import static frc.robot.Constants.ManipulatorConstants.LINE_BREAK_PORT;
+import static frc.robot.Constants.ManipulatorConstants.PIVOT_ID;
+import static frc.robot.Constants.ManipulatorConstants.ROLLER_ID;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -31,8 +37,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.GameState;
+import frc.robot.Constants.ManipulatorConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.AutoAim;
 import frc.robot.commands.DriveCommands;
@@ -44,7 +53,10 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.manipulator.Manipulator;
 import frc.robot.subsystems.vision.Vision;
+import monologue.Logged;
+import monologue.Monologue;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -53,13 +65,15 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
  * subsystems, commands, and button mappings) should be declared here.
  */
-public class RobotContainer {
+public class RobotContainer implements Logged {
   // Subsystems
   private final Drive drive;
   private final Vision vision;
+  private final Manipulator manipulator;
 
-  // Controller
+  // Controllers
   private final CommandXboxController controller = new CommandXboxController(0);
+  private final CommandXboxController opController = new CommandXboxController(1);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -67,6 +81,7 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    Monologue.setupMonologue(this, "Robot", false, false);
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
@@ -103,10 +118,14 @@ public class RobotContainer {
     }
 
     vision = new Vision(drive::updateEstimates);
+    manipulator =
+        new Manipulator(
+            new SparkMax(PIVOT_ID, MotorType.kBrushless),
+            new SparkMax(ROLLER_ID, MotorType.kBrushless),
+            new DigitalInput(LINE_BREAK_PORT));
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
-
     // Set up SysId routines
     autoChooser.addOption(
         "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
@@ -209,6 +228,44 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
                     drive)
                 .ignoringDisable(true));
+
+    // intake coral
+    opController.rightBumper().onTrue(manipulator.spinRollers(true).until(manipulator::hasCoral));
+
+    // outtake coral
+    opController
+        .leftBumper()
+        .onTrue(
+            manipulator
+                .spinRollers(false)
+                .withTimeout(ManipulatorConstants.defaultPickupActionTime));
+
+    // intake and release algae
+    new Trigger(() -> (Math.abs(opController.getRawAxis(1)) > 0.5))
+        .onTrue(
+            pickupAction(
+                GameState.L2_ALGAE, Math.signum(opController.getRawAxis(1)) == 1.0 ? true : false));
+
+    opController.a().onTrue(pickupAction(GameState.L1_SCORE, true));
+    opController.b().onTrue(pickupAction(GameState.L2_SCORE, true));
+    opController.y().onTrue(pickupAction(GameState.L3_SCORE, true));
+    opController.x().onTrue(pickupAction(GameState.L4_SCORE, true));
+
+    // human player station intake
+    opController.povUp().onTrue(pickupAction(GameState.HUMAN_PLAYER_STATION, false));
+  }
+
+  // TODO add elevator movement (extend then retract once finished) once subsystems are tested and
+  private Command pickupAction(GameState state, boolean eject) {
+    return manipulator
+        .setAngle(state)
+        .until(() -> manipulator.atAngle(state))
+        .andThen(
+            sequence(
+                manipulator
+                    .spinRollers(eject)
+                    .withTimeout(ManipulatorConstants.defaultPickupActionTime),
+                manipulator.stopRollers()));
   }
 
   public void driveTipCorrect() {

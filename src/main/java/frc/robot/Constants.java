@@ -13,7 +13,19 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Kilogram;
+import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Newtons;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -34,6 +46,8 @@ import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.units.measure.MomentOfInertia;
+import edu.wpi.first.units.measure.Time;
+import java.util.Map;
 
 /**
  * This class defines the runtime mode used by AdvantageKit. The mode is always "real" when running
@@ -60,6 +74,30 @@ public final class Constants {
     REPLAY
   }
 
+  public static enum GameState {
+    L1_SCORE,
+    L2_SCORE,
+    L3_SCORE,
+    L4_SCORE,
+    L2_ALGAE,
+    L3_ALGAE,
+    HUMAN_PLAYER_STATION,
+    NONE,
+  }
+
+  public static record AngleAndDistance(Angle angle, Distance distance) {}
+
+  public static Map<GameState, AngleAndDistance> reefMap =
+      Map.of(
+          GameState.L1_SCORE, new AngleAndDistance(Degrees.of(50), Inches.of(3.5)),
+          GameState.L2_SCORE, new AngleAndDistance(Degrees.of(130), Inches.of(16.5)),
+          GameState.L3_SCORE, new AngleAndDistance(Degrees.of(130), Inches.of(31)),
+          GameState.L4_SCORE, new AngleAndDistance(Degrees.of(100), Inches.of(67.3)),
+          GameState.L2_ALGAE, new AngleAndDistance(Degrees.of(58), Inches.of(3.5)),
+          GameState.L3_ALGAE, new AngleAndDistance(Degrees.of(58), Inches.of(31)),
+          GameState.HUMAN_PLAYER_STATION, new AngleAndDistance(Degrees.of(10), Inches.of(23)),
+          GameState.NONE, new AngleAndDistance(Degrees.of(0), Inches.of(0)));
+
   public static class DriveConstants {
     // TODO verify actual chassis size
     public static final Distance chassisSize = Meters.of(0.9);
@@ -77,6 +115,21 @@ public final class Constants {
     public static final PIDController tipController = new PIDController(0.25, 0, 0.1);
     public static final double tipFF = 0.1;
     public static final Force tipDeadband = Newtons.of(3);
+  }
+
+  public static class ManipulatorConstants {
+    public static final int PIVOT_ID = 18;
+    public static final int ROLLER_ID = 17;
+    public static final int LINE_BREAK_PORT = -1;
+
+    public static final Angle fullRoll = Degrees.of(130);
+    public static final Angle rotTolerance = Rotations.of(0.02);
+    public static final double defaultRollerSpeed = 1.0;
+    public static final Time defaultPickupActionTime = Seconds.of(1);
+    public static final double kP = 0.1;
+    public static final double kI = 0;
+    public static final double kD = 0;
+    public static final double kFF = 0.2;
   }
 
   public static class VisionConstants {
