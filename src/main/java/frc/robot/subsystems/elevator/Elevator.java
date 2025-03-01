@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.ElevatorConstants.Config;
 import monologue.Logged;
+import frc.robot.Constants.ElevatorConstants.Stage;
 
 public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
   private SparkMax sparkMaxLeader =
@@ -54,33 +55,38 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
         followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
-  public void setSetpoint(int stage) {
+  public void setSetpoint(Stage stage) {
     switch (stage) {
-      case 1:
+      case STAGE_1:
         this.setpoint = ElevatorConstants.levelOneSetpoint;
         break;
-      case 2:
+      case STAGE_2:
         this.setpoint = ElevatorConstants.levelTwoSetpoint;
         break;
-      case 3:
+      case STAGE_3:
         this.setpoint = ElevatorConstants.levelThreeSetpoint;
         break;
-      case 4:
+      case STAGE_4:
         this.setpoint = ElevatorConstants.levelFourSetpoint;
         break;
       default:
         this.setpoint = Meters.of(0);
     }
+    setReference();
   }
 
-  @Override
-  public void periodic() {
+  public void move(double speed) {
+    sparkMaxLeader.set(speed);
+  }
+
+  private void setReference() {
     pidControllerLeader.setReference(
         (setpoint.in(Meters) / ElevatorConstants.maxHeight.in(Meters)), ControlType.kPosition);
-
-    this.log("Elevator hight meters", getElevatorHeight().in(Meters));
   }
-
+  @Override 
+  public void periodic() {
+    this.log("Elevator hight meters", getElevatorHeight().in(Meters)); 
+  }
   @Override
   public void close() {
     sparkMaxFollower.close();

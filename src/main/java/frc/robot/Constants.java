@@ -14,6 +14,7 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Newtons;
@@ -116,11 +117,21 @@ public final class Constants {
     // set actual value later
     public static final int sparkMaxCANId = 15;
     public static final int sparkMaxFollowerCANId = 16;
-    public static final Distance maxHeight = Meters.of(1);
-    public static final Distance levelOneSetpoint = Meters.of(0);
-    public static final Distance levelTwoSetpoint = Meters.of(0);
-    public static final Distance levelThreeSetpoint = Meters.of(0);
-    public static final Distance levelFourSetpoint = Meters.of(0);
+    public static final Distance maxHeight = Meters.of(1.72);
+    public static final Distance levelOneSetpoint = Inches.of(3.93);
+    public static final Distance levelTwoSetpoint = Inches.of(18.5);
+    public static final Distance levelThreeSetpoint = Inches.of(46.3);
+    public static final Distance levelFourSetpoint = Inches.of(67.3);
+    public static final double deadRecogningScalar = 0.1;
+    public static final double deadRecogningDeadZone = 0.05;
+    public static final double restInput = 0.02;
+
+    public enum Stage {
+      STAGE_1, 
+      STAGE_2,
+      STAGE_3,
+      STAGE_4;
+    }
 
     public static final Distance encoderOffset = Meters.of(0);
 
@@ -128,8 +139,8 @@ public final class Constants {
       public static final boolean inverted = false;
       public static final IdleMode idleMode = IdleMode.kBrake;
 
-      // TODO: factor to make full extension 1 (1 / num rotations per full extension)
-      public static final double positionConvertionFactor = 1 / 20;
+      // factor to make full extension 1 (1 / num rotations per full extension)
+      public static final double positionConvertionFactor = 1 / 17.893;
 
       public static final FeedbackSensor feedbackSensor = FeedbackSensor.kAbsoluteEncoder;
       public static final double pidP = 0.8;
