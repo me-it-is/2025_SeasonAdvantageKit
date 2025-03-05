@@ -186,16 +186,21 @@ public class RobotContainer implements Logged {
 
   private void configureAutos() {
     NamedCommands.registerCommand("score", pickupAction(GameState.L4_SCORE, true));
-    NamedCommands.registerCommand("hps pickup", pickupAction(GameState.HUMAN_PLAYER_STATION, false));
+    NamedCommands.registerCommand(
+        "hps pickup", pickupAction(GameState.HUMAN_PLAYER_STATION, false));
     NamedCommands.registerCommand("remove algae", pickupAction(GameState.L2_ALGAE, false));
 
     autoChooser.addDefaultOption("top leave", AutoBuilder.buildAuto("top leave"));
     autoChooser.addOption("middle leave", AutoBuilder.buildAuto("middle leave"));
     autoChooser.addOption("bottom leave", AutoBuilder.buildAuto("bottom leave"));
-    autoChooser.addOption("top leave single score", AutoBuilder.buildAuto("top leave single score"));
-    autoChooser.addOption("top leave double score", AutoBuilder.buildAuto("top leave double score"));
-    autoChooser.addOption("bottom leave single score", AutoBuilder.buildAuto("bottom leave single score"));
-    autoChooser.addOption("bottom leave double score", AutoBuilder.buildAuto("bottom leave double score"));
+    autoChooser.addOption(
+        "top leave single score", AutoBuilder.buildAuto("top leave single score"));
+    autoChooser.addOption(
+        "top leave double score", AutoBuilder.buildAuto("top leave double score"));
+    autoChooser.addOption(
+        "bottom leave single score", AutoBuilder.buildAuto("bottom leave single score"));
+    autoChooser.addOption(
+        "bottom leave double score", AutoBuilder.buildAuto("bottom leave double score"));
     autoChooser.addOption("top remove algae", AutoBuilder.buildAuto("top remove algae"));
     autoChooser.addOption("bottom remove algae", AutoBuilder.buildAuto("bottom remove algae"));
   }
@@ -252,25 +257,20 @@ public class RobotContainer implements Logged {
     // outtake coral
     opController
         .leftBumper()
-        .onTrue(
-            manipulator
-                .spinRollers(false)
-                .withTimeout(ManipulatorConstants.defaultPickupActionTime));
+        .onTrue(manipulator.spinRollers(false).withTimeout(ManipulatorConstants.defaultPickupTime));
 
     // intake and release algae
-    new Trigger(() -> (Math.abs(opController.getRawAxis(1)) > 0.5))
-        .onTrue(
-            pickupAction(
-                GameState.L2_ALGAE, Math.signum(opController.getRawAxis(1)) == 1.0 ? true : false));
+    new Trigger(() -> (Math.abs(opController.getLeftY())) > 0.5)
+        .onTrue(pickupAction(GameState.L2_ALGAE, Math.signum(opController.getLeftY()) == 1.0));
 
     // elevator dead reckoning
-    new Trigger(() -> (Math.abs(opController.getRawAxis(0)) > 0.5))
+    new Trigger(() -> (Math.abs(opController.getRightY()) > 0.5))
         .whileTrue(
             runOnce(
                 () ->
                     elevator.move(
                         ElevatorConstants.deadReckoningSpeed
-                            * Math.signum(opController.getRawAxis(0))),
+                            * Math.signum(opController.getRightY())),
                 elevator))
         .onFalse(runOnce(() -> elevator.move(0), elevator));
 
@@ -286,14 +286,14 @@ public class RobotContainer implements Logged {
         .leftTrigger()
         .onTrue(
             runOnce(() -> climber.setMotor(true), climber)
-                .until(() -> climber.isBottomSwitch())
-                .finallyDo(() -> climber.stopMotor()));
+                .until(climber::isBottomSwitch)
+                .finallyDo(climber::stopMotor));
     opController
         .rightTrigger()
         .onTrue(
             runOnce(() -> climber.setMotor(false), climber)
-                .until(() -> climber.isTopSwitch())
-                .finallyDo(() -> climber.stopMotor()));
+                .until(climber::isTopSwitch)
+                .finallyDo(climber::stopMotor));
   }
 
   private Command pickupAction(GameState state, boolean eject) {
@@ -306,7 +306,7 @@ public class RobotContainer implements Logged {
                 sequence(
                     manipulator
                         .spinRollers(eject)
-                        .withTimeout(ManipulatorConstants.defaultPickupActionTime),
+                        .withTimeout(ManipulatorConstants.defaultPickupTime),
                     manipulator.stopRollers())));
   }
 
