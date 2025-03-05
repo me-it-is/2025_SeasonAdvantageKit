@@ -15,12 +15,12 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.Kilogram;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Newtons;
+import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
@@ -62,9 +62,12 @@ public final class Constants {
       Mode.REAL; // RobotBase.isReal() ? Mode.REAL : Mode.SIM; robot thinks it's fake wut
 
   // Phisical values of the robot
-  public static final Mass ROBOT_MASS_KG = Kilogram.of(74.088);
-  public static final MomentOfInertia ROBOT_MOI = KilogramSquareMeters.of(6.883);
-  public static final double WHEEL_COF = 1.2;
+  public static final Mass ROBOT_MASS_KG = Pounds.of(138.308);
+  // Converted form lbs in2 becuse wpi doesnt have a unit
+  public static final MomentOfInertia ROBOT_MOI = KilogramSquareMeters.of(0.0588);
+  // esemate based of of this
+  // https://www.researchgate.net/figure/Coefficient-of-friction-of-neoprene-rubber-with-different-part-materials_tbl1_223593062
+  public static final double WHEEL_COF = 0.8;
 
   public static enum Mode {
     /** Running on a real robot. */
@@ -102,8 +105,8 @@ public final class Constants {
           GameState.NONE, new AngleAndDistance(Degrees.of(0), Inches.of(0)));
 
   public static class DriveConstants {
-    // TODO verify actual chassis size
-    public static final Distance chassisSize = Inches.of(32);
+    // TODO verify velcotitys and accelerations
+    public static final Distance chassisSize = Inches.of(34.24);
     public static final LinearVelocity maxTranslationSpeed = MetersPerSecond.of(10);
     public static final LinearAcceleration maxTranslationAcceleration =
         MetersPerSecondPerSecond.of(3.5);
