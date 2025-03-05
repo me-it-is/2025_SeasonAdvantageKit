@@ -39,6 +39,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -145,8 +146,11 @@ public final class Constants {
     public static final Angle kRollBounds = Radians.of(0.2);
     public static final Angle kPitchBounds = Radians.of(0.2);
 
-    public static final Distance kCamChassisXOffset = Inches.of(0.0);
-    public static final Distance kCamChassisYOffset = Inches.of(-10);
+    private static final double halfOffset = DriveConstants.chassisSize.in(Units.Inches) / 2;
+    public static final Distance kCamOneChassisXOffset = Inches.of(halfOffset);
+    public static final Distance kCamOneChassisYOffset = Inches.of(halfOffset);
+    public static final Distance kCamTwoChassisXOffset = Inches.of(-halfOffset);
+    public static final Distance kCamTwoChassisYOffset = Inches.of(-halfOffset);
     public static final Distance KCamChassisZOffset = Inches.of(4.5);
 
     public static final Angle kMinAngError = Degrees.of(5);
@@ -160,12 +164,12 @@ public final class Constants {
     public static final Angle kCameraPitch = Radians.of(Math.PI / 3);
     public static final Transform3d robotToCamOne =
         new Transform3d(
-            new Translation3d(kCamChassisXOffset, kCamChassisYOffset, KCamChassisZOffset),
+            new Translation3d(kCamOneChassisXOffset, kCamOneChassisYOffset, KCamChassisZOffset),
             new Rotation3d(0, kCameraPitch.in(Radians), 0));
     public static final Transform3d robotToCamTwo =
         new Transform3d(
             new Translation3d(
-                kCamChassisXOffset, kCamChassisYOffset.unaryMinus(), KCamChassisZOffset),
+                kCamTwoChassisXOffset, kCamTwoChassisYOffset.unaryMinus(), KCamChassisZOffset),
             new Rotation3d(0, kCameraPitch.in(Radians), 0));
 
     public static final Matrix<N3, N1> kMultiTagStdDevs =
