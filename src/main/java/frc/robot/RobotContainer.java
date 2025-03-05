@@ -39,6 +39,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.GameState;
@@ -121,8 +122,15 @@ public class RobotContainer implements Logged {
                 new ModuleIO() {});
         break;
     }
-    climber = new Climber();
-    elevator = new Elevator();
+    climber =
+        new Climber(
+            new SparkMax(ClimberConstants.kClimberMotorID, MotorType.kBrushless),
+            new DigitalInput(ClimberConstants.kUpperLimSwitchId),
+            new DigitalInput(ClimberConstants.kUpperLimSwitchId));
+    elevator =
+        new Elevator(
+            new SparkMax(ElevatorConstants.sparkMaxCANId, MotorType.kBrushless),
+            new SparkMax(ElevatorConstants.sparkMaxFollowerCANId, MotorType.kBrushless));
     vision = new Vision(drive::updateEstimates);
     manipulator =
         new Manipulator(
@@ -296,6 +304,7 @@ public class RobotContainer implements Logged {
                 .finallyDo(climber::stopMotor));
   }
 
+  /** Move to correct elevator height, pivot angle, and spin manipulator rollers */
   private Command pickupAction(GameState state, boolean eject) {
     return sequence(
         runOnce(() -> elevator.setSetpoint(state), elevator),

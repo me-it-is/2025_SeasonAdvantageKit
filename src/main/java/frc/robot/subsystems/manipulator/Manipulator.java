@@ -64,6 +64,7 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
     return Constants.reefMap.get(state).angle().in(Units.Rotations);
   }
 
+  /** Sets angle of manipulator, with higher feedforward the closer the pivot is to vertical */
   public Command setAngle(GameState state) {
     double setpoint = getAngle(state);
     return this.run(
@@ -78,12 +79,14 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
     return Rotations.of(pivotEncoder.getPosition());
   }
 
+  /** Check if pivot is at angle setpoint to some degree of error */
   public boolean atAngle(GameState state) {
     double setpoint = getAngle(state);
     return Math.abs(getEncoderPosition().in(Rotations) - setpoint)
         < ManipulatorConstants.rotTolerance.in(Rotations);
   }
 
+  /** Spin rollers forward or backward at default speed */
   public Command spinRollers(boolean forward) {
     int multipler = forward == true ? 1 : -1;
     return this.runOnce(() -> rollers.set(defaultRollerSpeed * multipler));

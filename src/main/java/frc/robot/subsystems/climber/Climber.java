@@ -1,6 +1,5 @@
 package frc.robot.subsystems.climber;
 
-import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -10,29 +9,27 @@ import monologue.Logged;
 public class Climber extends SubsystemBase implements AutoCloseable, Logged {
 
   private SparkMax motorController;
-  private DigitalInput m_limSwitchUpper;
-  private DigitalInput m_limSwitchLower;
+  private DigitalInput limSwitchUpper;
+  private DigitalInput limSwitchLower;
 
-  public Climber() {
-    motorController = new SparkMax(ClimberConstants.kClimberMotorID, MotorType.kBrushless);
-
-    motorController.set(0);
-
-    m_limSwitchUpper = new DigitalInput(ClimberConstants.kUpperLimSwitchId);
-    m_limSwitchLower = new DigitalInput(ClimberConstants.kUpperLimSwitchId);
+  public Climber(
+      SparkMax motorController, DigitalInput limSwitchUpper, DigitalInput limSwitchLower) {
+    this.motorController = motorController;
+    this.limSwitchUpper = limSwitchUpper;
+    this.limSwitchLower = limSwitchLower;
   }
 
   @Override
   public void periodic() {
-    this.log("lim motor up?", m_limSwitchUpper.get());
-    this.log("lim motor low?", m_limSwitchLower.get());
+    this.log("lim motor up?", limSwitchUpper.get());
+    this.log("lim motor low?", limSwitchLower.get());
   }
 
   @Override
   public void close() {
     motorController.close();
-    m_limSwitchUpper.close();
-    m_limSwitchLower.close();
+    limSwitchUpper.close();
+    limSwitchLower.close();
   }
 
   public void setMotor(boolean reverse) {
@@ -53,10 +50,10 @@ public class Climber extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   public boolean isTopSwitch() {
-    return m_limSwitchLower.get();
+    return limSwitchLower.get();
   }
 
   public boolean isBottomSwitch() {
-    return m_limSwitchUpper.get();
+    return limSwitchUpper.get();
   }
 }
