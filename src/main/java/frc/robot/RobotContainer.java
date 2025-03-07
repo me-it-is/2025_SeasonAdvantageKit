@@ -127,7 +127,8 @@ public class RobotContainer implements Logged {
         new Climber(
             new SparkMax(ClimberConstants.kClimberMotorID, MotorType.kBrushless),
             new DigitalInput(ClimberConstants.kUpperLimSwitchId),
-            new DigitalInput(ClimberConstants.kUpperLimSwitchId));
+            new DigitalInput(ClimberConstants.kUpperLimSwitchId),
+            new DigitalInput(ClimberConstants.kMidBeamBreakId));
     elevator =
         new Elevator(
             new SparkMax(ElevatorConstants.sparkMaxCANId, MotorType.kBrushless),
@@ -304,7 +305,7 @@ public class RobotContainer implements Logged {
                 .until(climber::isTopSwitch)
                 .finallyDo(climber::stopMotor));
     opController
-        .povLeft()
+        .povDown()
         .onTrue(
             runOnce(
                     () ->
@@ -313,6 +314,7 @@ public class RobotContainer implements Logged {
                     climber)
                 .until(climber::isLineBreakSwitch)
                 .finallyDo(climber::stopMotor));
+    opController.povLeft().onTrue(runOnce(() -> elevator.setSetpoint(GameState.NONE), elevator));
   }
 
   /** Move to correct elevator height, pivot angle, and spin manipulator rollers */

@@ -126,7 +126,7 @@ public final class Constants {
   public static class ManipulatorConstants {
     public static final int PIVOT_ID = 3;
     public static final int ROLLER_ID = 4;
-    public static final int LINE_BREAK_PORT = 2;
+    public static final int LINE_BREAK_PORT = 3;
 
     public static final Angle fullRoll = Degrees.of(130);
     public static final Angle rotTolerance = Rotations.of(0.02);
@@ -186,6 +186,7 @@ public final class Constants {
     public static final int kClimberMotorID = 0;
     public static final int kUpperLimSwitchId = 0;
     public static final int kLowerLimSwitchId = 1;
+    public static final int kMidBeamBreakId = 2;
     public static final double kClimberMotorMult = 0.9;
   }
 
