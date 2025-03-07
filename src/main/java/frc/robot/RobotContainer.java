@@ -50,6 +50,7 @@ import frc.robot.commands.DriveCommands;
 import frc.robot.commands.SnapToTarget;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.climber.Climber;
+import frc.robot.subsystems.climber.Climber.SensorState;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -301,6 +302,16 @@ public class RobotContainer implements Logged {
         .onTrue(
             runOnce(() -> climber.setMotor(false), climber)
                 .until(climber::isTopSwitch)
+                .finallyDo(climber::stopMotor));
+    opController
+        .povLeft()
+        .onTrue(
+            runOnce(
+                    () ->
+                        climber.setMotor(
+                            climber.getSensorState() == SensorState.BOTTOM ? true : false),
+                    climber)
+                .until(climber::isLineBreakSwitch)
                 .finallyDo(climber::stopMotor));
   }
 
