@@ -294,16 +294,20 @@ public class RobotContainer implements Logged {
 
     opController
         .leftTrigger()
-        .onTrue(
+        .whileTrue(runOnce(() -> climber.setMotor(true), climber))
+        .onFalse(runOnce(climber::stopMotor));
+        /* .onTrue(
             runOnce(() -> climber.setMotor(true), climber)
                 .until(climber::isBottomSwitch)
-                .finallyDo(climber::stopMotor));
+                .finallyDo(climber::stopMotor));*/
     opController
         .rightTrigger()
-        .onTrue(
+        .whileTrue(runOnce(() -> climber.setMotor(false), climber))
+        .onFalse(runOnce(climber::stopMotor));
+        /* .onTrue(
             runOnce(() -> climber.setMotor(false), climber)
                 .until(climber::isTopSwitch)
-                .finallyDo(climber::stopMotor));
+                .finallyDo(climber::stopMotor));*/
     opController
         .povDown()
         .onTrue(
@@ -314,6 +318,7 @@ public class RobotContainer implements Logged {
                     climber)
                 .until(climber::isLineBreakSwitch)
                 .finallyDo(climber::stopMotor));
+
     opController.povLeft().onTrue(runOnce(() -> elevator.setSetpoint(GameState.NONE), elevator));
   }
 
