@@ -37,12 +37,15 @@ import frc.robot.commands.AutoAim;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.SnapToTarget;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.manipulator.Manipulator;
 import frc.robot.subsystems.vision.Vision;
 import monologue.Logged;
 import monologue.Monologue;
@@ -58,9 +61,9 @@ public class RobotContainer implements Logged {
   // Subsystems
   private final Drive drive;
   private final Vision vision;
-  /*private final Manipulator manipulator;
+  private final Manipulator manipulator;
   private final Climber climber;
-  private final Elevator elevator;*/
+  private final Elevator elevator;
 
   // Controllers
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -108,12 +111,12 @@ public class RobotContainer implements Logged {
         break;
     }
     vision = new Vision(drive::updateEstimates);
-    /*climber =
-    new Climber(
-        new SparkMax(ClimberConstants.kClimberMotorID, MotorType.kBrushless),
-        new DigitalInput(ClimberConstants.kUpperLimSwitchId),
-        new DigitalInput(ClimberConstants.kUpperLimSwitchId),
-        new DigitalInput(ClimberConstants.kMidBeamBreakId));
+    climber =
+        new Climber(
+            new SparkMax(ClimberConstants.kClimberMotorID, MotorType.kBrushless),
+            new DigitalInput(ClimberConstants.kUpperLimSwitchId),
+            new DigitalInput(ClimberConstants.kUpperLimSwitchId),
+            new DigitalInput(ClimberConstants.kMidBeamBreakId));
     elevator =
         new Elevator(
             new SparkMax(ElevatorConstants.sparkMaxCANId, MotorType.kBrushless),
@@ -123,7 +126,7 @@ public class RobotContainer implements Logged {
             new SparkMax(PIVOT_ID, MotorType.kBrushless),
             new SparkMax(ROLLER_ID, MotorType.kBrushless),
             new DigitalInput(LINE_BREAK_PORT));
-    */
+
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
     // Set up SysId routines
@@ -245,7 +248,6 @@ public class RobotContainer implements Logged {
                     drive)
                 .ignoringDisable(true));
 
-    /*
     // intake coral
     opController.rightBumper().onTrue(manipulator.spinRollers(true).until(manipulator::hasCoral));
 
@@ -281,18 +283,22 @@ public class RobotContainer implements Logged {
         .leftTrigger()
         .whileTrue(runOnce(() -> climber.setMotor(true), climber))
         .onFalse(runOnce(climber::stopMotor));
+    /*
     .onTrue(
     runOnce(() -> climber.setMotor(true), climber)
         .until(climber::isBottomSwitch)
         .finallyDo(climber::stopMotor));
+    */
     opController
         .rightTrigger()
         .whileTrue(runOnce(() -> climber.setMotor(false), climber))
         .onFalse(runOnce(climber::stopMotor));
+    /*
     .onTrue(
     runOnce(() -> climber.setMotor(false), climber)
         .until(climber::isTopSwitch)
         .finallyDo(climber::stopMotor));
+    */
     opController
         .povDown()
         .onTrue(
@@ -305,7 +311,6 @@ public class RobotContainer implements Logged {
                 .finallyDo(climber::stopMotor));
 
     opController.povLeft().onTrue(runOnce(() -> elevator.setSetpoint(GameState.NONE), elevator));
-    */
   }
 
   /* Move to correct elevator height, pivot angle, and spin manipulator rollers */
