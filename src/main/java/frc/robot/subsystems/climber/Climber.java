@@ -8,9 +8,6 @@ import monologue.Logged;
 public class Climber extends SubsystemBase implements AutoCloseable, Logged {
 
   private SparkMax motorController;
-  /*private DigitalInput limSwitchUpper;
-  private DigitalInput limSwitchLower;
-  private DigitalInput lineBreakSensor;*/
 
   public enum SensorState {
     TOP,
@@ -21,36 +18,13 @@ public class Climber extends SubsystemBase implements AutoCloseable, Logged {
 
   private SensorState curState = SensorState.NONE;
 
-  public Climber(SparkMax motorController /*DigitalInput limSwitchUpper,
-      DigitalInput limSwitchLower,
-      DigitalInput lineBreakSensor*/) {
+  public Climber(SparkMax motorController) {
     this.motorController = motorController;
-    /*this.limSwitchUpper = limSwitchUpper;
-    this.limSwitchLower = limSwitchLower;
-    this.lineBreakSensor = lineBreakSensor; */
-  }
-
-  @Override
-  public void periodic() {
-    // this.log("lim motor up?", limSwitchUpper.get());
-    // this.log("lim motor low?", limSwitchLower.get());
-    // this.log("lim motor mid?", lineBreakSensor.get());
-
-    // if (isBottomSwitch()) {
-    //   curState = SensorState.BOTTOM;
-    // } else if (isTopSwitch()) {
-    //   curState = SensorState.TOP;
-    // } else if (isLineBreakSwitch()) {
-    //   curState = SensorState.MID;
-    // }
   }
 
   @Override
   public void close() {
     motorController.close();
-    /*  limSwitchUpper.close();
-    limSwitchLower.close();
-    lineBreakSensor.close(); */
   }
 
   public void setMotor(boolean reverse) {
@@ -69,18 +43,6 @@ public class Climber extends SubsystemBase implements AutoCloseable, Logged {
   public void disable() {
     motorController.disable();
   }
-
-  // public boolean isTopSwitch() {
-  //   return limSwitchLower.get();
-  // }
-
-  // public boolean isBottomSwitch() {
-  //   return limSwitchUpper.get();
-  // }
-
-  // public boolean isLineBreakSwitch() {
-  //   return lineBreakSensor.get();
-  // }
 
   public SensorState getSensorState() {
     return curState;

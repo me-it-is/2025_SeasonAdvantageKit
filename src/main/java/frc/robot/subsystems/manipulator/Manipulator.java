@@ -16,7 +16,6 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -33,13 +32,11 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
   private SparkClosedLoopController pivotController;
   private SparkMaxFaultChecker pivotChecker;
   private SparkMaxFaultChecker rollersChecker;
-  private DigitalInput coralDetect;
 
-  public Manipulator(SparkMax pivot, SparkMax rollers, DigitalInput linebreakSensor) {
+  public Manipulator(SparkMax pivot, SparkMax rollers) {
     pivotConfig = new SparkMaxConfig();
     this.pivot = pivot;
     this.rollers = rollers;
-    this.coralDetect = linebreakSensor;
     pivotEncoder = pivot.getAbsoluteEncoder();
     pivotController = pivot.getClosedLoopController();
     pivotChecker = new SparkMaxFaultChecker(pivot);
@@ -54,7 +51,6 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
   public void periodic() {
     this.log("manipulator/angle", pivotEncoder.getPosition());
     this.log("manipulator/rollers", rollers.get());
-    this.log("manipulator/hasCoral", hasCoral());
 
     pivotChecker.checkFaults();
     rollersChecker.checkFaults();
@@ -69,7 +65,7 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
     double setpoint = getAngle(state);
     return this.run(
         () -> {
-          double ff = Math.cos(getEncoderPosition().in(Units.Radians)) * kFF;
+          double ff = Math.sin(getEncoderPosition().in(Units.Radians)) * kFF;
           pivotController.setReference(
               setpoint, ControlType.kPosition, ClosedLoopSlot.kSlot0, ff, ArbFFUnits.kPercentOut);
         });
@@ -96,14 +92,9 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
     return this.runOnce(() -> rollers.set(0.0));
   }
 
-  public boolean hasCoral() {
-    return coralDetect.get();
-  }
-
   @Override
   public void close() throws Exception {
     pivot.close();
     rollers.close();
-    coralDetect.close();
   }
 }

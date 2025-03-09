@@ -13,9 +13,11 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
@@ -32,9 +34,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.ElevatorConstants;
+import frc.robot.Constants.GameState;
+import frc.robot.Constants.ManipulatorConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.AutoAim;
 import frc.robot.commands.DriveCommands;
@@ -47,6 +53,8 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.manipulator.Manipulator;
 import frc.robot.subsystems.vision.Vision;
 import monologue.Logged;
 import monologue.Monologue;
@@ -62,9 +70,9 @@ public class RobotContainer implements Logged {
   // Subsystems
   private final Drive drive;
   private final Vision vision;
-  // private final Manipulator manipulator;
+  private final Manipulator manipulator;
   private final Climber climber;
-  // private final Elevator elevator;
+  private final Elevator elevator;
 
   // Controllers
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -113,20 +121,14 @@ public class RobotContainer implements Logged {
     }
     vision = new Vision(drive::updateEstimates);
     climber = new Climber(new SparkMax(ClimberConstants.kClimberMotorID, MotorType.kBrushless));
-    // new DigitalInput(ClimberConstants.kUpperLimSwitchId),
-    // new DigitalInput(ClimberConstants.kUpperLimSwitchId),
-    // new DigitalInput(ClimberConstants.kMidBeamBreakId)*/);
-    /*
     elevator =
         new Elevator(
             new SparkMax(ElevatorConstants.sparkMaxCANId, MotorType.kBrushless),
             new SparkMax(ElevatorConstants.sparkMaxFollowerCANId, MotorType.kBrushless));
     manipulator =
         new Manipulator(
-            new SparkMax(PIVOT_ID, MotorType.kBrushless),
-            new SparkMax(ROLLER_ID, MotorType.kBrushless),
-            new DigitalInput(LINE_BREAK_PORT));
-    */
+            new SparkMax(ManipulatorConstants.PIVOT_ID, MotorType.kBrushless),
+            new SparkMax(ManipulatorConstants.ROLLER_ID, MotorType.kBrushless));
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
     // Set up SysId routines
@@ -182,7 +184,7 @@ public class RobotContainer implements Logged {
   }
 
   private void configureAutos() {
-    /*NamedCommands.registerCommand("score", pickupAction(GameState.L4_SCORE, true));
+    NamedCommands.registerCommand("score", pickupAction(GameState.L4_SCORE, true));
     NamedCommands.registerCommand(
         "hps pickup", pickupAction(GameState.HUMAN_PLAYER_STATION, false));
     NamedCommands.registerCommand("remove algae", pickupAction(GameState.L2_ALGAE, false));
@@ -199,7 +201,7 @@ public class RobotContainer implements Logged {
     autoChooser.addOption(
         "bottom leave double score", AutoBuilder.buildAuto("bottom leave double score"));
     autoChooser.addOption("top remove algae", AutoBuilder.buildAuto("top remove algae"));
-    autoChooser.addOption("bottom remove algae", AutoBuilder.buildAuto("bottom remove algae"));*/
+    autoChooser.addOption("bottom remove algae", AutoBuilder.buildAuto("bottom remove algae"));
   }
 
   public void resetPose() {
@@ -248,74 +250,54 @@ public class RobotContainer implements Logged {
                     drive)
                 .ignoringDisable(true));
 
-    /*
-        // intake coral
-        opController.rightBumper().onTrue(manipulator.spinRollers(true).until(manipulator::hasCoral));
+    // intake coral
+    opController.rightBumper().onTrue(manipulator.spinRollers(true).withTimeout(Seconds.of(1)));
 
-        // outtake coral
-        opController
-            .leftBumper()
-            .onTrue(manipulator.spinRollers(false).withTimeout(ManipulatorConstants.defaultPickupTime));
+    // outtake coral
+    opController
+        .leftBumper()
+        .onTrue(manipulator.spinRollers(false).withTimeout(ManipulatorConstants.defaultPickupTime));
 
-        // intake and release algae
-        new Trigger(() -> (Math.abs(opController.getLeftY())) > 0.5)
-            .onTrue(pickupAction(GameState.L2_ALGAE, Math.signum(opController.getLeftY()) == 1.0));
+    // intake and release algae
+    new Trigger(() -> (Math.abs(opController.getLeftY())) > 0.5)
+        .onTrue(pickupAction(GameState.L2_ALGAE, Math.signum(opController.getLeftY()) == 1.0));
 
-        // elevator dead reckoning
-        new Trigger(() -> (Math.abs(opController.getRightY()) > 0.5))
-            .whileTrue(
-                runOnce(
-                    () ->
-                        elevator.move(
-                            ElevatorConstants.deadReckoningSpeed
-                                * Math.signum(opController.getRightY())),
-                    elevator))
-            .onFalse(runOnce(() -> elevator.move(0), elevator));
+    // elevator dead reckoning
+    new Trigger(() -> (Math.abs(opController.getRightY()) > 0.5))
+        .whileTrue(
+            runOnce(
+                () ->
+                    elevator.move(
+                        ElevatorConstants.deadReckoningSpeed
+                            * Math.signum(opController.getRightY())),
+                elevator))
+        .onFalse(runOnce(() -> elevator.move(0), elevator));
 
-        opController.a().onTrue(pickupAction(GameState.L1_SCORE, true));
-        opController.b().onTrue(pickupAction(GameState.L2_SCORE, true));
-        opController.y().onTrue(pickupAction(GameState.L3_SCORE, true));
-        opController.x().onTrue(pickupAction(GameState.L4_SCORE, true));
+    opController.a().onTrue(pickupAction(GameState.L1_SCORE, true));
+    opController.b().onTrue(pickupAction(GameState.L2_SCORE, true));
+    opController.y().onTrue(pickupAction(GameState.L3_SCORE, true));
+    opController.x().onTrue(pickupAction(GameState.L4_SCORE, true));
 
-        // human player station intake
-        opController.povUp().onTrue(pickupAction(GameState.HUMAN_PLAYER_STATION, false));
-    */
+    // human player station intake
+    opController.povUp().onTrue(pickupAction(GameState.HUMAN_PLAYER_STATION, false));
+
     opController
         .leftTrigger()
         .whileTrue(runOnce(() -> climber.setMotor(true), climber))
-        .onFalse(runOnce(climber::stopMotor)); /*
-    .onTrue(
-    runOnce(() -> climber.setMotor(true), climber)
-        .until(climber::isBottomSwitch)
-        .finallyDo(climber::stopMotor)); */
+        .onFalse(runOnce(climber::stopMotor));
+
     opController
         .rightTrigger()
         .whileTrue(runOnce(() -> climber.setMotor(false), climber))
-        .onFalse(runOnce(climber::stopMotor)); /*
-    .onTrue(
-    runOnce(() -> climber.setMotor(false), climber)
-        .until(climber::isTopSwitch)
-        .finallyDo(climber::stopMotor));
-
-    opController
-        .povDown()
-        .onTrue(
-            runOnce(
-                    () ->
-                        climber.setMotor(
-                            climber.getSensorState() == SensorState.BOTTOM ? true : false),
-                    climber)
-                .until(climber::isLineBreakSwitch)
-                .finallyDo(climber::stopMotor));
-
-    opController.povLeft().onTrue(runOnce(() -> elevator.setSetpoint(GameState.NONE), elevator));
-    */
+        .onFalse(runOnce(climber::stopMotor));
   }
 
   /* Move to correct elevator height, pivot angle, and spin manipulator rollers */
-  /*private Command pickupAction(GameState state, boolean eject) {
+  private Command pickupAction(GameState state, boolean eject) {
+    double frac = Constants.reefMap.get(state).distance().in(Units.Meters);
+    double time = ElevatorConstants.totalExtensionTime * frac;
     return sequence(
-        runOnce(() -> elevator.setSetpoint(state), elevator),
+        run(() -> elevator.move(ElevatorConstants.deadReckoningSpeed), elevator).withTimeout(time),
         manipulator
             .setAngle(state)
             .until(() -> manipulator.atAngle(state))
@@ -325,7 +307,7 @@ public class RobotContainer implements Logged {
                         .spinRollers(eject)
                         .withTimeout(ManipulatorConstants.defaultPickupTime),
                     manipulator.stopRollers())));
-  }*/
+  }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.

@@ -105,15 +105,14 @@ public final class Constants {
           GameState.NONE, new AngleAndDistance(Degrees.of(0), Inches.of(0)));
 
   public static class DriveConstants {
-    // TODO verify velcotitys and accelerations
     public static final Distance chassisSize = Inches.of(34.24);
     public static final LinearVelocity maxTranslationSpeed = MetersPerSecond.of(20);
     public static final LinearAcceleration maxTranslationAcceleration =
-        MetersPerSecondPerSecond.of(3.5);
+        MetersPerSecondPerSecond.of(6);
     public static final AngularVelocity maxRotVelocity = RadiansPerSecond.of(4 * Math.PI);
     public static final AngularAcceleration maxRotAcceleration =
         RadiansPerSecondPerSecond.of(3 * Math.PI);
-    public static final double DRIVE_DEADBAND = 0.05;
+    public static final double DRIVE_DEADBAND = 0.02;
     public static final Distance TAG_DISTANCE = Meters.of(0.3);
     public static final PIDController translationController = new PIDController(0.5, 0.001, 0);
     public static final PIDController rotationController = new PIDController(0.03, 0.01, 0);
@@ -202,6 +201,8 @@ public final class Constants {
     public static final double deadReckoningSpeed = 0.1;
     public static final double deadRecogningDeadZone = 0.05;
     public static final double restInput = 0.02;
+
+    public static double totalExtensionTime = maxHeight.in(Units.Meters) / deadReckoningSpeed;
 
     public static final Distance encoderOffset = Meters.of(0);
 
