@@ -128,11 +128,11 @@ public final class Constants {
     public static final int LINE_BREAK_PORT = 3;
 
     public static final Angle fullRoll = Degrees.of(130);
-    public static final Angle rotTolerance = Rotations.of(0.02);
+    public static final Angle rotTolerance = Rotations.of(0.1);
     public static final double defaultRollerSpeed = 1.0;
     public static final Time defaultPickupTime = Seconds.of(1);
-    public static final double gearRatio = 4;
-    public static final double kP = 0.01;
+    public static final double gearRatio = 16;
+    public static final double kP = 0.05;
     public static final double kI = 0;
     public static final double kD = 0.01;
     public static final double kFF = 0.2;
@@ -214,7 +214,7 @@ public final class Constants {
       public static final double positionConvertionFactor = 1 / 17.893;
 
       public static final FeedbackSensor feedbackSensor = FeedbackSensor.kAbsoluteEncoder;
-      public static final double pidP = 0.8;
+      public static final double pidP = 0.1;
       public static final double pidI = 0;
       public static final double pidD = 0;
       public static final double feedForward = 0.02;

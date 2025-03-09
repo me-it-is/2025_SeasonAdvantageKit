@@ -13,7 +13,6 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -251,25 +250,20 @@ public class RobotContainer implements Logged {
                 .ignoringDisable(true));
 
     // intake coral
-    opController.rightBumper().whileTrue(manipulator.spinRollers(true)).onFalse(manipulator.stopRollers());
+    opController
+        .rightBumper()
+        .whileTrue(manipulator.spinRollers(true))
+        .onFalse(manipulator.stopRollers());
 
     // outtake coral
-    opController.leftBumper().whileTrue(manipulator.spinRollers(false)).onFalse(manipulator.stopRollers());
+    opController
+        .leftBumper()
+        .whileTrue(manipulator.spinRollers(false))
+        .onFalse(manipulator.stopRollers());
 
     // intake and release algae
     new Trigger(() -> (Math.abs(opController.getLeftY())) > 0.5)
         .onTrue(pickupAction(GameState.L2_ALGAE, Math.signum(opController.getLeftY()) == 1.0));
-
-    // elevator dead reckoning
-    new Trigger(() -> (Math.abs(opController.getRightY()) > 0.5))
-        .whileTrue(
-            runOnce(
-                () ->
-                    elevator.move(
-                        ElevatorConstants.deadReckoningSpeed
-                            * Math.signum(opController.getRightY())),
-                elevator))
-        .onFalse(runOnce(() -> elevator.move(0), elevator));
 
     opController.a().onTrue(pickupAction(GameState.L1_SCORE, true));
     opController.b().onTrue(pickupAction(GameState.L2_SCORE, true));
@@ -292,15 +286,11 @@ public class RobotContainer implements Logged {
 
   /* Move to correct elevator height, pivot angle, and spin manipulator rollers */
   private Command pickupAction(GameState state, boolean eject) {
-    /*double frac = Constants.reefMap.get(state).distance().in(Units.Meters);
-    double time = ElevatorConstants.totalExtensionTime * frac;*/
-    return sequence(
-        run(() -> elevator.setSetpoint(state), elevator),
-        manipulator
-            .setAngle(state)
-            .until(() -> manipulator.atAngle(state))
+    return sequence( // run(() -> elevator.setSetpoint(state), elevator),
+        runOnce(() -> manipulator.setAngle(state), manipulator)
             .andThen(
                 sequence(
+                    waitSeconds(3),
                     manipulator
                         .spinRollers(eject)
                         .withTimeout(ManipulatorConstants.defaultPickupTime),

@@ -2,7 +2,7 @@ package frc.robot.subsystems.elevator;
 
 import static edu.wpi.first.units.Units.Meters;
 
-import com.revrobotics.spark.SparkAbsoluteEncoder;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -21,7 +21,8 @@ import monologue.Logged;
 public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
   private SparkMax sparkMaxLeader;
   private SparkMax sparkMaxFollower;
-  private SparkAbsoluteEncoder encoder = sparkMaxLeader.getAbsoluteEncoder();
+  // private SparkAbsoluteEncoder encoder;
+  private RelativeEncoder encoder;
   public SparkClosedLoopController pidControllerLeader;
 
   private Distance setpoint = Meters.of(0);
@@ -29,6 +30,8 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
   public Elevator(SparkMax sparkMaxLeader, SparkMax sparkMaxFollower) {
     this.sparkMaxLeader = sparkMaxLeader;
     this.sparkMaxFollower = sparkMaxFollower;
+    // this.encoder = sparkMaxLeader.getAbsoluteEncoder();
+    this.encoder = sparkMaxLeader.getEncoder();
     SparkMaxConfig globalConfig = new SparkMaxConfig();
     SparkMaxConfig followerConfig = new SparkMaxConfig();
     SparkMaxConfig leaderConfig = new SparkMaxConfig();
@@ -75,7 +78,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   public Distance getElevatorHeight() {
-    return Meters.of(encoder.getPosition()).minus(ElevatorConstants.encoderOffset);
+    return Meters.of(encoder.getPosition());
   }
 
   @Override

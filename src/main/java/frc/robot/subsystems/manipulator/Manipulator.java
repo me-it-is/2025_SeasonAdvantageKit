@@ -3,8 +3,8 @@ package frc.robot.subsystems.manipulator;
 import static edu.wpi.first.units.Units.Rotations;
 import static frc.robot.Constants.ManipulatorConstants.*;
 
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.ClosedLoopSlot;
-import com.revrobotics.spark.SparkAbsoluteEncoder;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -28,29 +28,43 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
   private SparkMaxConfig pivotConfig;
   private SparkMax pivot;
   private SparkMax rollers;
-  private SparkAbsoluteEncoder pivotEncoder;
+  /*private SparkAbsoluteEncoder pivotEncoder;
+  private AbsoluteEncoderConfig encConfig;*/
   private SparkClosedLoopController pivotController;
   private SparkMaxFaultChecker pivotChecker;
   private SparkMaxFaultChecker rollersChecker;
+  private RelativeEncoder pivotEncoder;
+  private double setpoint;
 
   public Manipulator(SparkMax pivot, SparkMax rollers) {
     pivotConfig = new SparkMaxConfig();
     this.pivot = pivot;
     this.rollers = rollers;
-    pivotEncoder = pivot.getAbsoluteEncoder();
+    /*pivotEncoder = pivot.getAbsoluteEncoder();
+    encConfig = new AbsoluteEncoderConfig();*/
+    pivotEncoder = pivot.getEncoder();
     pivotController = pivot.getClosedLoopController();
     pivotChecker = new SparkMaxFaultChecker(pivot);
     rollersChecker = new SparkMaxFaultChecker(rollers);
 
+    // encConfig.positionConversionFactor(1 / ManipulatorConstants.gearRatio);
     pivotConfig.idleMode(IdleMode.kBrake);
     pivotConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder).pid(kP, kI, kD);
+    // pivotConfig.absoluteEncoder.apply(encConfig);
     pivot.configure(pivotConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    setpoint = Constants.reefMap.get(GameState.NONE).angle().in(Units.Rotations);
   }
 
   @Override
   public void periodic() {
-    this.log("manipulator/angle", pivotEncoder.getPosition());
+    this.log("manipulator/angle", getEncoderPosition().in(Units.Rotations));
     this.log("manipulator/rollers", rollers.get());
+    this.log("manipulator/setpoint", setpoint);
+
+    double ff = Math.sin(getEncoderPosition().in(Units.Rotations)) * kFF;
+    this.log("manipulator/ff", ff);
+    pivotController.setReference(
+        setpoint, ControlType.kPosition, ClosedLoopSlot.kSlot0, ff, ArbFFUnits.kPercentOut);
 
     pivotChecker.checkFaults();
     rollersChecker.checkFaults();
@@ -61,18 +75,12 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
   }
 
   /** Sets angle of manipulator, with higher feedforward the closer the pivot is to vertical */
-  public Command setAngle(GameState state) {
-    double setpoint = getAngle(state);
-    return this.run(
-        () -> {
-          double ff = Math.cos(getEncoderPosition().in(Units.Radians)) * kFF;
-          pivotController.setReference(
-              setpoint, ControlType.kPosition, ClosedLoopSlot.kSlot0, ff, ArbFFUnits.kPercentOut);
-        });
+  public void setAngle(GameState state) {
+    setpoint = getAngle(state);
   }
 
   private Angle getEncoderPosition() {
-    return Rotations.of(pivotEncoder.getPosition() / ManipulatorConstants.gearRatio);
+    return Rotations.of(Math.abs(pivotEncoder.getPosition() / ManipulatorConstants.gearRatio));
   }
 
   /** Check if pivot is at angle setpoint to some degree of error */
