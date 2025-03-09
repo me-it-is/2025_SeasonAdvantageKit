@@ -191,8 +191,6 @@ public final class Constants {
   }
 
   public static class ElevatorConstants {
-
-    // set actual value later
     public static final int sparkMaxCANId = 4;
     public static final int sparkMaxFollowerCANId = 3;
     public static final Distance maxHeight = Meters.of(1.72);
