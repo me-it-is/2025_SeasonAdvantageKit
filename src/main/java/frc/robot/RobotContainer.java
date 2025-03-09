@@ -251,12 +251,10 @@ public class RobotContainer implements Logged {
                 .ignoringDisable(true));
 
     // intake coral
-    opController.rightBumper().onTrue(manipulator.spinRollers(true).withTimeout(Seconds.of(1)));
+    opController.rightBumper().whileTrue(manipulator.spinRollers(true)).onFalse(manipulator.stopRollers());
 
     // outtake coral
-    opController
-        .leftBumper()
-        .onTrue(manipulator.spinRollers(false).withTimeout(ManipulatorConstants.defaultPickupTime));
+    opController.leftBumper().whileTrue(manipulator.spinRollers(false)).onFalse(manipulator.stopRollers());
 
     // intake and release algae
     new Trigger(() -> (Math.abs(opController.getLeftY())) > 0.5)

@@ -72,7 +72,7 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
   }
 
   private Angle getEncoderPosition() {
-    return Rotations.of(pivotEncoder.getPosition());
+    return Rotations.of(pivotEncoder.getPosition() / ManipulatorConstants.gearRatio);
   }
 
   /** Check if pivot is at angle setpoint to some degree of error */

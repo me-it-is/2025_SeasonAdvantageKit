@@ -106,7 +106,7 @@ public final class Constants {
 
   public static class DriveConstants {
     public static final Distance chassisSize = Inches.of(34.24);
-    public static final LinearVelocity maxTranslationSpeed = MetersPerSecond.of(20);
+    public static final LinearVelocity maxTranslationSpeed = MetersPerSecond.of(30);
     public static final LinearAcceleration maxTranslationAcceleration =
         MetersPerSecondPerSecond.of(6);
     public static final AngularVelocity maxRotVelocity = RadiansPerSecond.of(4 * Math.PI);
@@ -131,9 +131,10 @@ public final class Constants {
     public static final Angle rotTolerance = Rotations.of(0.02);
     public static final double defaultRollerSpeed = 1.0;
     public static final Time defaultPickupTime = Seconds.of(1);
-    public static final double kP = 0.1;
+    public static final double gearRatio = 4;
+    public static final double kP = 0.01;
     public static final double kI = 0;
-    public static final double kD = 0;
+    public static final double kD = 0.01;
     public static final double kFF = 0.2;
   }
 
@@ -190,6 +191,7 @@ public final class Constants {
   }
 
   public static class ElevatorConstants {
+
     // set actual value later
     public static final int sparkMaxCANId = 3;
     public static final int sparkMaxFollowerCANId = 4;
