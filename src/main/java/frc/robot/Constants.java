@@ -107,7 +107,7 @@ public final class Constants {
   public static class DriveConstants {
     // TODO verify velcotitys and accelerations
     public static final Distance chassisSize = Inches.of(34.24);
-    public static final LinearVelocity maxTranslationSpeed = MetersPerSecond.of(10);
+    public static final LinearVelocity maxTranslationSpeed = MetersPerSecond.of(20);
     public static final LinearAcceleration maxTranslationAcceleration =
         MetersPerSecondPerSecond.of(3.5);
     public static final AngularVelocity maxRotVelocity = RadiansPerSecond.of(4 * Math.PI);
