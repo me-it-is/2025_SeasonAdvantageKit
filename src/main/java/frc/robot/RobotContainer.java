@@ -292,10 +292,10 @@ public class RobotContainer implements Logged {
 
   /* Move to correct elevator height, pivot angle, and spin manipulator rollers */
   private Command pickupAction(GameState state, boolean eject) {
-    double frac = Constants.reefMap.get(state).distance().in(Units.Meters);
-    double time = ElevatorConstants.totalExtensionTime * frac;
+    /*double frac = Constants.reefMap.get(state).distance().in(Units.Meters);
+    double time = ElevatorConstants.totalExtensionTime * frac;*/
     return sequence(
-        run(() -> elevator.move(ElevatorConstants.deadReckoningSpeed), elevator).withTimeout(time),
+        run(() -> elevator.setSetpoint(state), elevator),
         manipulator
             .setAngle(state)
             .until(() -> manipulator.atAngle(state))
