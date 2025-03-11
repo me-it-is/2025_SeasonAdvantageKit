@@ -275,13 +275,13 @@ public class RobotContainer implements Logged {
 
     opController
         .leftTrigger()
-        .whileTrue(runOnce(() -> climber.setMotor(true), climber))
-        .onFalse(runOnce(climber::stopMotor));
+        .whileTrue(runOnce(() -> climber.run(true), climber))
+        .onFalse(runOnce(climber::stop));
 
     opController
         .rightTrigger()
-        .whileTrue(runOnce(() -> climber.setMotor(false), climber))
-        .onFalse(runOnce(climber::stopMotor));
+        .whileTrue(runOnce(() -> climber.run(false), climber))
+        .onFalse(runOnce(climber::stop));
   }
 
   /* Move to correct elevator height, pivot angle, and spin manipulator rollers */

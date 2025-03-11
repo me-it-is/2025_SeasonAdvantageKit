@@ -3,6 +3,7 @@ package frc.robot.subsystems.climber;
 import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClimberConstants;
+import frc.robot.util.RobotMath;
 import monologue.Logged;
 
 public class Climber extends SubsystemBase implements AutoCloseable, Logged {
@@ -27,12 +28,11 @@ public class Climber extends SubsystemBase implements AutoCloseable, Logged {
     motorController.close();
   }
 
-  public void setMotor(boolean reverse) {
-    int dir = reverse ? -1 : 1;
-    motorController.set(ClimberConstants.kClimberMotorMult * dir);
+  public void run(boolean reverse) {
+    motorController.set(ClimberConstants.kClimberMotorMult * RobotMath.signBool(reverse));
   }
 
-  public void stopMotor() {
+  public void stop() {
     motorController.stopMotor();
   }
 
