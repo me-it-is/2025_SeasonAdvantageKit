@@ -115,20 +115,4 @@ public final class RobotMath {
     return distanceBetweenTranslations(pose1.getTranslation(), pose2.getTranslation());
   }
 
-  public static record QuaternionValue(String axisName, Double norm) {}
-  ;
-
-  public QuaternionValue quaternionToAxisAngle(String axis, Quaternion quaternion) {
-    switch (axis) {
-      case "w":
-        return new QuaternionValue("wAxis", quaternion.getW());
-      case "x":
-        return new QuaternionValue("xAxis", quaternion.getX());
-      case "y":
-        return new QuaternionValue("yAxis", quaternion.getY());
-      case "z":
-      default:
-        return new QuaternionValue("zAxis", quaternion.getZ());
-    }
-  }
 }
