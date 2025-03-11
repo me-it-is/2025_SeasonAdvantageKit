@@ -25,34 +25,34 @@ import frc.robot.util.SparkMaxFaultChecker;
 import monologue.Logged;
 
 public class Manipulator extends SubsystemBase implements Logged, AutoCloseable {
-  private SparkMaxConfig pivotConfig;
   private SparkMax pivot;
   private SparkMax rollers;
-  /*private SparkAbsoluteEncoder pivotEncoder;
-  private AbsoluteEncoderConfig encConfig;*/
+  private SparkMaxConfig pivotConfig;
+  private SparkMaxConfig rollerConfig;
   private SparkClosedLoopController pivotController;
   private SparkMaxFaultChecker pivotChecker;
   private SparkMaxFaultChecker rollersChecker;
   private RelativeEncoder pivotEncoder;
-  private double setpoint;
+  private double setpoint = Constants.reefMap.get(GameState.NONE).angle().in(Units.Rotations);
 
   public Manipulator(SparkMax pivot, SparkMax rollers) {
-    pivotConfig = new SparkMaxConfig();
     this.pivot = pivot;
     this.rollers = rollers;
-    /*pivotEncoder = pivot.getAbsoluteEncoder();
-    encConfig = new AbsoluteEncoderConfig();*/
-    pivotEncoder = pivot.getEncoder();
-    pivotController = pivot.getClosedLoopController();
-    pivotChecker = new SparkMaxFaultChecker(pivot);
-    rollersChecker = new SparkMaxFaultChecker(rollers);
+    this.pivotConfig = new SparkMaxConfig();
+    this.rollerConfig = new SparkMaxConfig();
+    this.pivotEncoder = pivot.getEncoder();
+    this.pivotController = pivot.getClosedLoopController();
+    this.pivotChecker = new SparkMaxFaultChecker(pivot);
+    this.rollersChecker = new SparkMaxFaultChecker(rollers);
 
-    // encConfig.positionConversionFactor(1 / ManipulatorConstants.gearRatio);
-    pivotConfig.idleMode(IdleMode.kBrake);
+    pivotEncoder.setPosition(0);
+    pivotConfig
+      .idleMode(IdleMode.kBrake).encoder.positionConversionFactor(1 / ManipulatorConstants.gearRatio);
     pivotConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder).pid(kP, kI, kD);
-    // pivotConfig.absoluteEncoder.apply(encConfig);
+    rollerConfig.idleMode(IdleMode.kCoast);
+
     pivot.configure(pivotConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    setpoint = Constants.reefMap.get(GameState.NONE).angle().in(Units.Rotations);
+    rollers.configure(rollerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   @Override
@@ -61,7 +61,7 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
     this.log("manipulator/rollers", rollers.get());
     this.log("manipulator/setpoint", setpoint);
 
-    double ff = Math.sin(getEncoderPosition().in(Units.Rotations)) * kFF;
+    double ff = Math.sin(getEncoderPosition().in(Units.Radians)) * kFF;
     this.log("manipulator/ff", ff);
     pivotController.setReference(
         setpoint, ControlType.kPosition, ClosedLoopSlot.kSlot0, ff, ArbFFUnits.kPercentOut);
@@ -74,13 +74,12 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
     return Constants.reefMap.get(state).angle().in(Units.Rotations);
   }
 
-  /** Sets angle of manipulator, with higher feedforward the closer the pivot is to vertical */
   public void setAngle(GameState state) {
     setpoint = getAngle(state);
   }
 
   private Angle getEncoderPosition() {
-    return Rotations.of(Math.abs(pivotEncoder.getPosition() / ManipulatorConstants.gearRatio));
+    return Rotations.of(Math.abs(pivotEncoder.getPosition()));
   }
 
   /** Check if pivot is at angle setpoint to some degree of error */

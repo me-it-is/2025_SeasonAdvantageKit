@@ -132,10 +132,10 @@ public final class Constants {
     public static final double defaultRollerSpeed = 1.0;
     public static final Time defaultPickupTime = Seconds.of(1);
     public static final double gearRatio = 16;
-    public static final double kP = 0.05;
+    public static final double kP = 0.1;
     public static final double kI = 0;
     public static final double kD = 0.01;
-    public static final double kFF = 0.2;
+    public static final double kFF = 0.5;
   }
 
   public static class VisionConstants {
@@ -201,6 +201,7 @@ public final class Constants {
     public static final double deadReckoningSpeed = 0.1;
     public static final double deadRecogningDeadZone = 0.05;
     public static final double restInput = 0.02;
+    public static final Distance setpointTolerance = Meters.of(0.1);
 
     public static double totalExtensionTime = maxHeight.in(Units.Meters) / deadReckoningSpeed;
 
@@ -211,7 +212,7 @@ public final class Constants {
       public static final IdleMode idleMode = IdleMode.kBrake;
 
       // factor to make full extension 1 (1 / num rotations per full extension)
-      public static final double positionConvertionFactor = 1 / 17.893;
+      public static final double positionConversionFactor = 1 / 17.893;
 
       public static final FeedbackSensor feedbackSensor = FeedbackSensor.kAbsoluteEncoder;
       public static final double pidP = 0.1;

@@ -8,49 +8,50 @@ import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.AbsoluteEncoderConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
+
+import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.ElevatorConstants.Config;
+import frc.robot.util.SparkMaxFaultChecker;
 import frc.robot.Constants.GameState;
 import monologue.Logged;
 
 public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
   private SparkMax sparkMaxLeader;
   private SparkMax sparkMaxFollower;
-  // private SparkAbsoluteEncoder encoder;
+  private SparkMaxFaultChecker leaderChecker;
+  private SparkMaxFaultChecker followerChecker;
   private RelativeEncoder encoder;
   public SparkClosedLoopController pidControllerLeader;
-
-  private Distance setpoint = Meters.of(0);
+  SparkMaxConfig globalConfig;
+  SparkMaxConfig followerConfig;
+  SparkMaxConfig leaderConfig;
+  private Distance setpoint = Constants.reefMap.get(GameState.NONE).distance();
 
   public Elevator(SparkMax sparkMaxLeader, SparkMax sparkMaxFollower) {
     this.sparkMaxLeader = sparkMaxLeader;
     this.sparkMaxFollower = sparkMaxFollower;
-    // this.encoder = sparkMaxLeader.getAbsoluteEncoder();
+    this.leaderChecker = new SparkMaxFaultChecker(sparkMaxLeader);
+    this.followerChecker = new SparkMaxFaultChecker(sparkMaxFollower);
     this.encoder = sparkMaxLeader.getEncoder();
-    SparkMaxConfig globalConfig = new SparkMaxConfig();
-    SparkMaxConfig followerConfig = new SparkMaxConfig();
-    SparkMaxConfig leaderConfig = new SparkMaxConfig();
-    AbsoluteEncoderConfig encoderConfig = new AbsoluteEncoderConfig();
-    pidControllerLeader = sparkMaxLeader.getClosedLoopController();
+    this.globalConfig = new SparkMaxConfig();
+    this.followerConfig = new SparkMaxConfig();
+    this.leaderConfig = new SparkMaxConfig();
+    this.pidControllerLeader = sparkMaxLeader.getClosedLoopController();
 
+    encoder.setPosition(0);
     globalConfig
-        .idleMode(Config.idleMode)
         .encoder
-        .positionConversionFactor(Config.positionConvertionFactor);
+        .positionConversionFactor(Config.positionConversionFactor);
     globalConfig
         .closedLoop
-        .feedbackSensor(Config.feedbackSensor)
         .pidf(Config.pidP, Config.pidI, Config.pidD, Config.feedForward);
     leaderConfig.apply(globalConfig).inverted(Config.inverted);
     followerConfig.apply(globalConfig).follow(sparkMaxLeader);
-    encoderConfig
-        .positionConversionFactor(Config.positionConvertionFactor)
-        .setSparkMaxDataPortConfig();
 
     sparkMaxLeader.configure(
         leaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -58,23 +59,23 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
         followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
-  public void setSetpoint(GameState stage) {
-    this.setpoint = Constants.reefMap.get(stage).distance();
-    setReference();
-  }
-
-  public void move(double speed) {
-    sparkMaxLeader.set(speed);
-  }
-
-  private void setReference() {
-    pidControllerLeader.setReference(
-        (setpoint.in(Meters) / ElevatorConstants.maxHeight.in(Meters)), ControlType.kPosition);
-  }
 
   @Override
   public void periodic() {
-    this.log("Elevator height meters", getElevatorHeight().in(Meters));
+    this.log("elevator/height meters", getElevatorHeight().in(Meters));
+    this.log("elevator/setpoint meters", setpoint.in(Units.Meters));
+    pidControllerLeader.setReference(
+      (setpoint.in(Meters) / ElevatorConstants.maxHeight.in(Meters)), ControlType.kPosition);
+  }
+
+  public void setSetpoint(GameState stage) {
+    this.setpoint = Constants.reefMap.get(stage).distance();
+    leaderChecker.checkFaults();
+    followerChecker.checkFaults();
+  }
+
+  public boolean atSetpoint() {
+    return Math.abs(setpoint.in(Meters) - getElevatorHeight().in(Meters)) < ElevatorConstants.setpointTolerance.in(Meters);
   }
 
   public Distance getElevatorHeight() {
