@@ -115,4 +115,10 @@ public final class RobotMath {
     return distanceBetweenTranslations(pose1.getTranslation(), pose2.getTranslation());
   }
 
+  /**
+    * @return 1 if b is true, -1 otherwise
+    */
+  public static int signBool(boolean b) {
+    return b ? 1 : -1;
+  }
 }

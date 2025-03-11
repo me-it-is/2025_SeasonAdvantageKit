@@ -280,4 +280,10 @@ class RobotMathTest {
             distanceBetweenTranslations(new Translation3d(), new Translation3d(0, 0, Double.NaN))
                 .in(Meters)));
   }
+  
+  @Test
+   void testSignBool() {
+     assertEquals(signBool(false), -1);
+     assertEquals(signBool(true), 1);
+   }
 }
