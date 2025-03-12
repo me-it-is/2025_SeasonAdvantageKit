@@ -52,12 +52,13 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
     this.log("elevator/setpoint meters", setpoint.in(Units.Meters));
     pidControllerLeader.setReference(
         (setpoint.in(Meters) / ElevatorConstants.kMaxHeight.in(Meters)), ControlType.kPosition);
+
+    leaderChecker.checkFaults();
+    followerChecker.checkFaults();
   }
 
   public void setSetpoint(GameState stage) {
     this.setpoint = Constants.reefMap.get(stage).distance();
-    leaderChecker.checkFaults();
-    followerChecker.checkFaults();
   }
 
   public boolean atSetpoint() {
