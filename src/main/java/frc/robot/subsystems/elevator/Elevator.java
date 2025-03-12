@@ -66,12 +66,13 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
     this.log("elevator/setpoint meters", setpoint.in(Units.Meters));
     this.log("elevator/leader output", sparkMaxLeader.get());
     this.log("elevator/follower output", sparkMaxFollower.get());
-    pidControllerLeader.setReference(
-      (setpoint.in(Meters) / ElevatorConstants.maxHeight.in(Meters)), ControlType.kPosition);
   }
 
   public void setSetpoint(GameState stage) {
     this.setpoint = Constants.reefMap.get(stage).distance();
+    pidControllerLeader.setReference(
+      (setpoint.in(Meters) / ElevatorConstants.maxHeight.in(Meters)), ControlType.kPosition);
+
     leaderChecker.checkFaults();
     followerChecker.checkFaults();
   }
