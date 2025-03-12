@@ -3,7 +3,6 @@ package frc.robot.util;
 import static edu.wpi.first.units.Units.Meters;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Quaternion;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.Measure;
@@ -116,8 +115,8 @@ public final class RobotMath {
   }
 
   /**
-    * @return 1 if b is true, -1 otherwise
-    */
+   * @return 1 if b is true, -1 otherwise
+   */
   public static int signBool(boolean b) {
     return b ? 1 : -1;
   }

@@ -28,7 +28,7 @@ import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Seconds;
 
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
@@ -194,10 +194,6 @@ public final class Constants {
     public static final int kSparkMaxCANId = 4;
     public static final int kSparkMaxFollowerCANId = 3;
     public static final Distance kMaxHeight = Meters.of(1.72);
-    public static final Distance levelOneSetpoint = Inches.of(3.93);
-    public static final Distance levelTwoSetpoint = Inches.of(18.5);
-    public static final Distance levelThreeSetpoint = Inches.of(46.3);
-    public static final Distance levelFourSetpoint = Inches.of(67.3);
     public static final double kDeadReckoningSpeed = 0.1;
     public static final double kDeadRecogningDeadZone = 0.05;
     public static final double kRestInput = 0.02;
@@ -207,18 +203,34 @@ public final class Constants {
 
     public static final Distance kEncoderOffset = Meters.of(0);
 
-    public static class Config {
-      public static final boolean kIsInverted = false;
-      public static final IdleMode idleMode = IdleMode.kBrake;
+    public static final boolean kIsInverted = false;
 
-      // factor to make full extension 1 (1 / num rotations per full extension)
-      public static final double positionConversionFactor = 1 / 17.893;
+    // factor to make full extension 1 (1 / num rotations per full extension)
+    public static final double kPositionConversionFactor = 1 / 17.893;
 
-      public static final FeedbackSensor feedbackSensor = FeedbackSensor.kAbsoluteEncoder;
-      public static final double kP = 0.1;
-      public static final double kI = 0;
-      public static final double kD = 0;
-      public static final double kFF = 0.02;
+    public static final FeedbackSensor feedbackSensor = FeedbackSensor.kAbsoluteEncoder;
+    public static final double kP = 0.1;
+    public static final double kI = 0;
+    public static final double kD = 0;
+    public static final double kFF = 0.02;
+
+    public static SparkMaxConfig getSharedConfig() {
+      SparkMaxConfig config = new SparkMaxConfig();
+      config.encoder.positionConversionFactor(kPositionConversionFactor);
+      config.closedLoop.pidf(kP, kI, kD, kFF);
+      return config;
+    }
+
+    public static SparkMaxConfig getLeaderConfig() {
+      SparkMaxConfig config = getSharedConfig();
+      config.inverted(kIsInverted);
+      return config;
+    }
+
+    public static SparkMaxConfig getFollowerConfig() {
+      SparkMaxConfig config = getSharedConfig();
+      config.follow(kSparkMaxCANId);
+      return config;
     }
   }
 }

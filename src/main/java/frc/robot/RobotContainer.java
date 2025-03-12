@@ -291,9 +291,7 @@ public class RobotContainer implements Logged {
         waitUntil(() -> elevator.atSetpoint()),
         runOnce(() -> manipulator.setAngle(state), manipulator),
         waitUntil(() -> manipulator.atAngle(state)),
-        manipulator
-            .spinRollers(eject)
-            .withTimeout(ManipulatorConstants.kDefaultPickupTime),
+        manipulator.spinRollers(eject).withTimeout(ManipulatorConstants.kDefaultPickupTime),
         manipulator.stopRollers());
   }
 

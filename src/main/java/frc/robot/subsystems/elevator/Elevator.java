@@ -1,6 +1,7 @@
 package frc.robot.subsystems.elevator;
 
 import static edu.wpi.first.units.Units.Meters;
+import static frc.robot.Constants.ElevatorConstants.*;
 
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.ControlType;
@@ -9,15 +10,13 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
-
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
-import frc.robot.Constants.ElevatorConstants.Config;
-import frc.robot.util.SparkMaxFaultChecker;
 import frc.robot.Constants.GameState;
+import frc.robot.util.SparkMaxFaultChecker;
 import monologue.Logged;
 
 public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
@@ -38,34 +37,21 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
     this.leaderChecker = new SparkMaxFaultChecker(sparkMaxLeader);
     this.followerChecker = new SparkMaxFaultChecker(sparkMaxFollower);
     this.encoder = sparkMaxLeader.getEncoder();
-    this.globalConfig = new SparkMaxConfig();
-    this.followerConfig = new SparkMaxConfig();
-    this.leaderConfig = new SparkMaxConfig();
     this.pidControllerLeader = sparkMaxLeader.getClosedLoopController();
 
     encoder.setPosition(0);
-    globalConfig
-        .encoder
-        .positionConversionFactor(Config.positionConversionFactor);
-    globalConfig
-        .closedLoop
-        .pidf(Config.kP, Config.kI, Config.kD, Config.kFF);
-    leaderConfig.apply(globalConfig).inverted(Config.kIsInverted);
-    followerConfig.apply(globalConfig).follow(sparkMaxLeader);
-
     sparkMaxLeader.configure(
-        leaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        getLeaderConfig(), ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     sparkMaxFollower.configure(
-        followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        getFollowerConfig(), ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
-
 
   @Override
   public void periodic() {
     this.log("elevator/height meters", getElevatorHeight().in(Meters));
     this.log("elevator/setpoint meters", setpoint.in(Units.Meters));
     pidControllerLeader.setReference(
-      (setpoint.in(Meters) / ElevatorConstants.kMaxHeight.in(Meters)), ControlType.kPosition);
+        (setpoint.in(Meters) / ElevatorConstants.kMaxHeight.in(Meters)), ControlType.kPosition);
   }
 
   public void setSetpoint(GameState stage) {
@@ -75,7 +61,8 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   public boolean atSetpoint() {
-    return Math.abs(setpoint.in(Meters) - getElevatorHeight().in(Meters)) < ElevatorConstants.kSetpointTolerance.in(Meters);
+    return Math.abs(setpoint.in(Meters) - getElevatorHeight().in(Meters))
+        < ElevatorConstants.kSetpointTolerance.in(Meters);
   }
 
   public Distance getElevatorHeight() {

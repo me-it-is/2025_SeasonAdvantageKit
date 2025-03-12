@@ -47,7 +47,9 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
 
     pivotEncoder.setPosition(0);
     pivotConfig
-      .idleMode(IdleMode.kBrake).encoder.positionConversionFactor(1 / ManipulatorConstants.kGearRatio);
+        .idleMode(IdleMode.kBrake)
+        .encoder
+        .positionConversionFactor(1 / ManipulatorConstants.kGearRatio);
     pivotConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder).pid(kP, kI, kD);
     rollerConfig.idleMode(IdleMode.kCoast);
 
