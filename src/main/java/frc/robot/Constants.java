@@ -218,7 +218,7 @@ public final class Constants {
       public static final double pidP = 0.1;
       public static final double pidI = 0;
       public static final double pidD = 0;
-      public static final double feedForward = 0.02;
+      public static final double feedForward = 0.2;
     }
   }
 }

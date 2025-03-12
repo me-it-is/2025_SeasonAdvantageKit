@@ -64,6 +64,8 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
   public void periodic() {
     this.log("elevator/height meters", getElevatorHeight().in(Meters));
     this.log("elevator/setpoint meters", setpoint.in(Units.Meters));
+    this.log("elevator/leader output", sparkMaxLeader.get());
+    this.log("elevator/follower output", sparkMaxFollower.get());
     pidControllerLeader.setReference(
       (setpoint.in(Meters) / ElevatorConstants.maxHeight.in(Meters)), ControlType.kPosition);
   }

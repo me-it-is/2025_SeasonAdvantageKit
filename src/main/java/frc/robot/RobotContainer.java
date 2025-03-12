@@ -227,7 +227,8 @@ public class RobotContainer implements Logged {
             drive,
             () -> MathUtil.applyDeadband(controller.getLeftY(), DriveConstants.DRIVE_DEADBAND),
             () -> MathUtil.applyDeadband(controller.getLeftX(), DriveConstants.DRIVE_DEADBAND),
-            () -> MathUtil.applyDeadband(-controller.getRightX(), DriveConstants.DRIVE_DEADBAND)));
+            () -> MathUtil.applyDeadband(-controller.getRightX(), DriveConstants.DRIVE_DEADBAND),
+            controller.leftTrigger()));
 
     // Rotate and translate to closest April Tag based on tag odometry
     controller.b().whileTrue(new AutoAim(drive, vision, controller));
