@@ -105,17 +105,17 @@ public final class Constants {
           GameState.NONE, new AngleAndDistance(Degrees.of(0), Inches.of(0)));
 
   public static class DriveConstants {
-    public static final Distance chassisSize = Inches.of(34.24);
-    public static final LinearVelocity maxTranslationSpeed = MetersPerSecond.of(30);
-    public static final LinearAcceleration maxTranslationAcceleration =
+    public static final Distance kChassisSize = Inches.of(34.24);
+    public static final LinearVelocity kMaxTranslationSpeed = MetersPerSecond.of(30);
+    public static final LinearAcceleration kMaxTranslationAcceleration =
         MetersPerSecondPerSecond.of(6);
-    public static final AngularVelocity maxRotVelocity = RadiansPerSecond.of(4 * Math.PI);
-    public static final AngularAcceleration maxRotAcceleration =
+    public static final AngularVelocity kMaxRotVelocity = RadiansPerSecond.of(4 * Math.PI);
+    public static final AngularAcceleration kMaxRotAcceleration =
         RadiansPerSecondPerSecond.of(3 * Math.PI);
-    public static final double DRIVE_DEADBAND = 0.02;
-    public static final Distance TAG_DISTANCE = Meters.of(0.3);
-    public static final PIDController translationController = new PIDController(0.5, 0.001, 0);
-    public static final PIDController rotationController = new PIDController(0.03, 0.01, 0);
+    public static final double kDriveDeadband = 0.02;
+    public static final Distance kTagDistance = Meters.of(0.3);
+    public static final PIDController kTranslationController = new PIDController(0.5, 0.001, 0);
+    public static final PIDController kRotationController = new PIDController(0.03, 0.01, 0);
 
     public static final PIDController tipController = new PIDController(0.25, 0, 0.1);
     public static final double tipFF = 0.1;
@@ -123,15 +123,15 @@ public final class Constants {
   }
 
   public static class ManipulatorConstants {
-    public static final int PIVOT_ID = 5;
-    public static final int ROLLER_ID = 6;
-    public static final int LINE_BREAK_PORT = 3;
+    public static final int kPivotId = 5;
+    public static final int kRollerId = 6;
+    public static final int kLineBreakPort = 3;
 
-    public static final Angle fullRoll = Degrees.of(130);
-    public static final Angle rotTolerance = Rotations.of(0.1);
-    public static final double defaultRollerSpeed = 1.0;
-    public static final Time defaultPickupTime = Seconds.of(1);
-    public static final double gearRatio = 16;
+    public static final Angle kFullRoll = Degrees.of(130);
+    public static final Angle kRotTolerance = Rotations.of(0.1);
+    public static final double kDefaultRollerSpeed = 1.0;
+    public static final Time kDefaultPickupTime = Seconds.of(1);
+    public static final double kGearRatio = 16;
     public static final double kP = 0.1;
     public static final double kI = 0;
     public static final double kD = 0.01;
@@ -149,7 +149,7 @@ public final class Constants {
     public static final Angle kRollBounds = Radians.of(0.2);
     public static final Angle kPitchBounds = Radians.of(0.2);
 
-    private static final double halfOffset = DriveConstants.chassisSize.in(Units.Inches) / 2;
+    private static final double halfOffset = DriveConstants.kChassisSize.in(Units.Inches) / 2;
     public static final Distance kCamOneChassisXOffset = Inches.of(halfOffset);
     public static final Distance kCamOneChassisYOffset = Inches.of(halfOffset);
     public static final Distance kCamTwoChassisXOffset = Inches.of(-halfOffset);
@@ -165,11 +165,11 @@ public final class Constants {
 
     public static final Distance tagDistSetpoint = Meters.of(0.1);
     public static final Angle kCameraPitch = Radians.of(Math.PI / 3);
-    public static final Transform3d robotToCamOne =
+    public static final Transform3d kRobotToCamOne =
         new Transform3d(
             new Translation3d(kCamOneChassisXOffset, kCamOneChassisYOffset, KCamChassisZOffset),
             new Rotation3d(0, kCameraPitch.in(Radians), 0));
-    public static final Transform3d robotToCamTwo =
+    public static final Transform3d kRobotToCamTwo =
         new Transform3d(
             new Translation3d(
                 kCamTwoChassisXOffset, kCamTwoChassisYOffset.unaryMinus(), KCamChassisZOffset),
@@ -178,7 +178,7 @@ public final class Constants {
     public static final Matrix<N3, N1> kMultiTagStdDevs =
         VecBuilder.fill(0.5, 0.5, Double.POSITIVE_INFINITY);
 
-    public static AprilTagFieldLayout aprilTagFieldLayout =
+    public static final AprilTagFieldLayout kAprilTagFieldLayout =
         AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
   }
 
@@ -191,34 +191,34 @@ public final class Constants {
   }
 
   public static class ElevatorConstants {
-    public static final int sparkMaxCANId = 4;
-    public static final int sparkMaxFollowerCANId = 3;
-    public static final Distance maxHeight = Meters.of(1.72);
+    public static final int kSparkMaxCANId = 4;
+    public static final int kSparkMaxFollowerCANId = 3;
+    public static final Distance kMaxHeight = Meters.of(1.72);
     public static final Distance levelOneSetpoint = Inches.of(3.93);
     public static final Distance levelTwoSetpoint = Inches.of(18.5);
     public static final Distance levelThreeSetpoint = Inches.of(46.3);
     public static final Distance levelFourSetpoint = Inches.of(67.3);
-    public static final double deadReckoningSpeed = 0.1;
-    public static final double deadRecogningDeadZone = 0.05;
-    public static final double restInput = 0.02;
-    public static final Distance setpointTolerance = Meters.of(0.1);
+    public static final double kDeadReckoningSpeed = 0.1;
+    public static final double kDeadRecogningDeadZone = 0.05;
+    public static final double kRestInput = 0.02;
+    public static final Distance kSetpointTolerance = Meters.of(0.1);
 
-    public static double totalExtensionTime = maxHeight.in(Units.Meters) / deadReckoningSpeed;
+    public static double totalExtensionTime = kMaxHeight.in(Units.Meters) / kDeadReckoningSpeed;
 
-    public static final Distance encoderOffset = Meters.of(0);
+    public static final Distance kEncoderOffset = Meters.of(0);
 
     public static class Config {
-      public static final boolean inverted = false;
+      public static final boolean kIsInverted = false;
       public static final IdleMode idleMode = IdleMode.kBrake;
 
       // factor to make full extension 1 (1 / num rotations per full extension)
       public static final double positionConversionFactor = 1 / 17.893;
 
       public static final FeedbackSensor feedbackSensor = FeedbackSensor.kAbsoluteEncoder;
-      public static final double pidP = 0.1;
-      public static final double pidI = 0;
-      public static final double pidD = 0;
-      public static final double feedForward = 0.02;
+      public static final double kP = 0.1;
+      public static final double kI = 0;
+      public static final double kD = 0;
+      public static final double kFF = 0.02;
     }
   }
 }

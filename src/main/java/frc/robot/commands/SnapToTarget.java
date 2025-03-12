@@ -41,10 +41,10 @@ public class SnapToTarget extends Command {
     // make path between start and end pose on the fly
     PathConstraints constraints =
         new PathConstraints(
-            DriveConstants.maxTranslationSpeed,
-            DriveConstants.maxTranslationAcceleration,
-            DriveConstants.maxRotVelocity,
-            DriveConstants.maxRotAcceleration);
+            DriveConstants.kMaxTranslationSpeed,
+            DriveConstants.kMaxTranslationAcceleration,
+            DriveConstants.kMaxRotVelocity,
+            DriveConstants.kMaxRotAcceleration);
     // final pose should be slightly offset from april tag position
     Pose2d finalPose =
         scorePose.plus(
@@ -66,7 +66,7 @@ public class SnapToTarget extends Command {
   }
 
   public Pose2d getClosestScoringPose(Pose2d drivePose) {
-    AprilTagFieldLayout layout = VisionConstants.aprilTagFieldLayout;
+    AprilTagFieldLayout layout = VisionConstants.kAprilTagFieldLayout;
     Optional<Alliance> alliance = DriverStation.getAlliance();
     if (!alliance.isPresent()) {
       return drivePose;

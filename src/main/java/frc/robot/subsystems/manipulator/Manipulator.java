@@ -47,7 +47,7 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
 
     pivotEncoder.setPosition(0);
     pivotConfig
-      .idleMode(IdleMode.kBrake).encoder.positionConversionFactor(1 / ManipulatorConstants.gearRatio);
+      .idleMode(IdleMode.kBrake).encoder.positionConversionFactor(1 / ManipulatorConstants.kGearRatio);
     pivotConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder).pid(kP, kI, kD);
     rollerConfig.idleMode(IdleMode.kCoast);
 
@@ -86,13 +86,13 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
   public boolean atAngle(GameState state) {
     double setpoint = getAngle(state);
     return Math.abs(getEncoderPosition().in(Rotations) - setpoint)
-        < ManipulatorConstants.rotTolerance.in(Rotations);
+        < ManipulatorConstants.kRotTolerance.in(Rotations);
   }
 
   /** Spin rollers forward or backward at default speed */
   public Command spinRollers(boolean forward) {
     int multipler = forward == true ? 1 : -1;
-    return this.runOnce(() -> rollers.set(defaultRollerSpeed * multipler));
+    return this.runOnce(() -> rollers.set(kDefaultRollerSpeed * multipler));
   }
 
   public Command stopRollers() {

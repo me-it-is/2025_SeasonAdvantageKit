@@ -122,12 +122,12 @@ public class RobotContainer implements Logged {
     climber = new Climber(new SparkMax(ClimberConstants.kClimberMotorID, MotorType.kBrushless));
     elevator =
         new Elevator(
-            new SparkMax(ElevatorConstants.sparkMaxCANId, MotorType.kBrushless),
-            new SparkMax(ElevatorConstants.sparkMaxFollowerCANId, MotorType.kBrushless));
+            new SparkMax(ElevatorConstants.kSparkMaxCANId, MotorType.kBrushless),
+            new SparkMax(ElevatorConstants.kSparkMaxFollowerCANId, MotorType.kBrushless));
     manipulator =
         new Manipulator(
-            new SparkMax(ManipulatorConstants.PIVOT_ID, MotorType.kBrushless),
-            new SparkMax(ManipulatorConstants.ROLLER_ID, MotorType.kBrushless));
+            new SparkMax(ManipulatorConstants.kPivotId, MotorType.kBrushless),
+            new SparkMax(ManipulatorConstants.kRollerId, MotorType.kBrushless));
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
     // Set up SysId routines
@@ -159,7 +159,7 @@ public class RobotContainer implements Logged {
                 DriverStation.getAlliance().get() == Alliance.Blue
                     ? VisionConstants.kFieldHeight.in(Units.Meters)
                     : 0,
-                DriveConstants.chassisSize.in(Units.Meters) / 2),
+                DriveConstants.kChassisSize.in(Units.Meters) / 2),
             new Rotation2d()));
 
     startPoseLoc.addOption(
@@ -167,7 +167,7 @@ public class RobotContainer implements Logged {
         new Pose2d(
             new Translation2d(
                 VisionConstants.kFieldHeight.in(Units.Meters) / 2,
-                DriveConstants.chassisSize.in(Units.Meters) / 2),
+                DriveConstants.kChassisSize.in(Units.Meters) / 2),
             new Rotation2d()));
 
     startPoseLoc.addOption(
@@ -177,7 +177,7 @@ public class RobotContainer implements Logged {
                 DriverStation.getAlliance().get() == Alliance.Blue
                     ? 0
                     : VisionConstants.kFieldHeight.in(Units.Meters),
-                DriveConstants.chassisSize.in(Units.Meters) / 2),
+                DriveConstants.kChassisSize.in(Units.Meters) / 2),
             new Rotation2d()));
     drive.setPose(startPoseLoc.getSelected());
   }
@@ -225,9 +225,9 @@ public class RobotContainer implements Logged {
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive,
-            () -> MathUtil.applyDeadband(controller.getLeftY(), DriveConstants.DRIVE_DEADBAND),
-            () -> MathUtil.applyDeadband(controller.getLeftX(), DriveConstants.DRIVE_DEADBAND),
-            () -> MathUtil.applyDeadband(-controller.getRightX(), DriveConstants.DRIVE_DEADBAND)));
+            () -> MathUtil.applyDeadband(controller.getLeftY(), DriveConstants.kDriveDeadband),
+            () -> MathUtil.applyDeadband(controller.getLeftX(), DriveConstants.kDriveDeadband),
+            () -> MathUtil.applyDeadband(-controller.getRightX(), DriveConstants.kDriveDeadband)));
 
     // Rotate and translate to closest April Tag based on tag odometry
     controller.b().whileTrue(new AutoAim(drive, vision, controller));
@@ -293,7 +293,7 @@ public class RobotContainer implements Logged {
         waitUntil(() -> manipulator.atAngle(state)),
         manipulator
             .spinRollers(eject)
-            .withTimeout(ManipulatorConstants.defaultPickupTime),
+            .withTimeout(ManipulatorConstants.kDefaultPickupTime),
         manipulator.stopRollers());
   }
 

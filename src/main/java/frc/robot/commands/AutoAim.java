@@ -48,9 +48,9 @@ public class AutoAim extends Command {
 
   @Override
   public void execute() {
-    LinearVelocity forward = DriveConstants.maxTranslationSpeed.times(-controller.getLeftY());
-    LinearVelocity strafe = DriveConstants.maxTranslationSpeed.times(-controller.getLeftX());
-    AngularVelocity turn = DriveConstants.maxRotVelocity.times(-controller.getRightX());
+    LinearVelocity forward = DriveConstants.kMaxTranslationSpeed.times(-controller.getLeftY());
+    LinearVelocity strafe = DriveConstants.kMaxTranslationSpeed.times(-controller.getLeftX());
+    AngularVelocity turn = DriveConstants.kMaxRotVelocity.times(-controller.getRightX());
 
     Pose3d targetPose = null;
     Pose2d curPose = drive.getPose();
@@ -79,14 +79,14 @@ public class AutoAim extends Command {
     angErr = RobotMath.abs(curRot.minus(targetYaw));
     turn =
         RadiansPerSecond.of(
-            DriveConstants.rotationController.calculate(curRot.in(Radians), targetYaw.in(Radians))
-                * DriveConstants.maxRotVelocity.in(RadiansPerSecond));
+            DriveConstants.kRotationController.calculate(curRot.in(Radians), targetYaw.in(Radians))
+                * DriveConstants.kMaxRotVelocity.in(RadiansPerSecond));
     transErr = RobotMath.abs(targetRange.minus(VisionConstants.tagDistSetpoint));
     forward =
         MetersPerSecond.of(
-            DriveConstants.translationController.calculate(
+            DriveConstants.kTranslationController.calculate(
                     targetRange.in(Meters), VisionConstants.tagDistSetpoint.in(Meters))
-                * DriveConstants.maxTranslationSpeed.in(Units.MetersPerSecond));
+                * DriveConstants.kMaxTranslationSpeed.in(Units.MetersPerSecond));
     // Command drivetrain motors based on target speeds
     drive.runVelocity(new ChassisSpeeds(forward, strafe, turn));
   }

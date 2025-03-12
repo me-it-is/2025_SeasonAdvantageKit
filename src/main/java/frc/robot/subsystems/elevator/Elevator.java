@@ -49,8 +49,8 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
         .positionConversionFactor(Config.positionConversionFactor);
     globalConfig
         .closedLoop
-        .pidf(Config.pidP, Config.pidI, Config.pidD, Config.feedForward);
-    leaderConfig.apply(globalConfig).inverted(Config.inverted);
+        .pidf(Config.kP, Config.kI, Config.kD, Config.kFF);
+    leaderConfig.apply(globalConfig).inverted(Config.kIsInverted);
     followerConfig.apply(globalConfig).follow(sparkMaxLeader);
 
     sparkMaxLeader.configure(
@@ -65,7 +65,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
     this.log("elevator/height meters", getElevatorHeight().in(Meters));
     this.log("elevator/setpoint meters", setpoint.in(Units.Meters));
     pidControllerLeader.setReference(
-      (setpoint.in(Meters) / ElevatorConstants.maxHeight.in(Meters)), ControlType.kPosition);
+      (setpoint.in(Meters) / ElevatorConstants.kMaxHeight.in(Meters)), ControlType.kPosition);
   }
 
   public void setSetpoint(GameState stage) {
@@ -75,7 +75,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   public boolean atSetpoint() {
-    return Math.abs(setpoint.in(Meters) - getElevatorHeight().in(Meters)) < ElevatorConstants.setpointTolerance.in(Meters);
+    return Math.abs(setpoint.in(Meters) - getElevatorHeight().in(Meters)) < ElevatorConstants.kSetpointTolerance.in(Meters);
   }
 
   public Distance getElevatorHeight() {

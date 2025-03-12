@@ -47,14 +47,14 @@ public class Vision extends SubsystemBase implements AutoCloseable {
 
   public static final PhotonPoseEstimator poseEstimatorOne =
       new PhotonPoseEstimator(
-          VisionConstants.aprilTagFieldLayout,
+          VisionConstants.kAprilTagFieldLayout,
           PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-          VisionConstants.robotToCamOne);
+          VisionConstants.kRobotToCamOne);
   public static final PhotonPoseEstimator poseEstimatorTwo =
       new PhotonPoseEstimator(
-          VisionConstants.aprilTagFieldLayout,
+          VisionConstants.kAprilTagFieldLayout,
           PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-          VisionConstants.robotToCamTwo);
+          VisionConstants.kRobotToCamTwo);
   private List<TagTuple> bestTags = new ArrayList<>();
 
   /**
@@ -104,7 +104,7 @@ public class Vision extends SubsystemBase implements AutoCloseable {
         .filter(Objects::nonNull)
         .map(PhotonTrackedTarget::getFiducialId)
         .filter(Objects::nonNull)
-        .map(tagId -> new TagTuple(tagId, VisionConstants.aprilTagFieldLayout.getTagPose(tagId)))
+        .map(tagId -> new TagTuple(tagId, VisionConstants.kAprilTagFieldLayout.getTagPose(tagId)))
         .forEach(bestTags::add);
   }
 
