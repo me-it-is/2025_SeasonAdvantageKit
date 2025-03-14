@@ -97,7 +97,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   public Distance getElevatorHeight() {
-    return Meters.of(encoder.getPosition());
+    return Meters.of(encoder.getPosition() * ElevatorConstants.kPositionConversionFactor);
   }
 
   @Override
