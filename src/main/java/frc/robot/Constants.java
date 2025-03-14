@@ -25,6 +25,8 @@ import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
@@ -198,26 +200,27 @@ public final class Constants {
     public static final double kDeadRecogningDeadZone = 0.05;
     public static final double kRestInput = 0.02;
     public static final Distance kSetpointTolerance = Meters.of(0.1);
+    public static final AngularVelocity kMaxVelocity = RotationsPerSecond.of(5);
+    public static final AngularAcceleration kMaxAcceleration = RotationsPerSecondPerSecond.of(5);
 
     public static double totalExtensionTime = kMaxHeight.in(Units.Meters) / kDeadReckoningSpeed;
 
     public static final Distance kEncoderOffset = Meters.of(0);
 
-    public static final boolean kIsInverted = false;
+    public static final boolean kIsInverted = true;
 
     // factor to make full extension 1 (1 / num rotations per full extension)
-    public static final double kPositionConversionFactor = 1 / 17.893;
+    public static final double kRotsPerFullExtension = 17.893;
+    public static final double kPositionConversionFactor = 1 / kRotsPerFullExtension;
 
     public static final FeedbackSensor feedbackSensor = FeedbackSensor.kAbsoluteEncoder;
-    public static final double kP = 0.1;
+    public static final double kP = 0.9;
     public static final double kI = 0;
     public static final double kD = 0;
-    public static final double kFF = 0.02;
 
     public static SparkMaxConfig getSharedConfig() {
       SparkMaxConfig config = new SparkMaxConfig();
-      config.encoder.positionConversionFactor(kPositionConversionFactor);
-      config.closedLoop.pidf(kP, kI, kD, kFF);
+      config.closedLoop.pid(kP, kI, kD);
       return config;
     }
 
