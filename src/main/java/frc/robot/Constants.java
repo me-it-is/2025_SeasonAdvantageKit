@@ -134,10 +134,10 @@ public final class Constants {
     public static final double kDefaultRollerSpeed = 1.0;
     public static final Time kDefaultPickupTime = Seconds.of(1);
     public static final double kGearRatio = 16;
-    public static final double kP = 0.1;
+    public static final double kP = 0.7;
     public static final double kI = 0;
     public static final double kD = 0.01;
-    public static final double kFF = 0.5;
+    public static final double kFF = 0.4;
   }
 
   public static class VisionConstants {
@@ -214,7 +214,7 @@ public final class Constants {
     public static final double kPositionConversionFactor = 1 / kRotsPerFullExtension;
 
     public static final FeedbackSensor feedbackSensor = FeedbackSensor.kAbsoluteEncoder;
-    public static final double kP = 0.9;
+    public static final double kP = 0.2;
     public static final double kI = 0;
     public static final double kD = 0;
 

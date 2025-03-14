@@ -46,10 +46,8 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
     this.rollersChecker = new SparkMaxFaultChecker(rollers);
 
     pivotEncoder.setPosition(0);
-    pivotConfig
-        .idleMode(IdleMode.kBrake)
-        .encoder
-        .positionConversionFactor(1 / ManipulatorConstants.kGearRatio);
+    pivotConfig.inverted(false);
+    pivotConfig.encoder.positionConversionFactor(1 / ManipulatorConstants.kGearRatio);
     pivotConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder).pid(kP, kI, kD);
     rollerConfig.idleMode(IdleMode.kCoast);
 
@@ -62,6 +60,7 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
     this.log("manipulator/angle", getEncoderPosition().in(Units.Rotations));
     this.log("manipulator/rollers", rollers.get());
     this.log("manipulator/setpoint", setpoint);
+    this.log("manipulator/pivot motor output", pivot.get());
 
     double ff = Math.sin(getEncoderPosition().in(Units.Radians)) * kFF;
     this.log("manipulator/ff", ff);
