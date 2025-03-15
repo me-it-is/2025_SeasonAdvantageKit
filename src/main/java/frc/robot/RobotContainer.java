@@ -54,6 +54,8 @@ import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.manipulator.Manipulator;
+import frc.robot.subsystems.vision.Vision;
+import frc.robot.util.BrownoutMonitor;
 import monologue.Logged;
 import monologue.Monologue;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -67,10 +69,11 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer implements Logged {
   // Subsystems
   private final Drive drive;
-  // private final Vision vision;
+  private final Vision vision;
   private final Manipulator manipulator;
   private final Climber climber;
   private final Elevator elevator;
+  private final BrownoutMonitor brownoutMonitor;
 
   // Controllers
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -117,7 +120,7 @@ public class RobotContainer implements Logged {
                 new ModuleIO() {});
         break;
     }
-    // vision = new Vision(drive::updateEstimates);
+    vision = new Vision(drive::updateEstimates);
     climber = new Climber(new SparkMax(ClimberConstants.kClimberMotorID, MotorType.kBrushless));
     elevator =
         new Elevator(
@@ -127,6 +130,8 @@ public class RobotContainer implements Logged {
         new Manipulator(
             new SparkMax(ManipulatorConstants.kPivotId, MotorType.kBrushless),
             new SparkMax(ManipulatorConstants.kRollerId, MotorType.kBrushless));
+    brownoutMonitor = new BrownoutMonitor(drive, climber, elevator, manipulator);
+
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
     // Set up SysId routines
@@ -273,9 +278,18 @@ public class RobotContainer implements Logged {
     // human player station intake
     opController.povUp().onTrue(pickupAction(GameState.HUMAN_PLAYER_STATION, false));
     // climber setpoints
-    opController.povLeft().onTrue(climber.moveToSetpoint(State.BOTTOM)).onFalse(runOnce(climber::stop));
-    opController.povDown().onTrue(climber.moveToSetpoint(State.MID)).onFalse(runOnce(climber::stop));
-    opController.povRight().onTrue(climber.moveToSetpoint(State.TOP)).onFalse(runOnce(climber::stop));
+    opController
+        .povLeft()
+        .onTrue(climber.moveToSetpoint(State.BOTTOM))
+        .onFalse(runOnce(climber::stop));
+    opController
+        .povDown()
+        .onTrue(climber.moveToSetpoint(State.MID))
+        .onFalse(runOnce(climber::stop));
+    opController
+        .povRight()
+        .onTrue(climber.moveToSetpoint(State.TOP))
+        .onFalse(runOnce(climber::stop));
 
     opController
         .leftTrigger()

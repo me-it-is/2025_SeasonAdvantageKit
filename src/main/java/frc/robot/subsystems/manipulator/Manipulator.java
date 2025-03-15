@@ -100,6 +100,11 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
     return this.runOnce(() -> rollers.set(0.0));
   }
 
+  public void stop() {
+    pivot.stopMotor();
+    rollers.stopMotor();
+  }
+
   @Override
   public void close() throws Exception {
     pivot.close();

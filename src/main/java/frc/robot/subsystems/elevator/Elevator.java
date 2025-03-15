@@ -100,6 +100,10 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
     return Meters.of(encoder.getPosition() * ElevatorConstants.kPositionConversionFactor);
   }
 
+  public void stop() {
+    sparkMaxLeader.stopMotor();
+  }
+
   @Override
   public void close() {
     sparkMaxFollower.close();

@@ -11,7 +11,6 @@ import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkMaxConfig;
-
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -37,7 +36,8 @@ public class Climber extends SubsystemBase implements AutoCloseable, Logged {
     this.setpoint = stateMap.get(curState);
 
     config.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder).pid(kP, kI, kD);
-    motorController.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    motorController.configure(
+        config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   @Override
@@ -51,7 +51,8 @@ public class Climber extends SubsystemBase implements AutoCloseable, Logged {
 
   public Command moveToSetpoint(State state) {
     this.setpoint = stateMap.get(state);
-    return run(() -> controller.setReference(setpoint.in(Rotations), ControlType.kPosition)).until(this::atSetpoint);
+    return run(() -> controller.setReference(setpoint.in(Rotations), ControlType.kPosition))
+        .until(this::atSetpoint);
   }
 
   public boolean atSetpoint() {
