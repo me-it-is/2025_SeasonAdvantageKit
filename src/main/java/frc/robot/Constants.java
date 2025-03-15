@@ -190,6 +190,26 @@ public final class Constants {
     public static final int kLowerLimSwitchId = 1;
     public static final int kMidBeamBreakId = 2;
     public static final double kClimberMotorMult = 0.9;
+
+    public static final double kP = 0.5;
+    public static final double kI = 0.0;
+    public static final double kD = 0.0;
+
+    public static enum State {
+      TOP,
+      BOTTOM,
+      MID,
+    }
+
+    public static final Map<State, Angle> stateMap =
+        Map.of(
+            State.TOP,
+            Rotations.of(0),
+            State.MID,
+            Rotations.of(0.2),
+            State.BOTTOM,
+            Rotations.of(0.25));
+    public static final Angle setpointTolerance = Rotations.of(0.05);
   }
 
   public static class ElevatorConstants {

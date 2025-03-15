@@ -36,6 +36,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.ClimberConstants;
+import frc.robot.Constants.ClimberConstants.State;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.GameState;
@@ -271,6 +272,10 @@ public class RobotContainer implements Logged {
 
     // human player station intake
     opController.povUp().onTrue(pickupAction(GameState.HUMAN_PLAYER_STATION, false));
+    // climber setpoints
+    opController.povLeft().onTrue(climber.moveToSetpoint(State.BOTTOM));
+    opController.povDown().onTrue(climber.moveToSetpoint(State.MID));
+    opController.povRight().onTrue(climber.moveToSetpoint(State.TOP));
 
     opController
         .leftTrigger()
@@ -286,12 +291,12 @@ public class RobotContainer implements Logged {
   /* Move to correct elevator height, pivot angle, and spin manipulator rollers */
   private Command pickupAction(GameState state, boolean eject) {
     return sequence(
-        /*runOnce(() -> elevator.setSetpoint(state), elevator),
-        waitUntil(() -> elevator.atSetpoint()),*/
-        runOnce(() -> manipulator.setAngle(state), manipulator));
-    /*waitUntil(() -> manipulator.atAngle(state)),
-    manipulator.spinRollers(eject).withTimeout(ManipulatorConstants.kDefaultPickupTime),
-    manipulator.stopRollers());*/
+        runOnce(() -> elevator.setSetpoint(state), elevator),
+        waitUntil(() -> elevator.atSetpoint()),
+        runOnce(() -> manipulator.setAngle(state), manipulator),
+        waitUntil(() -> manipulator.atAngle(state)),
+        manipulator.spinRollers(eject).withTimeout(ManipulatorConstants.kDefaultPickupTime),
+        manipulator.stopRollers());
   }
 
   /**

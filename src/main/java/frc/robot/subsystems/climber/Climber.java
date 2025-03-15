@@ -1,6 +1,19 @@
 package frc.robot.subsystems.climber;
 
+import static edu.wpi.first.units.Units.Rotations;
+import static frc.robot.Constants.ClimberConstants.*;
+
+import com.revrobotics.spark.SparkAbsoluteEncoder;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
+import com.revrobotics.spark.config.SparkMaxConfig;
+
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.util.RobotMath;
@@ -9,18 +22,22 @@ import monologue.Logged;
 public class Climber extends SubsystemBase implements AutoCloseable, Logged {
 
   private SparkMax motorController;
+  private SparkMaxConfig config;
+  private SparkAbsoluteEncoder encoder;
+  private SparkClosedLoopController controller;
 
-  public enum SensorState {
-    TOP,
-    BOTTOM,
-    MID,
-    NONE
-  }
-
-  private SensorState curState = SensorState.NONE;
+  private State curState = State.BOTTOM;
+  private Angle setpoint;
 
   public Climber(SparkMax motorController) {
     this.motorController = motorController;
+    this.config = new SparkMaxConfig();
+    this.encoder = motorController.getAbsoluteEncoder();
+    this.controller = motorController.getClosedLoopController();
+    this.setpoint = stateMap.get(curState);
+
+    config.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder).pid(kP, kI, kD);
+    motorController.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   @Override
@@ -32,6 +49,16 @@ public class Climber extends SubsystemBase implements AutoCloseable, Logged {
     motorController.set(ClimberConstants.kClimberMotorMult * RobotMath.signBool(reverse));
   }
 
+  public Command moveToSetpoint(State state) {
+    this.setpoint = stateMap.get(state);
+    return run(() -> controller.setReference(setpoint.in(Rotations), ControlType.kPosition)).until(this::atSetpoint);
+  }
+
+  public boolean atSetpoint() {
+    Angle diff = this.setpoint.minus(Rotations.of(encoder.getPosition()));
+    return RobotMath.measureWithinBounds(setpointTolerance, diff);
+  }
+
   public void stop() {
     motorController.stopMotor();
   }
@@ -39,12 +66,12 @@ public class Climber extends SubsystemBase implements AutoCloseable, Logged {
   public SparkMax getMotor() {
     return motorController;
   }
-  // neutral signal SHOULD then default to brake mode
+
   public void disable() {
     motorController.disable();
   }
 
-  public SensorState getSensorState() {
+  public State getSensorState() {
     return curState;
   }
 }
