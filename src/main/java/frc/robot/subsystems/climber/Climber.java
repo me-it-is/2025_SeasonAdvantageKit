@@ -56,7 +56,7 @@ public class Climber extends SubsystemBase implements AutoCloseable, Logged {
 
   public boolean atSetpoint() {
     Angle diff = this.setpoint.minus(Rotations.of(encoder.getPosition()));
-    return RobotMath.measureWithinBounds(setpointTolerance, diff);
+    return RobotMath.measureWithinBounds(diff, setpointTolerance);
   }
 
   public void stop() {
