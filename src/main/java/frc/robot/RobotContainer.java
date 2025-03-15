@@ -273,9 +273,9 @@ public class RobotContainer implements Logged {
     // human player station intake
     opController.povUp().onTrue(pickupAction(GameState.HUMAN_PLAYER_STATION, false));
     // climber setpoints
-    opController.povLeft().onTrue(climber.moveToSetpoint(State.BOTTOM));
-    opController.povDown().onTrue(climber.moveToSetpoint(State.MID));
-    opController.povRight().onTrue(climber.moveToSetpoint(State.TOP));
+    opController.povLeft().onTrue(climber.moveToSetpoint(State.BOTTOM)).onFalse(runOnce(climber::stop));
+    opController.povDown().onTrue(climber.moveToSetpoint(State.MID)).onFalse(runOnce(climber::stop));
+    opController.povRight().onTrue(climber.moveToSetpoint(State.TOP)).onFalse(runOnce(climber::stop));
 
     opController
         .leftTrigger()
