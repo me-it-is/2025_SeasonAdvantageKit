@@ -39,12 +39,12 @@ public class Fault {
    *     (e.g. TalonFX.getFault_DeviceTemp indicated whether a talon is overheated)
    * @param notificationLevel the sevarity of the fault (see {@link NotificationLevel}).
    *     NotificationLevel.INFO is ignored
-   * @param name the name of the fault
+   * @param measage the name of the fault
    */
   public Fault(
-      Supplier<Boolean> supplierToCheckFault, NotificationLevel notificationLevel, String name) {
+      Supplier<Boolean> supplierToCheckFault, NotificationLevel notificationLevel, String measage) {
     this.supplierToCheckFault = supplierToCheckFault;
-    this.faultName = name;
+    this.faultName = measage;
     this.level = notificationLevel;
   }
 

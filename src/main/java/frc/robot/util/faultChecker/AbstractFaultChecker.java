@@ -37,28 +37,29 @@ public abstract class AbstractFaultChecker {
     }
   }
 
-  public List<Fault> getFaults() {
-    return Stream.concat(getWarningFaults().stream(), getErrorFaults().stream()).toList();
+  public List<Fault> getActiveFaults() {
+    return Stream.concat(getActiveWarningFaults().stream(), getActiveErrorFaults().stream())
+        .toList();
   }
 
-  public List<Fault> getWarningFaults() {
-    List<Fault> errorFaults = new ArrayList<>();
+  public List<Fault> getActiveWarningFaults() {
+    List<Fault> activeFaults = new ArrayList<>();
     for (Fault f : warningFaults) {
       if (f.hasFault) {
-        errorFaults.add(f);
+        activeFaults.add(f);
       }
     }
-    return errorFaults;
+    return activeFaults;
   }
 
-  public List<Fault> getErrorFaults() {
-    List<Fault> errorFaults = new ArrayList<>();
+  public List<Fault> getActiveErrorFaults() {
+    List<Fault> activeFaults = new ArrayList<>();
     for (Fault f : errorFaults) {
       if (f.hasFault) {
-        errorFaults.add(f);
+        activeFaults.add(f);
       }
     }
-    return errorFaults;
+    return activeFaults;
   }
 
   public void addFault(Fault fault) {
@@ -77,11 +78,11 @@ public abstract class AbstractFaultChecker {
   }
 
   public boolean hasFault() {
-    return getWarningFaults().size() != 0;
+    return getActiveWarningFaults().size() != 0;
   }
 
   public boolean hasErrorFault() {
-    return getErrorFaults().size() != 0;
+    return getActiveErrorFaults().size() != 0;
   }
 
   /**
