@@ -1,19 +1,18 @@
 package frc.robot.util.faultChecker;
 
-import com.ctre.phoenix6.StatusSignal;
 import edu.wpi.first.util.datalog.StringLogEntry;
 import frc.robot.util.Elastic;
 import frc.robot.util.Elastic.Notification;
 import frc.robot.util.Elastic.Notification.NotificationLevel;
 import java.util.Objects;
-import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * Encodes the status of a fault as well as the required resorces to update and notify the driver
  */
 public class Fault {
   String faultName;
-  Function<Boolean, StatusSignal<Boolean>> functionToCheckFault;
+  Supplier<Boolean> supplierToCheckFault;
   NotificationLevel level = NotificationLevel.WARNING;
   boolean hasFault;
   boolean hadFault;
@@ -24,39 +23,17 @@ public class Fault {
       Objects.requireNonNull(payload);
     }
   }
-  /**
-   * @param functionToCheckFault function that indicates whether a particular fault has occurred
-   *     (e.g. TalonFX.getFault_DeviceTemp indicated whether a talon is overheated)
-   */
-  public Fault(Function<Boolean, StatusSignal<Boolean>> functionToCheckFault) {
-    this.functionToCheckFault = functionToCheckFault;
-    // Extracts the fault name from the name of the function
-    // getFault_hardware -> hardware
-    faultName = functionToCheckFault.toString().replace("getFault_", "");
-  }
 
   /**
    * @param functionToCheckFault function that indicates whether a particular fault has occurred
    *     (e.g. TalonFX.getFault_DeviceTemp indicated whether a talon is overheated)
    * @param name the name of the fault
    */
-  public Fault(Function<Boolean, StatusSignal<Boolean>> functionToCheckFault, String name) {
-    this.functionToCheckFault = functionToCheckFault;
+  public Fault(Supplier<Boolean> supplierToCheckFault, String name) {
+    this.supplierToCheckFault = supplierToCheckFault;
     this.faultName = name;
   }
-  /**
-   * @param functionToCheckFault function that indicates whether a particular fault has occurred
-   *     (e.g. TalonFX.getFault_DeviceTemp indicated whether a talon is overheated)
-   * @param notificationLevel the sevarity of the fault (see {@link NotificationLevel}).
-   *     NotificationLevel.INFO is ignored
-   */
-  public Fault(
-      Function<Boolean, StatusSignal<Boolean>> functionToCheckFault,
-      NotificationLevel notificationLevel) {
-    this.functionToCheckFault = functionToCheckFault;
-    this.faultName = functionToCheckFault.toString().replace("getFault_", "");
-    this.level = notificationLevel;
-  }
+
   /**
    * @param functionToCheckFault function that indicates whether a particular fault has occurred
    *     (e.g. TalonFX.getFault_DeviceTemp indicated whether a talon is overheated)
@@ -65,21 +42,21 @@ public class Fault {
    * @param name the name of the fault
    */
   public Fault(
-      Function<Boolean, StatusSignal<Boolean>> functionToCheckFault,
+    Supplier<Boolean> supplierToCheckFault,
       NotificationLevel notificationLevel,
       String name) {
-    this.functionToCheckFault = functionToCheckFault;
+    this.supplierToCheckFault = supplierToCheckFault;
     this.faultName = name;
     this.level = notificationLevel;
   }
 
   /** Updates whether the fault is active and the state in the last call */
   public void updateFault() {
-    if (functionToCheckFault.apply(true).getValue()) {
+    if (supplierToCheckFault.get()) {
       System.out.println("Fault detected");
     }
     hadFault = hasFault;
-    hasFault = functionToCheckFault.apply(true).getValue();
+    hasFault = supplierToCheckFault.get();
   }
 
   private FaultInfo getFaultString(String subsystemName) {
