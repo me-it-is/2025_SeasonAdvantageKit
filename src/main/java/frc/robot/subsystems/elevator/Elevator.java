@@ -22,7 +22,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.GameState;
-import frc.robot.util.faultChecker.SparkMaxFaultChecker;
+import frc.robot.util.faultChecker.SparkFaultChecker;
 import monologue.Logged;
 
 public class Elevator extends SubsystemBase implements AutoCloseable, Logged {

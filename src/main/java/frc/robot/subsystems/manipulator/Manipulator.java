@@ -21,7 +21,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.GameState;
 import frc.robot.Constants.ManipulatorConstants;
-import frc.robot.util.faultChecker.SparkMaxFaultChecker;
+import frc.robot.util.faultChecker.SparkFaultChecker;
 import monologue.Logged;
 
 public class Manipulator extends SubsystemBase implements Logged, AutoCloseable {
@@ -30,8 +30,8 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
   private SparkMaxConfig pivotConfig;
   private SparkMaxConfig rollerConfig;
   private SparkClosedLoopController pivotController;
-  private SparkMaxFaultChecker pivotChecker;
-  private SparkMaxFaultChecker rollersChecker;
+  private SparkFaultChecker pivotChecker;
+  private SparkFaultChecker rollersChecker;
   private RelativeEncoder pivotEncoder;
   private double setpoint = Constants.reefMap.get(GameState.NONE).angle().in(Units.Rotations);
 
@@ -42,8 +42,8 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
     this.rollerConfig = new SparkMaxConfig();
     this.pivotEncoder = pivot.getEncoder();
     this.pivotController = pivot.getClosedLoopController();
-    this.pivotChecker = new SparkMaxFaultChecker(pivot);
-    this.rollersChecker = new SparkMaxFaultChecker(rollers);
+    this.pivotChecker = new SparkFaultChecker(pivot, "Pivot SparkMax");
+    this.rollersChecker = new SparkFaultChecker(rollers, "Rollers SparkMax");
 
     pivotEncoder.setPosition(0);
     pivotConfig.inverted(false);
@@ -67,8 +67,8 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
     pivotController.setReference(
         setpoint, ControlType.kPosition, ClosedLoopSlot.kSlot0, ff, ArbFFUnits.kPercentOut);
 
-    pivotChecker.checkFaults();
-    rollersChecker.checkFaults();
+    pivotChecker.updateFaults();
+    rollersChecker.updateFaults();
   }
 
   private double getAngle(GameState state) {
