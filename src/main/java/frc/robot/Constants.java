@@ -37,6 +37,7 @@ import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.GravityTypeValue;
+import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -322,6 +323,37 @@ public final class Constants {
          ERROR, "Supply voltage unstable."));
          add(new Fault(() -> (talon.getFault_UsingFusedCANcoderWhileUnlicensed().getValue()),
          ERROR, "Using a fused CANcoder without pheonix pro"));
+      }};
+    }
+
+    public static List<Fault> getPigeonFaults(Pigeon2 pigeon) {
+      return new ArrayList<Fault>(){{
+        add(new Fault(() -> (pigeon.getFault_BootDuringEnable().getValue()),
+        ERROR, "Robot enabled during pigeon boot."));
+        add(new Fault(() -> (pigeon.getFault_BootIntoMotion().getValue()),
+        ERROR, "Motion during pigeon boot."));
+        add(new Fault(() -> (pigeon.getFault_BootupAccelerometer().getValue()),
+        ERROR, "Accelerometer bootup failed."));
+        add(new Fault(() -> (pigeon.getFault_BootupGyroscope().getValue()),
+        ERROR, "Gyro bootup failed."));
+        add(new Fault(() -> (pigeon.getFault_BootupMagnetometer().getValue()),
+        ERROR, "Magnetometer bootup failed."));
+        add(new Fault(() -> (pigeon.getFault_DataAcquiredLate().getValue()),
+        WARNING, "Motion data aquired late."));
+        add(new Fault(() -> (pigeon.getFault_Hardware().getValue()),
+        ERROR, "Hardware fault."));
+        add(new Fault(() -> (pigeon.getFault_LoopTimeSlow().getValue()),
+        WARNING, "Motion data colection slow."));
+        add(new Fault(() -> (pigeon.getFault_SaturatedAccelerometer().getValue()),
+        ERROR, "Accelerometer saturated."));
+        add(new Fault(() -> (pigeon.getFault_SaturatedGyroscope().getValue()),
+        ERROR, "Gyro staturated."));
+        add(new Fault(() -> (pigeon.getFault_SaturatedMagnetometer().getValue()),
+        ERROR, "Magnetometer staturated."));
+        add(new Fault(() -> (pigeon.getFault_Undervoltage().getValue()),
+        ERROR, "Voltage to low."));
+        add(new Fault(() -> (pigeon.getFault_UnlicensedFeatureInUse().getValue()),
+        ERROR, "Unlicenced feature in use."));
       }};
     }
   }
