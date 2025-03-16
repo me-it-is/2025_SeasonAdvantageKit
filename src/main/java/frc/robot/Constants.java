@@ -52,6 +52,7 @@ import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import java.util.Map;
 
 /**
@@ -62,6 +63,7 @@ import java.util.Map;
 public final class Constants {
   public static final Mode currentMode =
       Mode.REAL; // RobotBase.isReal() ? Mode.REAL : Mode.SIM; robot thinks it's fake wut
+  public static final Alliance deafaultAlliance = Alliance.Blue;
 
   // Phisical values of the robot
   public static final Mass ROBOT_MASS_KG = Pounds.of(138.308);

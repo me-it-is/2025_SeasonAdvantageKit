@@ -1,5 +1,7 @@
 package frc.robot.commands;
 
+import static frc.robot.util.GetAliance.getAllianceBoolean;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.IdealStartingState;
@@ -49,8 +51,7 @@ public class SnapToTarget extends Command {
     Pose2d finalPose =
         scorePose.plus(
             new Transform2d(
-                VisionConstants.kTagXOffset.times(
-                    (DriverStation.getAlliance().get() == Alliance.Blue ? 1 : -1)),
+                VisionConstants.kTagXOffset.times(RobotMath.signBool(getAllianceBoolean())),
                 VisionConstants.kTagYOffset,
                 new Rotation2d()));
     List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(drivePose, finalPose);

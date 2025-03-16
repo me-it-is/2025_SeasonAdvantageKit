@@ -14,6 +14,7 @@
 package frc.robot;
 
 import static edu.wpi.first.wpilibj2.command.Commands.*;
+import static frc.robot.util.GetAliance.getAllianceBoolean;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -25,8 +26,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Units;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -160,9 +159,7 @@ public class RobotContainer implements Logged {
         "left",
         new Pose2d(
             new Translation2d(
-                DriverStation.getAlliance().get() == Alliance.Blue
-                    ? VisionConstants.kFieldHeight.in(Units.Meters)
-                    : 0,
+                getAllianceBoolean() ? VisionConstants.kFieldHeight.in(Units.Meters) : 0,
                 DriveConstants.kChassisSize.in(Units.Meters) / 2),
             new Rotation2d()));
 
@@ -178,9 +175,7 @@ public class RobotContainer implements Logged {
         "right",
         new Pose2d(
             new Translation2d(
-                DriverStation.getAlliance().get() == Alliance.Blue
-                    ? 0
-                    : VisionConstants.kFieldHeight.in(Units.Meters),
+                getAllianceBoolean() ? 0 : VisionConstants.kFieldHeight.in(Units.Meters),
                 DriveConstants.kChassisSize.in(Units.Meters) / 2),
             new Rotation2d()));
     drive.setPose(startPoseLoc.getSelected());
