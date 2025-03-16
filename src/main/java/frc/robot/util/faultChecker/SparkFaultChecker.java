@@ -1,8 +1,7 @@
 package frc.robot.util.faultChecker;
 
-import java.util.function.Supplier;
-
 import com.revrobotics.spark.SparkBase.Faults;
+import java.util.function.Supplier;
 
 public class SparkFaultChecker extends AbstractFaultChecker {
   private Supplier<Faults> faultSupplier;

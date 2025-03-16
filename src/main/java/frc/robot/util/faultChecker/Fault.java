@@ -42,9 +42,7 @@ public class Fault {
    * @param name the name of the fault
    */
   public Fault(
-    Supplier<Boolean> supplierToCheckFault,
-      NotificationLevel notificationLevel,
-      String name) {
+      Supplier<Boolean> supplierToCheckFault, NotificationLevel notificationLevel, String name) {
     this.supplierToCheckFault = supplierToCheckFault;
     this.faultName = name;
     this.level = notificationLevel;

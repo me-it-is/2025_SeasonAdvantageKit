@@ -3,7 +3,6 @@ package frc.robot.util.faultChecker;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.hardware.TalonFX;
-
 import frc.robot.Constants.FaultConstants;
 
 public class CTREFaultChecker extends AbstractFaultChecker {

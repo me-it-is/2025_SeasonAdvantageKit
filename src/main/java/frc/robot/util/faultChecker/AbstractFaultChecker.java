@@ -71,7 +71,7 @@ public abstract class AbstractFaultChecker {
   }
 
   public void addFaults(List<Fault> faults) {
-    for(Fault f : faults) {
+    for (Fault f : faults) {
       addFault(f);
     }
   }
