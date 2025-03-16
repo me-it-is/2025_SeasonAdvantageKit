@@ -41,6 +41,8 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
+import com.revrobotics.spark.SparkBase.Faults;
+import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
@@ -69,6 +71,7 @@ import frc.robot.util.faultChecker.Fault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * This class defines the runtime mode used by AdvantageKit. The mode is always "real" when running
@@ -370,6 +373,23 @@ public final class Constants {
         ERROR, "Supply voltage to low."));
         add(new Fault(() -> (CANcoder.getFault_UnlicensedFeatureInUse().getValue()),
         ERROR, "Unlicenced feature in use."));
+      }};
+    }
+
+    public static List<Fault> getSparkFaults(Supplier<Faults> faults) {
+      return new ArrayList<Fault>(){{
+        add(new Fault(() -> (faults.get().can),
+        ERROR, "Can fault."));
+        add(new Fault(() -> (faults.get().escEeprom),
+        ERROR, "escEeprom fault."));
+        add(new Fault(() -> (faults.get().gateDriver),
+        ERROR, "Gate driver fault."));
+        add(new Fault(() -> (faults.get().motorType),
+        ERROR, "Incorect motor type."));
+        add(new Fault(() -> (faults.get().sensor),
+        ERROR, "Sensor fault."));
+        add(new Fault(() -> (faults.get().temperature),
+        ERROR, "Over temp."));
       }};
     }
   }
