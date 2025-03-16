@@ -70,6 +70,12 @@ public abstract class AbstractFaultChecker {
     }
   }
 
+  public void addFaults(List<Fault> faults) {
+    for(Fault f : faults) {
+      addFault(f);
+    }
+  }
+
   public boolean hasFault() {
     return getWarningFaults().size() != 0;
   }
