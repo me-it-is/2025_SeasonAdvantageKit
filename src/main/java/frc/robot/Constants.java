@@ -37,6 +37,7 @@ import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.GravityTypeValue;
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
@@ -353,6 +354,21 @@ public final class Constants {
         add(new Fault(() -> (pigeon.getFault_Undervoltage().getValue()),
         ERROR, "Voltage to low."));
         add(new Fault(() -> (pigeon.getFault_UnlicensedFeatureInUse().getValue()),
+        ERROR, "Unlicenced feature in use."));
+      }};
+    }
+
+    public static List<Fault> getCANCoderFaults(CANcoder CANcoder) {
+      return new ArrayList<Fault>(){{
+        add(new Fault(() -> (CANcoder.getFault_BadMagnet().getValue()),
+        ERROR, "Bad magnet."));
+        add(new Fault(() -> (CANcoder.getFault_BootDuringEnable().getValue()),
+        ERROR, "Robot enabled during pigeon boot."));
+        add(new Fault(() -> (CANcoder.getFault_Hardware().getValue()),
+        ERROR, "Hardware fault."));
+        add(new Fault(() -> (CANcoder.getFault_Undervoltage().getValue()),
+        ERROR, "Supply voltage to low."));
+        add(new Fault(() -> (CANcoder.getFault_UnlicensedFeatureInUse().getValue()),
         ERROR, "Unlicenced feature in use."));
       }};
     }
