@@ -65,7 +65,6 @@ import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import frc.robot.util.Elastic.Notification.NotificationLevel;
 import frc.robot.util.faultChecker.Fault;
 import java.util.ArrayList;
 import java.util.List;
