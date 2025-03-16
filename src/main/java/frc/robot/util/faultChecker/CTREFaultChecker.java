@@ -1,7 +1,7 @@
 package frc.robot.util.faultChecker;
 
-public class CTREFaultChecker extends FaultChecker{
-    public CTREFaultChecker (String deviceName) {
-        super(deviceName);
-    }
+public class CTREFaultChecker extends AbstractFaultChecker {
+  public CTREFaultChecker(String deviceName) {
+    super(deviceName);
+  }
 }

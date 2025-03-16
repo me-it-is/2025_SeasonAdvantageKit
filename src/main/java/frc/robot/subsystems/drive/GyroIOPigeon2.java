@@ -23,8 +23,8 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import frc.robot.generated.TunerConstants;
+import frc.robot.util.faultChecker.CTREFaultChecker;
 import frc.robot.util.faultChecker.Fault;
-import frc.robot.util.faultChecker.FaultChecker;
 import java.util.Queue;
 
 /** IO implementation for Pigeon 2. */
@@ -89,7 +89,7 @@ public class GyroIOPigeon2 implements GyroIO {
     yawPositionQueue.clear();
   }
 
-  public FaultChecker pigeonFaults = new FaultChecker("pigeon2");
+  public CTREFaultChecker pigeonFaults = new CTREFaultChecker("pigeon2");
 
   @Override
   public void updateFault() {

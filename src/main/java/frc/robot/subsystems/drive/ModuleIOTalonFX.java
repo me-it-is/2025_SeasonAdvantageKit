@@ -41,8 +41,8 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.generated.TunerConstants;
+import frc.robot.util.faultChecker.CTREFaultChecker;
 import frc.robot.util.faultChecker.Fault;
-import frc.robot.util.faultChecker.FaultChecker;
 import java.util.Queue;
 
 /**
@@ -193,7 +193,7 @@ public class ModuleIOTalonFX implements ModuleIO {
     addFaultsToEncoders(cancoder, CANcoderFaultChecker);
   }
 
-  private void addFaultsToTalon(TalonFX talon, FaultChecker faultCheckerForTalon) {
+  private void addFaultsToTalon(TalonFX talon, CTREFaultChecker faultCheckerForTalon) {
     turnTalonFaultChecker.addFault(new Fault(talon::getFault_BootDuringEnable));
     turnTalonFaultChecker.addFault(new Fault(talon::getFault_BridgeBrownout));
     turnTalonFaultChecker.addFault(new Fault(talon::getFault_DeviceTemp));
@@ -219,7 +219,7 @@ public class ModuleIOTalonFX implements ModuleIO {
     turnTalonFaultChecker.addFault(new Fault(talon::getFault_UsingFusedCANcoderWhileUnlicensed));
   }
 
-  private void addFaultsToEncoders(CANcoder encoder, FaultChecker faultCheckerForCANcoder) {
+  private void addFaultsToEncoders(CANcoder encoder, CTREFaultChecker faultCheckerForCANcoder) {
     faultCheckerForCANcoder.addFault(new Fault(encoder::getFault_BadMagnet));
     faultCheckerForCANcoder.addFault(new Fault(encoder::getFault_BootDuringEnable));
     faultCheckerForCANcoder.addFault(new Fault(encoder::getFault_Hardware));
@@ -306,9 +306,9 @@ public class ModuleIOTalonFX implements ModuleIO {
         });
   }
 
-  public FaultChecker turnTalonFaultChecker = new FaultChecker("turn talon");
-  public FaultChecker driveTalonFaultChecker = new FaultChecker("drive talon");
-  public FaultChecker CANcoderFaultChecker = new FaultChecker("swerve CANcoder");
+  public CTREFaultChecker turnTalonFaultChecker = new CTREFaultChecker("turn talon");
+  public CTREFaultChecker driveTalonFaultChecker = new CTREFaultChecker("drive talon");
+  public CTREFaultChecker CANcoderFaultChecker = new CTREFaultChecker("swerve CANcoder");
 
   @Override
   public void updateFaults() {

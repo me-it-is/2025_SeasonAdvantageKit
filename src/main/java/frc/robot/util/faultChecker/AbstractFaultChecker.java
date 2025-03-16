@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class FaultChecker {
+public abstract class AbstractFaultChecker {
   public List<Fault> warningFaults = new ArrayList<>();
   public List<Fault> errorFaults = new ArrayList<>();
 
@@ -17,7 +17,7 @@ public class FaultChecker {
   private DataLog log = DataLogManager.getLog();
   private StringLogEntry stringLog = new StringLogEntry(log, subsystemName);
 
-  public FaultChecker(String commponentName) {
+  public AbstractFaultChecker(String commponentName) {
     this.subsystemName = commponentName;
     DataLogManager.start();
   }
