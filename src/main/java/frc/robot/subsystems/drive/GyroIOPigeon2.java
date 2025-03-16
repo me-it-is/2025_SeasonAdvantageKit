@@ -37,6 +37,8 @@ public class GyroIOPigeon2 implements GyroIO {
   private final Queue<Double> yawTimestampQueue;
   private final StatusSignal<AngularVelocity> yawVelocity = pigeon.getAngularVelocityZWorld();
 
+  public CTREFaultChecker pigeonFaults = new CTREFaultChecker(pigeon, "pigeon2");
+
   public GyroIOPigeon2() {
     pigeon.getConfigurator().apply(new Pigeon2Configuration());
     pigeon.getConfigurator().setYaw(0.0);
@@ -72,9 +74,9 @@ public class GyroIOPigeon2 implements GyroIO {
             .toArray(Rotation2d[]::new);
     yawTimestampQueue.clear();
     yawPositionQueue.clear();
-  }
 
-  public CTREFaultChecker pigeonFaults = new CTREFaultChecker(pigeon, "pigeon2");
+    pigeonFaults.updateFaults();
+  }
 
   @Override
   public void updateFault() {
