@@ -42,7 +42,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.generated.TunerConstants;
 import frc.robot.util.faultChecker.CTREFaultChecker;
-import frc.robot.util.faultChecker.Fault;
+
 import java.util.Queue;
 
 /**
@@ -60,6 +60,10 @@ public class ModuleIOTalonFX implements ModuleIO {
   private final TalonFX driveTalon;
   private final TalonFX turnTalon;
   private final CANcoder cancoder;
+
+  public CTREFaultChecker turnTalonFaultChecker;
+  public CTREFaultChecker driveTalonFaultChecker;
+  public CTREFaultChecker CANcoderFaultChecker;
 
   // Voltage control requests
   private final VoltageOut voltageRequest = new VoltageOut(0);
@@ -188,43 +192,9 @@ public class ModuleIOTalonFX implements ModuleIO {
         turnCurrent);
     ParentDevice.optimizeBusUtilizationForAll(driveTalon, turnTalon);
 
-    addFaultsToTalon(driveTalon, driveTalonFaultChecker);
-    addFaultsToTalon(turnTalon, turnTalonFaultChecker);
-    addFaultsToEncoders(cancoder, CANcoderFaultChecker);
-  }
-
-  private void addFaultsToTalon(TalonFX talon, CTREFaultChecker faultCheckerForTalon) {
-    turnTalonFaultChecker.addFault(new Fault(talon::getFault_BootDuringEnable));
-    turnTalonFaultChecker.addFault(new Fault(talon::getFault_BridgeBrownout));
-    turnTalonFaultChecker.addFault(new Fault(talon::getFault_DeviceTemp));
-    turnTalonFaultChecker.addFault(new Fault(talon::getFault_ForwardHardLimit));
-    turnTalonFaultChecker.addFault(new Fault(talon::getFault_ForwardSoftLimit));
-    turnTalonFaultChecker.addFault(new Fault(talon::getFault_FusedSensorOutOfSync));
-    turnTalonFaultChecker.addFault(new Fault(talon::getFault_Hardware));
-    turnTalonFaultChecker.addFault(new Fault(talon::getFault_MissingDifferentialFX));
-    turnTalonFaultChecker.addFault(new Fault(talon::getFault_MissingHardLimitRemote));
-    turnTalonFaultChecker.addFault(new Fault(talon::getFault_MissingSoftLimitRemote));
-    turnTalonFaultChecker.addFault(new Fault(talon::getFault_OverSupplyV));
-    turnTalonFaultChecker.addFault(new Fault(talon::getFault_ProcTemp));
-    turnTalonFaultChecker.addFault(new Fault(talon::getFault_RemoteSensorDataInvalid));
-    turnTalonFaultChecker.addFault(new Fault(talon::getFault_RemoteSensorPosOverflow));
-    turnTalonFaultChecker.addFault(new Fault(talon::getFault_RemoteSensorReset));
-    turnTalonFaultChecker.addFault(new Fault(talon::getFault_ReverseHardLimit));
-    turnTalonFaultChecker.addFault(new Fault(talon::getFault_ReverseSoftLimit));
-    turnTalonFaultChecker.addFault(new Fault(talon::getFault_StaticBrakeDisabled));
-    turnTalonFaultChecker.addFault(new Fault(talon::getFault_StatorCurrLimit));
-    turnTalonFaultChecker.addFault(new Fault(talon::getFault_SupplyCurrLimit));
-    turnTalonFaultChecker.addFault(new Fault(talon::getFault_Undervoltage));
-    turnTalonFaultChecker.addFault(new Fault(talon::getFault_UnlicensedFeatureInUse));
-    turnTalonFaultChecker.addFault(new Fault(talon::getFault_UsingFusedCANcoderWhileUnlicensed));
-  }
-
-  private void addFaultsToEncoders(CANcoder encoder, CTREFaultChecker faultCheckerForCANcoder) {
-    faultCheckerForCANcoder.addFault(new Fault(encoder::getFault_BadMagnet));
-    faultCheckerForCANcoder.addFault(new Fault(encoder::getFault_BootDuringEnable));
-    faultCheckerForCANcoder.addFault(new Fault(encoder::getFault_Hardware));
-    faultCheckerForCANcoder.addFault(new Fault(encoder::getFault_Undervoltage));
-    faultCheckerForCANcoder.addFault(new Fault(encoder::getFault_UnlicensedFeatureInUse));
+    turnTalonFaultChecker = new CTREFaultChecker(turnTalon, "turn talon");
+    driveTalonFaultChecker = new CTREFaultChecker(driveTalon, "drive talon");
+    CANcoderFaultChecker = new CTREFaultChecker(cancoder, "swerve CANcoder");
   }
 
   @Override
@@ -305,10 +275,6 @@ public class ModuleIOTalonFX implements ModuleIO {
               rotation.getRotations());
         });
   }
-
-  public CTREFaultChecker turnTalonFaultChecker = new CTREFaultChecker("turn talon");
-  public CTREFaultChecker driveTalonFaultChecker = new CTREFaultChecker("drive talon");
-  public CTREFaultChecker CANcoderFaultChecker = new CTREFaultChecker("swerve CANcoder");
 
   @Override
   public void updateFaults() {
