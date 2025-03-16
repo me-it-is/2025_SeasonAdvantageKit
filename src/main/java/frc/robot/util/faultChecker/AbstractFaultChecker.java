@@ -40,6 +40,7 @@ public abstract class AbstractFaultChecker {
     for (Fault f : errorFaults) {
       f.updateFault();
       if (f.hasFault != f.hadFault) {
+        f.logFault(commponentName, stringLog);
         f.sendNotification(commponentName);
       }
     }
