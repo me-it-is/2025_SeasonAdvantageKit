@@ -13,10 +13,11 @@ import java.util.function.Supplier;
 public class Fault {
   String faultName;
   Supplier<Boolean> supplierToCheckFault;
-  NotificationLevel level = NotificationLevel.WARNING;
+  NotificationLevel level = NotificationLevel.ERROR;
   boolean hasFault;
   boolean hadFault;
 
+  /** A recoard that stores the description of a fault as well as its status */
   private record FaultInfo(String header, String payload) {
     public FaultInfo {
       Objects.requireNonNull(header);
@@ -27,11 +28,11 @@ public class Fault {
   /**
    * @param functionToCheckFault function that indicates whether a particular fault has occurred
    *     (e.g. TalonFX.getFault_DeviceTemp indicated whether a talon is overheated)
-   * @param name the name of the fault
+   * @param measage the name of the fault
    */
-  public Fault(Supplier<Boolean> supplierToCheckFault, String name) {
+  public Fault(Supplier<Boolean> supplierToCheckFault, String measage) {
     this.supplierToCheckFault = supplierToCheckFault;
-    this.faultName = name;
+    this.faultName = measage;
   }
 
   /**
@@ -53,13 +54,17 @@ public class Fault {
     hadFault = hasFault;
     hasFault = supplierToCheckFault.get();
   }
-
-  private FaultInfo getFaultString(String subsystemName) {
-    return new FaultInfo(
-        subsystemName + "fault", faultName + " fault" + (hasFault ? "" : " resolved"));
+  /**
+   * @param componentName name of the component that the fault is from
+   * @return
+   */
+  private FaultInfo getFaultString(String componentName) {
+    return new FaultInfo(componentName + "fault", faultName + (hasFault ? "" : " Resolved."));
   }
 
   /**
+   * Sends a elastic notification to alert the drivers to the fault
+   *
    * @param componentName the name of the commponent that has the fault
    */
   public void sendNotification(String componentName) {
@@ -67,8 +72,10 @@ public class Fault {
     Elastic.sendNotification(new Notification(level, faultInfo.header, faultInfo.payload));
   }
   /**
-   * @param componentName the name of the commponent that has the fault
+   * Adds a entry of the fault to a log.
+   *
    * @param logEntry the log to add the fault to
+   * @param componentName the name of the commponent that has the fault
    */
   public void logFault(String componentName, StringLogEntry logEntry) {
     FaultInfo faultString = getFaultString(componentName);
