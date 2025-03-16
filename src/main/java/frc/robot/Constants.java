@@ -13,6 +13,9 @@
 
 package frc.robot;
 
+import static frc.robot.util.Elastic.Notification.NotificationLevel.WARNING;
+import static frc.robot.util.Elastic.Notification.NotificationLevel.ERROR;
+
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
@@ -34,6 +37,7 @@ import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.GravityTypeValue;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -57,6 +61,11 @@ import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import frc.robot.util.Elastic.Notification.NotificationLevel;
+import frc.robot.util.faultChecker.Fault;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -262,5 +271,58 @@ public final class Constants {
                 new CurrentLimitsConfigs()
                     .withStatorCurrentLimit(Amps.of(60))
                     .withStatorCurrentLimitEnable(true));
+  }
+
+  public static class FaultConstants {
+    public static List<Fault> getTalonFXFaults(TalonFX talon) {
+      return new ArrayList<Fault>(){{
+        add(new Fault(() -> (talon.getFault_BootDuringEnable().getValue()),
+         ERROR, "Robot enabled during motor bootup."));
+         add(new Fault(() -> (talon.getFault_BridgeBrownout().getValue()),
+         ERROR, "Motor bridge brownout."));
+         add(new Fault(() -> (talon.getFault_DeviceTemp().getValue()),
+         ERROR, "Motor over temp."));
+         add(new Fault(() -> (talon.getFault_ForwardHardLimit().getValue()),
+         WARNING, "Motor reached forward hard limit."));
+         add(new Fault(() -> (talon.getFault_ForwardSoftLimit().getValue()),
+         WARNING, "Motor reached forward soft limit."));
+         add(new Fault(() -> (talon.getFault_FusedSensorOutOfSync().getValue()),
+         WARNING, "Fused sensor resync. May cause a jump in location."));
+         add(new Fault(() -> (talon.getFault_Hardware().getValue()),
+         ERROR, "Hardware fault."));
+         add(new Fault(() -> (talon.getFault_MissingDifferentialFX().getValue()),
+         ERROR, "Canot reach remote differential talon."));
+         add(new Fault(() -> (talon.getFault_MissingHardLimitRemote().getValue()),
+         ERROR, "Canot reach remote hard stop limit switch."));
+         add(new Fault(() -> (talon.getFault_MissingSoftLimitRemote().getValue()),
+         ERROR, "Canot reach remote soft limit device."));
+         add(new Fault(() -> (talon.getFault_OverSupplyV().getValue()),
+         ERROR, "Supply voltage to high."));
+         add(new Fault(() -> (talon.getFault_ProcTemp().getValue()),
+         ERROR, "Processer over temp."));
+         add(new Fault(() -> (talon.getFault_RemoteSensorDataInvalid().getValue()),
+         ERROR, "Remote sensor data no longer trusted. may be caused by a drop off the can bus or other fault in the sensor."));
+         add(new Fault(() -> (talon.getFault_RemoteSensorPosOverflow().getValue()),
+         ERROR, "Remote sensor position has exceeded the size of a status signal frame."));
+         add(new Fault(() -> (talon.getFault_RemoteSensorReset().getValue()),
+         ERROR, "Remote sensor has been reset."));
+         add(new Fault(() -> (talon.getFault_ReverseHardLimit().getValue()),
+         WARNING, "Motor has reached reverse hard limit."));
+         add(new Fault(() -> (talon.getFault_ReverseSoftLimit().getValue()),
+         WARNING, "Motor has reached reverse soft limit."));
+         add(new Fault(() -> (talon.getFault_StaticBrakeDisabled().getValue()),
+         ERROR, "Static break overloaded. Will be temporarily disabled"));
+         add(new Fault(() -> (talon.getFault_StatorCurrLimit().getValue()),
+         ERROR, "Stator current limit reached."));
+         add(new Fault(() -> (talon.getFault_Undervoltage().getValue()),
+         ERROR, "Motor undervoltage."));
+         add(new Fault(() -> (talon.getFault_UnlicensedFeatureInUse().getValue()),
+         ERROR, "Unlicenced feature in use."));
+         add(new Fault(() -> (talon.getFault_UnstableSupplyV().getValue()),
+         ERROR, "Supply voltage unstable."));
+         add(new Fault(() -> (talon.getFault_UsingFusedCANcoderWhileUnlicensed().getValue()),
+         ERROR, "Using a fused CANcoder without pheonix pro"));
+      }};
+    }
   }
 }
