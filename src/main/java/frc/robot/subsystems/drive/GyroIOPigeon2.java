@@ -23,8 +23,8 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import frc.robot.generated.TunerConstants;
-import frc.robot.util.Fault;
-import frc.robot.util.FaultChecker;
+import frc.robot.util.faultChecker.Fault;
+import frc.robot.util.faultChecker.FaultChecker;
 import java.util.Queue;
 
 /** IO implementation for Pigeon 2. */

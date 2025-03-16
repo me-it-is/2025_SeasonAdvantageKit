@@ -1,4 +1,4 @@
-package frc.robot.util;
+package frc.robot.util.faultChecker;
 
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.StringLogEntry;

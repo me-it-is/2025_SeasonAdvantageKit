@@ -1,7 +1,9 @@
-package frc.robot.util;
+package frc.robot.util.faultChecker;
 
 import com.revrobotics.spark.SparkBase.Faults;
 import com.revrobotics.spark.SparkMax;
+
+import frc.robot.util.Elastic;
 import frc.robot.util.Elastic.Notification;
 import frc.robot.util.Elastic.Notification.NotificationLevel;
 

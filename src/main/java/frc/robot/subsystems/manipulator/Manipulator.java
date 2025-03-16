@@ -21,7 +21,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.GameState;
 import frc.robot.Constants.ManipulatorConstants;
-import frc.robot.util.SparkMaxFaultChecker;
+import frc.robot.util.faultChecker.SparkMaxFaultChecker;
 import monologue.Logged;
 
 public class Manipulator extends SubsystemBase implements Logged, AutoCloseable {

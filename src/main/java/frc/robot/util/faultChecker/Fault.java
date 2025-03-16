@@ -1,7 +1,8 @@
-package frc.robot.util;
+package frc.robot.util.faultChecker;
 
 import com.ctre.phoenix6.StatusSignal;
 import edu.wpi.first.util.datalog.StringLogEntry;
+import frc.robot.util.Elastic;
 import frc.robot.util.Elastic.Notification;
 import frc.robot.util.Elastic.Notification.NotificationLevel;
 import java.util.Objects;
