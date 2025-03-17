@@ -2,6 +2,7 @@ package frc.robot.util.faultChecker;
 
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.Faults;
+import frc.robot.Constants;
 import java.util.function.Supplier;
 
 public class SparkFaultChecker extends AbstractFaultChecker {
@@ -22,6 +23,7 @@ public class SparkFaultChecker extends AbstractFaultChecker {
   public <U extends SparkBase> SparkFaultChecker(U device, String deviceName) {
     super(deviceName);
     this.faultSupplier = () -> (device.getFaults());
+    super.addFaults(Constants.FaultConstants.getSparkFaults(() -> (faults)));
   }
 
   /**
