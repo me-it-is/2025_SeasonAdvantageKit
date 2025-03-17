@@ -42,6 +42,7 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.spark.SparkBase.Faults;
+import com.revrobotics.spark.SparkBase.Warnings;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -484,15 +485,26 @@ public final class Constants {
       };
     }
 
-    public static List<Fault> getSparkFaults(Supplier<Faults> faults) {
+    public static List<Fault> getSparkFaults(Supplier<Faults> faults, Supplier<Warnings> warnings) {
       return new ArrayList<Fault>() {
         {
           add(new Fault(() -> (faults.get().can), ERROR, "Can fault."));
           add(new Fault(() -> (faults.get().escEeprom), ERROR, "escEeprom fault."));
+          add(new Fault(() -> (faults.get().firmware), ERROR, "Firmware fault."));
           add(new Fault(() -> (faults.get().gateDriver), ERROR, "Gate driver fault."));
           add(new Fault(() -> (faults.get().motorType), ERROR, "Incorect motor type."));
+          add(new Fault(() -> (faults.get().other), ERROR, "Other Fault."));
           add(new Fault(() -> (faults.get().sensor), ERROR, "Sensor fault."));
           add(new Fault(() -> (faults.get().temperature), ERROR, "Over temp."));
+
+          add(new Fault(() -> (warnings.get().brownout), ERROR, "Brownout detected."));
+          add(new Fault(() -> (warnings.get().escEeprom), ERROR, "escEeprom warning."));
+          add(new Fault(() -> (warnings.get().extEeprom), ERROR, "extEeprom warning."));
+          add(new Fault(() -> (warnings.get().other), ERROR, "Other warning"));
+          add(new Fault(() -> (warnings.get().overcurrent), ERROR, "Over current."));
+          add(new Fault(() -> (warnings.get().sensor), ERROR, "Sensor warning."));
+          add(new Fault(() -> (warnings.get().stall), WARNING, "Stall detected."));
+          add(new Fault(() -> (warnings.get().hasReset), WARNING, "SparkMax reset."));
         }
       };
     }
