@@ -32,6 +32,7 @@ import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -57,13 +58,17 @@ import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Energy;
 import edu.wpi.first.units.measure.Force;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.units.measure.MomentOfInertia;
+import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.util.faultChecker.Fault;
 import java.util.ArrayList;
@@ -489,5 +494,21 @@ public final class Constants {
         }
       };
     }
+  }
+
+  public static class PDHConstants {
+    public static final Current kMaxTotalCurrentDraw = Amps.of(120);
+    public static final Current kMaxHighChannelDraw = Amps.of(40);
+    public static final Current kMaxLowChannelDraw = Amps.of(15);
+    public static final Temperature kMaxTemperature = Celsius.of(85);
+    public static final Voltage kMaxInputVoltage = Volts.of(16);
+    public static final Voltage kBatteryVoltage = Volts.of(12);
+    public static final double kBatteryCapacityAmpHours =
+        18; // I wasnt able to find a way to have a unit of electric charge
+    public static final Energy kBatteryEnergy =
+        Joules.of(
+            (kBatteryVoltage.in(Volts) * kBatteryCapacityAmpHours)
+                * 60
+                * 60); // * 60 * 60 is to convert from watt hours to Joles
   }
 }

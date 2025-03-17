@@ -1,8 +1,14 @@
 package frc.robot.util;
 
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Celsius;
+import static edu.wpi.first.units.Units.Joules;
+import static edu.wpi.first.units.Units.Volts;
+
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.PDHConstants;
 import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
@@ -12,15 +18,6 @@ import frc.robot.util.Elastic.Notification.NotificationLevel;
 import monologue.Logged;
 
 public class BrownoutMonitor extends SubsystemBase implements Logged {
-  private static double MAX_TOTAL_CURRENT_DRAW = 120.0;
-  private static double MAX_HIGH_CHANNEL_DRAW = 40.0;
-  private static double MAX_LOW_CHANNEL_DRAW = 15.0;
-  public static final double MAX_TEMPERATURE = 85.0;
-  public static final double MAX_PDH_INPUT_VOLTAGE = 16.0;
-  public static final double BATTERY_VOLTAGE = 12.0;
-  public static final double BATTERY_CAPACITY_AH = 18.0;
-  public static final double BATTERY_ENERGY_WH = BATTERY_VOLTAGE * BATTERY_CAPACITY_AH;
-
   private PowerDistribution robotPower;
   private Drive drive;
   private Climber climber;
@@ -47,7 +44,7 @@ public class BrownoutMonitor extends SubsystemBase implements Logged {
     }*/
 
     boolean shutdown = false;
-    if (robotPower.getTotalCurrent() > MAX_TOTAL_CURRENT_DRAW) {
+    if (Amps.of(robotPower.getTotalCurrent()).gte(PDHConstants.kMaxTotalCurrentDraw)) {
       Elastic.sendNotification(
           new Notification(
               NotificationLevel.WARNING,
@@ -56,7 +53,7 @@ public class BrownoutMonitor extends SubsystemBase implements Logged {
       shutdown = true;
     }
 
-    if (robotPower.getVoltage() > MAX_PDH_INPUT_VOLTAGE) {
+    if (Volts.of(robotPower.getVoltage()).gte(PDHConstants.kMaxInputVoltage)) {
       Elastic.sendNotification(
           new Notification(
               NotificationLevel.WARNING,
@@ -65,7 +62,7 @@ public class BrownoutMonitor extends SubsystemBase implements Logged {
       shutdown = true;
     }
 
-    if (robotPower.getTotalEnergy() > BATTERY_ENERGY_WH) {
+    if (Joules.of(robotPower.getTotalEnergy()).gte(PDHConstants.kBatteryEnergy)) {
       Elastic.sendNotification(
           new Notification(
               NotificationLevel.WARNING,
@@ -74,7 +71,7 @@ public class BrownoutMonitor extends SubsystemBase implements Logged {
       shutdown = true;
     }
 
-    if (robotPower.getTemperature() > MAX_TEMPERATURE) {
+    if (Celsius.of(robotPower.getTemperature()).gte(PDHConstants.kMaxTemperature)) {
       Elastic.sendNotification(
           new Notification(
               NotificationLevel.WARNING,
