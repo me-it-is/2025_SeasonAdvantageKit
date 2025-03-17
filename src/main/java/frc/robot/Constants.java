@@ -46,6 +46,7 @@ import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.hal.PowerDistributionFaults;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
@@ -70,6 +71,7 @@ import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import frc.robot.util.faultChecker.Fault;
 import java.util.ArrayList;
 import java.util.List;
@@ -510,5 +512,48 @@ public final class Constants {
             (kBatteryVoltage.in(Volts) * kBatteryCapacityAmpHours)
                 * 60
                 * 60); // * 60 * 60 is to convert from watt hours to Joles
+
+    public static List<Fault> getPDHFaults(
+        Supplier<PowerDistributionFaults> faultSupplier, PowerDistribution robotPower) {
+      List<Fault> faults =
+          new ArrayList<Fault>() {
+            {
+              add(new Fault(() -> (faultSupplier.get().Brownout), ERROR, "Brownout."));
+              add(new Fault(() -> (faultSupplier.get().CanWarning), ERROR, "Can warning."));
+              add(new Fault(() -> (faultSupplier.get().HardwareFault), ERROR, "Hardware fault."));
+
+              add(
+                  new Fault(
+                      () ->
+                          (Amps.of(robotPower.getTotalCurrent())
+                              .gte(PDHConstants.kMaxTotalCurrentDraw)),
+                      ERROR,
+                      "Over current detected."));
+              add(
+                  new Fault(
+                      () -> (Volts.of(robotPower.getVoltage()).gte(PDHConstants.kMaxInputVoltage)),
+                      ERROR,
+                      "Over voltage detected."));
+              add(
+                  new Fault(
+                      () ->
+                          (Celsius.of(robotPower.getTemperature())
+                              .gte(PDHConstants.kMaxTemperature)),
+                      ERROR,
+                      "Over tempreture detected."));
+            }
+          };
+
+      for (int i = 0; i < 23; i++) {
+        final int finalI = i;
+        faults.add(
+            new Fault(
+                () -> (faultSupplier.get().getBreakerFault(finalI)),
+                ERROR,
+                "Breaker fault on channel" + Integer.toString(i) + "."));
+      }
+
+      return faults;
+    }
   }
 }
