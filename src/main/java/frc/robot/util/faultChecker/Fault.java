@@ -59,7 +59,7 @@ public class Fault {
    * @return
    */
   private FaultInfo getFaultString(String componentName) {
-    return new FaultInfo(componentName + "fault", faultName + (hasFault ? "" : " Resolved."));
+    return new FaultInfo(componentName, faultName + (hasFault ? "." : " resolved."));
   }
 
   /**

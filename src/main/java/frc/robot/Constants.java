@@ -292,77 +292,77 @@ public final class Constants {
               new Fault(
                   () -> (talon.getFault_BootDuringEnable().getValue()),
                   ERROR,
-                  "Robot enabled during motor bootup."));
+                  "Robot enabled during motor bootup"));
           add(
               new Fault(
                   () -> (talon.getFault_BridgeBrownout().getValue()),
                   ERROR,
-                  "Motor bridge brownout."));
-          add(new Fault(() -> (talon.getFault_DeviceTemp().getValue()), ERROR, "Motor over temp."));
+                  "Motor bridge brownout"));
+          add(new Fault(() -> (talon.getFault_DeviceTemp().getValue()), ERROR, "Motor over temp"));
           add(
               new Fault(
                   () -> (talon.getFault_ForwardHardLimit().getValue()),
                   WARNING,
-                  "Motor reached forward hard limit."));
+                  "Motor reached forward hard limit"));
           add(
               new Fault(
                   () -> (talon.getFault_ForwardSoftLimit().getValue()),
                   WARNING,
-                  "Motor reached forward soft limit."));
+                  "Motor reached forward soft limit"));
           add(
               new Fault(
                   () -> (talon.getFault_FusedSensorOutOfSync().getValue()),
                   WARNING,
-                  "Fused sensor resync. May cause a jump in location."));
-          add(new Fault(() -> (talon.getFault_Hardware().getValue()), ERROR, "Hardware fault."));
+                  "Fused sensor resync. May cause a jump in location"));
+          add(new Fault(() -> (talon.getFault_Hardware().getValue()), ERROR, "Hardware fault"));
           add(
               new Fault(
                   () -> (talon.getFault_MissingDifferentialFX().getValue()),
                   ERROR,
-                  "Canot reach remote differential talon."));
+                  "Canot reach remote differential talon"));
           add(
               new Fault(
                   () -> (talon.getFault_MissingHardLimitRemote().getValue()),
                   ERROR,
-                  "Canot reach remote hard stop limit switch."));
+                  "Canot reach remote hard stop limit switch"));
           add(
               new Fault(
                   () -> (talon.getFault_MissingSoftLimitRemote().getValue()),
                   ERROR,
-                  "Canot reach remote soft limit device."));
+                  "Canot reach remote soft limit device"));
           add(
               new Fault(
                   () -> (talon.getFault_OverSupplyV().getValue()),
                   ERROR,
-                  "Supply voltage to high."));
+                  "Supply voltage to high"));
           add(
               new Fault(
-                  () -> (talon.getFault_ProcTemp().getValue()), ERROR, "Processer over temp."));
+                  () -> (talon.getFault_ProcTemp().getValue()), ERROR, "Processer over temp"));
           add(
               new Fault(
                   () -> (talon.getFault_RemoteSensorDataInvalid().getValue()),
                   ERROR,
-                  "Remote sensor data no longer trusted. may be caused by a drop off the can bus or other fault in the sensor."));
+                  "Remote sensor data no longer trusted. may be caused by a drop off the can bus or other fault in the sensor"));
           add(
               new Fault(
                   () -> (talon.getFault_RemoteSensorPosOverflow().getValue()),
                   ERROR,
-                  "Remote sensor position has exceeded the size of a status signal frame."));
+                  "Remote sensor position has exceeded the size of a status signal frame"));
           add(
               new Fault(
                   () -> (talon.getFault_RemoteSensorReset().getValue()),
                   ERROR,
-                  "Remote sensor has been reset."));
+                  "Remote sensor has been reset"));
           add(
               new Fault(
                   () -> (talon.getFault_ReverseHardLimit().getValue()),
                   WARNING,
-                  "Motor has reached reverse hard limit."));
+                  "Motor has reached reverse hard limit"));
           add(
               new Fault(
                   () -> (talon.getFault_ReverseSoftLimit().getValue()),
                   WARNING,
-                  "Motor has reached reverse soft limit."));
+                  "Motor has reached reverse soft limit"));
           add(
               new Fault(
                   () -> (talon.getFault_StaticBrakeDisabled().getValue()),
@@ -372,20 +372,20 @@ public final class Constants {
               new Fault(
                   () -> (talon.getFault_StatorCurrLimit().getValue()),
                   ERROR,
-                  "Stator current limit reached."));
+                  "Stator current limit reached"));
           add(
               new Fault(
-                  () -> (talon.getFault_Undervoltage().getValue()), ERROR, "Motor undervoltage."));
+                  () -> (talon.getFault_Undervoltage().getValue()), ERROR, "Motor undervoltage"));
           add(
               new Fault(
                   () -> (talon.getFault_UnlicensedFeatureInUse().getValue()),
                   ERROR,
-                  "Unlicenced feature in use."));
+                  "Unlicenced feature in use"));
           add(
               new Fault(
                   () -> (talon.getFault_UnstableSupplyV().getValue()),
                   ERROR,
-                  "Supply voltage unstable."));
+                  "Supply voltage unstable"));
           add(
               new Fault(
                   () -> (talon.getFault_UsingFusedCANcoderWhileUnlicensed().getValue()),
@@ -402,61 +402,61 @@ public final class Constants {
               new Fault(
                   () -> (pigeon.getFault_BootDuringEnable().getValue()),
                   ERROR,
-                  "Robot enabled during pigeon boot."));
+                  "Robot enabled during pigeon boot"));
           add(
               new Fault(
                   () -> (pigeon.getFault_BootIntoMotion().getValue()),
                   ERROR,
-                  "Motion during pigeon boot."));
+                  "Motion during pigeon boot"));
           add(
               new Fault(
                   () -> (pigeon.getFault_BootupAccelerometer().getValue()),
                   ERROR,
-                  "Accelerometer bootup failed."));
+                  "Accelerometer bootup failed"));
           add(
               new Fault(
                   () -> (pigeon.getFault_BootupGyroscope().getValue()),
                   ERROR,
-                  "Gyro bootup failed."));
+                  "Gyro bootup failed"));
           add(
               new Fault(
                   () -> (pigeon.getFault_BootupMagnetometer().getValue()),
                   ERROR,
-                  "Magnetometer bootup failed."));
+                  "Magnetometer bootup failed"));
           add(
               new Fault(
                   () -> (pigeon.getFault_DataAcquiredLate().getValue()),
                   WARNING,
-                  "Motion data aquired late."));
-          add(new Fault(() -> (pigeon.getFault_Hardware().getValue()), ERROR, "Hardware fault."));
+                  "Motion data aquired late"));
+          add(new Fault(() -> (pigeon.getFault_Hardware().getValue()), ERROR, "Hardware fault"));
           add(
               new Fault(
                   () -> (pigeon.getFault_LoopTimeSlow().getValue()),
                   WARNING,
-                  "Motion data colection slow."));
+                  "Motion data colection slow"));
           add(
               new Fault(
                   () -> (pigeon.getFault_SaturatedAccelerometer().getValue()),
                   ERROR,
-                  "Accelerometer saturated."));
+                  "Accelerometer saturated"));
           add(
               new Fault(
                   () -> (pigeon.getFault_SaturatedGyroscope().getValue()),
                   ERROR,
-                  "Gyro staturated."));
+                  "Gyro staturated"));
           add(
               new Fault(
                   () -> (pigeon.getFault_SaturatedMagnetometer().getValue()),
                   ERROR,
-                  "Magnetometer staturated."));
+                  "Magnetometer staturated"));
           add(
               new Fault(
-                  () -> (pigeon.getFault_Undervoltage().getValue()), ERROR, "Voltage to low."));
+                  () -> (pigeon.getFault_Undervoltage().getValue()), ERROR, "Voltage to low"));
           add(
               new Fault(
                   () -> (pigeon.getFault_UnlicensedFeatureInUse().getValue()),
                   ERROR,
-                  "Unlicenced feature in use."));
+                  "Unlicenced feature in use"));
         }
       };
     }
@@ -464,23 +464,23 @@ public final class Constants {
     public static List<Fault> getCANCoderFaults(CANcoder CANcoder) {
       return new ArrayList<Fault>() {
         {
-          add(new Fault(() -> (CANcoder.getFault_BadMagnet().getValue()), ERROR, "Bad magnet."));
+          add(new Fault(() -> (CANcoder.getFault_BadMagnet().getValue()), ERROR, "Bad magnet"));
           add(
               new Fault(
                   () -> (CANcoder.getFault_BootDuringEnable().getValue()),
                   ERROR,
-                  "Robot enabled during pigeon boot."));
-          add(new Fault(() -> (CANcoder.getFault_Hardware().getValue()), ERROR, "Hardware fault."));
+                  "Robot enabled during pigeon boot"));
+          add(new Fault(() -> (CANcoder.getFault_Hardware().getValue()), ERROR, "Hardware fault"));
           add(
               new Fault(
                   () -> (CANcoder.getFault_Undervoltage().getValue()),
                   ERROR,
-                  "Supply voltage to low."));
+                  "Supply voltage to low"));
           add(
               new Fault(
                   () -> (CANcoder.getFault_UnlicensedFeatureInUse().getValue()),
                   ERROR,
-                  "Unlicenced feature in use."));
+                  "Unlicenced feature in use"));
         }
       };
     }
@@ -488,23 +488,23 @@ public final class Constants {
     public static List<Fault> getSparkFaults(Supplier<Faults> faults, Supplier<Warnings> warnings) {
       return new ArrayList<Fault>() {
         {
-          add(new Fault(() -> (faults.get().can), ERROR, "Can fault."));
-          add(new Fault(() -> (faults.get().escEeprom), ERROR, "escEeprom fault."));
-          add(new Fault(() -> (faults.get().firmware), ERROR, "Firmware fault."));
-          add(new Fault(() -> (faults.get().gateDriver), ERROR, "Gate driver fault."));
-          add(new Fault(() -> (faults.get().motorType), ERROR, "Incorect motor type."));
-          add(new Fault(() -> (faults.get().other), ERROR, "Other Fault."));
-          add(new Fault(() -> (faults.get().sensor), ERROR, "Sensor fault."));
-          add(new Fault(() -> (faults.get().temperature), ERROR, "Over temp."));
+          add(new Fault(() -> (faults.get().can), ERROR, "Can fault"));
+          add(new Fault(() -> (faults.get().escEeprom), ERROR, "escEeprom fault"));
+          add(new Fault(() -> (faults.get().firmware), ERROR, "Firmware fault"));
+          add(new Fault(() -> (faults.get().gateDriver), ERROR, "Gate driver fault"));
+          add(new Fault(() -> (faults.get().motorType), ERROR, "Incorect motor type"));
+          add(new Fault(() -> (faults.get().other), ERROR, "Other Fault"));
+          add(new Fault(() -> (faults.get().sensor), ERROR, "Sensor fault"));
+          add(new Fault(() -> (faults.get().temperature), ERROR, "Over temp"));
 
-          add(new Fault(() -> (warnings.get().brownout), ERROR, "Brownout detected."));
-          add(new Fault(() -> (warnings.get().escEeprom), ERROR, "escEeprom warning."));
-          add(new Fault(() -> (warnings.get().extEeprom), ERROR, "extEeprom warning."));
+          add(new Fault(() -> (warnings.get().brownout), ERROR, "Brownout detected"));
+          add(new Fault(() -> (warnings.get().escEeprom), ERROR, "escEeprom warning"));
+          add(new Fault(() -> (warnings.get().extEeprom), ERROR, "extEeprom warning"));
           add(new Fault(() -> (warnings.get().other), ERROR, "Other warning"));
-          add(new Fault(() -> (warnings.get().overcurrent), ERROR, "Over current."));
-          add(new Fault(() -> (warnings.get().sensor), ERROR, "Sensor warning."));
-          add(new Fault(() -> (warnings.get().stall), WARNING, "Stall detected."));
-          add(new Fault(() -> (warnings.get().hasReset), WARNING, "SparkMax reset."));
+          add(new Fault(() -> (warnings.get().overcurrent), ERROR, "Over current"));
+          add(new Fault(() -> (warnings.get().sensor), ERROR, "Sensor warning"));
+          add(new Fault(() -> (warnings.get().stall), WARNING, "Stall detected"));
+          add(new Fault(() -> (warnings.get().hasReset), WARNING, "SparkMax reset"));
         }
       };
     }
@@ -530,9 +530,9 @@ public final class Constants {
       List<Fault> faults =
           new ArrayList<Fault>() {
             {
-              add(new Fault(() -> (faultSupplier.get().Brownout), ERROR, "Brownout."));
-              add(new Fault(() -> (faultSupplier.get().CanWarning), ERROR, "Can warning."));
-              add(new Fault(() -> (faultSupplier.get().HardwareFault), ERROR, "Hardware fault."));
+              add(new Fault(() -> (faultSupplier.get().Brownout), ERROR, "Brownout"));
+              add(new Fault(() -> (faultSupplier.get().CanWarning), ERROR, "Can warning"));
+              add(new Fault(() -> (faultSupplier.get().HardwareFault), ERROR, "Hardware fault"));
 
               add(
                   new Fault(
@@ -540,19 +540,19 @@ public final class Constants {
                           (Amps.of(robotPower.getTotalCurrent())
                               .gte(PDHConstants.kMaxTotalCurrentDraw)),
                       ERROR,
-                      "Over current detected."));
+                      "Over current detected"));
               add(
                   new Fault(
                       () -> (Volts.of(robotPower.getVoltage()).gte(PDHConstants.kMaxInputVoltage)),
                       ERROR,
-                      "Over voltage detected."));
+                      "Over voltage detected"));
               add(
                   new Fault(
                       () ->
                           (Celsius.of(robotPower.getTemperature())
                               .gte(PDHConstants.kMaxTemperature)),
                       ERROR,
-                      "Over tempreture detected."));
+                      "Over tempreture detected"));
             }
           };
 
@@ -562,7 +562,7 @@ public final class Constants {
             new Fault(
                 () -> (faultSupplier.get().getBreakerFault(finalI)),
                 ERROR,
-                "Breaker fault on channel" + Integer.toString(i) + "."));
+                "Breaker fault on channel" + Integer.toString(i)));
       }
 
       return faults;
