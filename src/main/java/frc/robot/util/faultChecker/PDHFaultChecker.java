@@ -1,7 +1,25 @@
 package frc.robot.util.faultChecker;
 
-public class PDHFaultChecker extends AbstractFaultChecker{
-    public PDHFaultChecker(String deviceName) {
-        super(deviceName);
-    }
+import edu.wpi.first.hal.PowerDistributionFaults;
+import edu.wpi.first.wpilibj.PowerDistribution;
+import frc.robot.Constants.PDHConstants;
+
+public class PDHFaultChecker extends AbstractFaultChecker {
+  private PowerDistributionFaults faults;
+  private PowerDistribution robotPower;
+
+  public PDHFaultChecker(String commponentName) {
+    super(commponentName);
+  }
+
+  public PDHFaultChecker(PowerDistribution robotPower, String commponentName) {
+    super(commponentName);
+    this.robotPower = robotPower;
+    super.addFaults(PDHConstants.getPDHFaults(() -> (faults), robotPower));
+  }
+
+  public void updateFaults() {
+    faults = robotPower.getFaults();
+    super.updateFaults();
+  }
 }
