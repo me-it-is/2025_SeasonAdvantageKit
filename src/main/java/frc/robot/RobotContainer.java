@@ -16,6 +16,8 @@ package frc.robot;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 import static frc.robot.util.GetAliance.getAllianceBoolean;
 
+import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -123,8 +125,8 @@ public class RobotContainer implements Logged {
     climber = new Climber(new SparkMax(ClimberConstants.kClimberMotorID, MotorType.kBrushless));
     elevator =
         new Elevator(
-            new SparkMax(ElevatorConstants.kSparkMaxCANId, MotorType.kBrushless),
-            new SparkMax(ElevatorConstants.kSparkMaxFollowerCANId, MotorType.kBrushless));
+            new TalonFX(ElevatorConstants.kTalonLeaderCANId),
+            new Follower(ElevatorConstants.kTalonLeaderCANId, true));
     manipulator =
         new Manipulator(
             new SparkMax(ManipulatorConstants.kPivotId, MotorType.kBrushless),

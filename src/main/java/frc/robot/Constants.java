@@ -29,8 +29,9 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
-import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
@@ -215,7 +216,7 @@ public final class Constants {
   }
 
   public static class ElevatorConstants {
-    public static final int kSparkMaxCANId = 4;
+    public static final int kTalonLeaderCANId = 4;
     public static final int kSparkMaxFollowerCANId = 3;
     public static final Distance kMaxHeight = Meters.of(1.72);
     public static final double kDeadReckoningSpeed = 0.1;
@@ -225,7 +226,8 @@ public final class Constants {
     public static final AngularVelocity kMaxVelocity = RotationsPerSecond.of(5);
     public static final AngularAcceleration kMaxAcceleration = RotationsPerSecondPerSecond.of(5);
 
-    public static double totalExtensionTime = kMaxHeight.in(Units.Meters) / kDeadReckoningSpeed;
+    public static Time totalExtensionTime =
+        Seconds.of(kMaxHeight.in(Units.Meters) / kDeadReckoningSpeed);
 
     public static final Distance kEncoderOffset = Meters.of(0);
 
@@ -236,25 +238,19 @@ public final class Constants {
     public static final double kPositionConversionFactor = 1 / kRotsPerFullExtension;
 
     public static final FeedbackSensor feedbackSensor = FeedbackSensor.kAbsoluteEncoder;
-    public static final double kP = 0.2;
+    public static final double kG = 0.5; // volts to overcome gravity
+    public static final double kP = 0.5; // volts per rotations off
     public static final double kI = 0;
-    public static final double kD = 0;
+    public static final double kD = 0.1; // volts per rotations per second off
+    // TODO have good constants
 
-    public static SparkMaxConfig getSharedConfig() {
-      SparkMaxConfig config = new SparkMaxConfig();
-      config.closedLoop.pid(kP, kI, kD);
-      return config;
-    }
-
-    public static SparkMaxConfig getLeaderConfig() {
-      SparkMaxConfig config = getSharedConfig();
-      config.inverted(kIsInverted);
-      return config;
-    }
-
-    public static SparkMaxConfig getFollowerConfig() {
-      SparkMaxConfig config = getSharedConfig();
-      config.follow(kSparkMaxCANId);
+    public static Slot0Configs getSharedConfig() {
+      Slot0Configs config = new Slot0Configs();
+      config.kG = kG;
+      config.kP = kP;
+      config.kI = kI;
+      config.kD = kD;
+      config.GravityType = GravityTypeValue.Elevator_Static;
       return config;
     }
   }
