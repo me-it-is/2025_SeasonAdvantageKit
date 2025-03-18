@@ -22,7 +22,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.GameState;
-import frc.robot.util.faultChecker.SparkFaultChecker;
+import frc.robot.util.faultChecker.CTREFaultChecker;
 import monologue.Logged;
 
 public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
@@ -45,6 +45,8 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
 
   private final Debouncer leaderConnectedDebounce = new Debouncer(0.5);
   private final Debouncer followerConnectedDebounce = new Debouncer(0.5);
+
+  private CTREFaultChecker leadChecker;
 
   public Elevator(TalonFX talonLeader, TalonFX talonFollower) {
     this.talonLeader = talonLeader;
@@ -83,6 +85,8 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
         followerAppliedVolts,
         followerCurrent);
     ParentDevice.optimizeBusUtilizationForAll(talonLeader, talonFollower);
+
+    this.leadChecker = new CTREFaultChecker(talonLeader, "Elevator leader");
   }
 
   @Override
@@ -110,6 +114,8 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
     this.log("elevator/follower voltage", followerAppliedVolts.getValueAsDouble());
     this.log("elevator/leader current (A)", leaderCurrent.getValueAsDouble());
     this.log("elevator/follower current (A)", followerCurrent.getValueAsDouble());
+
+    this.leadChecker.updateFaults();
   }
 
   public void setSetpoint(GameState stage) {
