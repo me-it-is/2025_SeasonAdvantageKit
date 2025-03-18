@@ -26,7 +26,6 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
   private TrapezoidProfile profile;
   private State goal;
   private State profileSetpoint;
-  private static double kDt = 0.02;
 
   public Elevator(TalonFX talonLeader, Follower talonFollower) {
     this.talonLeader = talonLeader;
@@ -49,8 +48,6 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
     this.log("elevator/height meters", getElevatorHeight().in(Meters));
     this.log("elevator/setpoint meters", setpoint.in(Meters));
     this.log("elevator/leader output", talonLeader.get());
-
-    this.profileSetpoint = profile.calculate(kDt, profileSetpoint, goal);
   }
 
   public void setSetpoint(GameState stage) {
