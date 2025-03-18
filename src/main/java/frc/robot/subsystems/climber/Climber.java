@@ -16,12 +16,14 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.util.RobotMath;
+import frc.robot.util.faultChecker.SparkFaultChecker;
 import monologue.Logged;
 
 public class Climber extends SubsystemBase implements AutoCloseable, Logged {
 
   private SparkMax motorController;
   private SparkMaxConfig config;
+  private SparkFaultChecker climberFaultChecker;
   private SparkAbsoluteEncoder encoder;
   private SparkClosedLoopController controller;
 
@@ -30,6 +32,7 @@ public class Climber extends SubsystemBase implements AutoCloseable, Logged {
 
   public Climber(SparkMax motorController) {
     this.motorController = motorController;
+    this.climberFaultChecker = new SparkFaultChecker(motorController, "Climber");
     this.config = new SparkMaxConfig();
     this.encoder = motorController.getAbsoluteEncoder();
     this.controller = motorController.getClosedLoopController();
@@ -38,6 +41,11 @@ public class Climber extends SubsystemBase implements AutoCloseable, Logged {
     config.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder).pid(kP, kI, kD);
     motorController.configure(
         config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+  }
+
+  @Override
+  public void periodic() {
+    climberFaultChecker.updateFaults();
   }
 
   @Override
