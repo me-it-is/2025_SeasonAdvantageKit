@@ -73,6 +73,7 @@ public final class Constants {
   // esemate based of of this
   // https://www.researchgate.net/figure/Coefficient-of-friction-of-neoprene-rubber-with-different-part-materials_tbl1_223593062
   public static final double WHEEL_COF = 0.8;
+  public static final double kDt = 0.02;
 
   public static enum Mode {
     /** Running on a real robot. */
@@ -226,8 +227,7 @@ public final class Constants {
     public static final AngularVelocity kMaxVelocity = RotationsPerSecond.of(5);
     public static final AngularAcceleration kMaxAcceleration = RotationsPerSecondPerSecond.of(5);
 
-    public static Time totalExtensionTime =
-        Seconds.of(kMaxHeight.in(Units.Meters) / kDeadReckoningSpeed);
+    public static Time totalExtensionTime = Seconds.of(1);
 
     public static final Distance kEncoderOffset = Meters.of(0);
 

@@ -2,8 +2,6 @@ package frc.robot.subsystems.elevator;
 
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Rotations;
-import static edu.wpi.first.units.Units.Seconds;
-import static frc.robot.Constants.ElevatorConstants.*;
 
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -48,6 +46,15 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
     this.log("elevator/height meters", getElevatorHeight().in(Meters));
     this.log("elevator/setpoint meters", setpoint.in(Meters));
     this.log("elevator/leader output", talonLeader.get());
+    this.log("elevator/cur profile setpoint", this.profileSetpoint.position);
+
+    this.profileSetpoint = this.profile.calculate(Constants.kDt, profileSetpoint, goal);
+
+    PositionVoltage motorRequest = new PositionVoltage(0).withSlot(0);
+    motorRequest.Position = profileSetpoint.position;
+    motorRequest.Velocity = profileSetpoint.velocity;
+    motorRequest.EnableFOC = true;
+    talonLeader.setControl(motorRequest);
   }
 
   public void setSetpoint(GameState stage) {
@@ -56,18 +63,8 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
         setpoint.in(Meters)
             / ElevatorConstants.kMaxHeight.in(Meters)
             * ElevatorConstants.kRotsPerFullExtension;
-
     this.goal = new TrapezoidProfile.State(rotationSetpoint, 0);
     this.profileSetpoint = new TrapezoidProfile.State();
-    PositionVoltage motorRequest = new PositionVoltage(0).withSlot(0);
-    this.profileSetpoint =
-        this.profile.calculate(
-            ElevatorConstants.totalExtensionTime.in(Seconds), profileSetpoint, goal);
-
-    motorRequest.Position = profileSetpoint.position;
-    motorRequest.Velocity = profileSetpoint.velocity;
-    motorRequest.EnableFOC = true;
-    talonLeader.setControl(motorRequest);
   }
 
   public boolean atSetpoint() {
