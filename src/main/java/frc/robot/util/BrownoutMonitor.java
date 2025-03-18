@@ -40,11 +40,11 @@ public class BrownoutMonitor extends SubsystemBase implements Logged {
     this.log("pdh voltage", robotPower.getVoltage());
     this.log("pdh current", robotPower.getAllCurrents());
 
-    if (robotPower.getFaults() != null) {
+    /*if (robotPower.getFaults() != null) {
       Elastic.sendNotification(
           new Notification(
               NotificationLevel.WARNING, "PDH faults", robotPower.getFaults().toString()));
-    }
+    }*/
 
     boolean shutdown = false;
     if (robotPower.getTotalCurrent() > MAX_TOTAL_CURRENT_DRAW) {
