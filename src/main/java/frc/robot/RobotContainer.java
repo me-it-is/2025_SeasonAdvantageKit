@@ -16,7 +16,6 @@ package frc.robot;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 import static frc.robot.util.GetAliance.getAllianceBoolean;
 
-import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -43,6 +42,7 @@ import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.GameState;
 import frc.robot.Constants.ManipulatorConstants;
 import frc.robot.Constants.VisionConstants;
+import frc.robot.commands.AutoAim;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.SnapToTarget;
 import frc.robot.generated.TunerConstants;
@@ -126,7 +126,7 @@ public class RobotContainer implements Logged {
     elevator =
         new Elevator(
             new TalonFX(ElevatorConstants.kTalonLeaderCANId),
-            new Follower(ElevatorConstants.kTalonLeaderCANId, true));
+            new TalonFX(ElevatorConstants.kTalonFollowerCANId));
     manipulator =
         new Manipulator(
             new SparkMax(ManipulatorConstants.kPivotId, MotorType.kBrushless),
@@ -232,7 +232,7 @@ public class RobotContainer implements Logged {
             controller.leftTrigger()));
 
     // Rotate and translate to closest April Tag based on tag odometry
-    // controller.b().whileTrue(new AutoAim(drive, vision, controller));
+    controller.b().whileTrue(new AutoAim(drive, vision, controller));
 
     // Automatically align to April Tag based on pose data
     controller.y().onTrue(new SnapToTarget(drive));

@@ -13,6 +13,7 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
@@ -29,7 +30,9 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -218,12 +221,12 @@ public final class Constants {
 
   public static class ElevatorConstants {
     public static final int kTalonLeaderCANId = 4;
-    public static final int kSparkMaxFollowerCANId = 3;
+    public static final int kTalonFollowerCANId = 3;
     public static final Distance kMaxHeight = Meters.of(1.72);
     public static final double kDeadReckoningSpeed = 0.1;
     public static final double kDeadRecogningDeadZone = 0.05;
     public static final double kRestInput = 0.02;
-    public static final Distance kSetpointTolerance = Meters.of(0.1);
+    public static final Angle kSetpointTolerance = Rotations.of(0.5);
     public static final AngularVelocity kMaxVelocity = RotationsPerSecond.of(5);
     public static final AngularAcceleration kMaxAcceleration = RotationsPerSecondPerSecond.of(5);
 
@@ -238,20 +241,26 @@ public final class Constants {
     public static final double kPositionConversionFactor = 1 / kRotsPerFullExtension;
 
     public static final FeedbackSensor feedbackSensor = FeedbackSensor.kAbsoluteEncoder;
-    public static final double kG = 0.5; // volts to overcome gravity
-    public static final double kP = 0.5; // volts per rotations off
+    public static final double kG = 0.5;
+    public static final double kP = 0.5;
     public static final double kI = 0;
-    public static final double kD = 0.1; // volts per rotations per second off
-    // TODO have good constants
+    public static final double kD = 0.1;
+    public static final double kS = 0.1;
 
-    public static Slot0Configs getSharedConfig() {
-      Slot0Configs config = new Slot0Configs();
-      config.kG = kG;
-      config.kP = kP;
-      config.kI = kI;
-      config.kD = kD;
-      config.GravityType = GravityTypeValue.Elevator_Static;
-      return config;
-    }
+    public static final Slot0Configs elevatorGains =
+        new Slot0Configs()
+            .withKP(kP)
+            .withKI(kI)
+            .withKD(kD)
+            .withKS(kS)
+            .withGravityType(GravityTypeValue.Elevator_Static)
+            .withKG(kG);
+
+    public static final TalonFXConfiguration elevatorConfig =
+        new TalonFXConfiguration()
+            .withCurrentLimits(
+                new CurrentLimitsConfigs()
+                    .withStatorCurrentLimit(Amps.of(60))
+                    .withStatorCurrentLimitEnable(true));
   }
 }
