@@ -246,10 +246,12 @@ public final class Constants {
     public static final double kP = 0.2;
     public static final double kI = 0;
     public static final double kD = 0;
-    public static final double kFF = 0.5;
+    public static final double kFF = 0.1;
+    public static final int currentLimit = 40;
 
     public static SparkMaxConfig getSharedConfig() {
       SparkMaxConfig config = new SparkMaxConfig();
+      config.smartCurrentLimit(currentLimit);
       config.closedLoop.pid(kP, kI, kD);
       return config;
     }

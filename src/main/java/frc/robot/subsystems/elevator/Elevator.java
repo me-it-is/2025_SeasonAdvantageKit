@@ -68,6 +68,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
     this.log("elevator/follower output", sparkMaxFollower.get());
 
     if (!m_prevGoal.equals(m_goal)) {
+      System.out.println("reinitializing profile");
       profile =
           ElevatorConstants
               .getProfile(); // reinitialize the profile to calculate new motion trajectory
@@ -75,6 +76,8 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
     }
 
     profileSetpoint = profile.calculate(kDt, profileSetpoint, m_goal);
+    this.log("elevator/profile setpoint pos", profileSetpoint.position);
+    this.log("elevator/profile setpoint vel", profileSetpoint.velocity);
     pidControllerLeader.setReference(
         profileSetpoint.position,
         ControlType.kPosition,
