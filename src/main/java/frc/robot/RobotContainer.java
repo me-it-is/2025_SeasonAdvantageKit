@@ -16,7 +16,6 @@ package frc.robot;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 import static frc.robot.util.GetAliance.getAllianceBoolean;
 
-import com.ctre.phoenix6.hardware.TalonFX;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -42,7 +41,6 @@ import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.GameState;
 import frc.robot.Constants.ManipulatorConstants;
 import frc.robot.Constants.VisionConstants;
-import frc.robot.commands.AutoAim;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.SnapToTarget;
 import frc.robot.generated.TunerConstants;
@@ -55,7 +53,6 @@ import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.manipulator.Manipulator;
-import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.BrownoutMonitor;
 import monologue.Logged;
 import monologue.Monologue;
@@ -70,7 +67,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer implements Logged {
   // Subsystems
   private final Drive drive;
-  private final Vision vision;
+  // private final Vision vision;
   private final Manipulator manipulator;
   private final Climber climber;
   private final Elevator elevator;
@@ -121,12 +118,12 @@ public class RobotContainer implements Logged {
                 new ModuleIO() {});
         break;
     }
-    vision = new Vision(drive::updateEstimates);
+    // vision = new Vision(drive::updateEstimates);
     climber = new Climber(new SparkMax(ClimberConstants.kClimberMotorID, MotorType.kBrushless));
     elevator =
         new Elevator(
-            new TalonFX(ElevatorConstants.kTalonLeaderCANId),
-            new TalonFX(ElevatorConstants.kTalonFollowerCANId));
+            new SparkMax(ElevatorConstants.kSparkMaxCANId, MotorType.kBrushless),
+            new SparkMax(ElevatorConstants.kSparkMaxFollowerCANId, MotorType.kBrushless));
     manipulator =
         new Manipulator(
             new SparkMax(ManipulatorConstants.kPivotId, MotorType.kBrushless),
@@ -232,7 +229,7 @@ public class RobotContainer implements Logged {
             controller.leftTrigger()));
 
     // Rotate and translate to closest April Tag based on tag odometry
-    controller.b().whileTrue(new AutoAim(drive, vision, controller));
+    // controller.b().whileTrue(new AutoAim(drive, vision, controller));
 
     // Automatically align to April Tag based on pose data
     controller.y().onTrue(new SnapToTarget(drive));

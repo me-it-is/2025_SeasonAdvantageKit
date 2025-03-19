@@ -14,35 +14,16 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.KilogramSquareMeters;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Newtons;
-import static edu.wpi.first.units.Units.Pounds;
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Rotations;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Seconds;
 import static frc.robot.util.Elastic.Notification.NotificationLevel.ERROR;
 import static frc.robot.util.Elastic.Notification.NotificationLevel.WARNING;
 
-import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
-import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.revrobotics.spark.SparkBase.Faults;
 import com.revrobotics.spark.SparkBase.Warnings;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
+import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.hal.PowerDistributionFaults;
@@ -54,6 +35,8 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularAcceleration;
@@ -238,17 +221,18 @@ public final class Constants {
   }
 
   public static class ElevatorConstants {
-    public static final int kTalonLeaderCANId = 4;
-    public static final int kTalonFollowerCANId = 3;
+    public static final int kSparkMaxCANId = 4;
+    public static final int kSparkMaxFollowerCANId = 3;
     public static final Distance kMaxHeight = Meters.of(1.72);
     public static final double kDeadReckoningSpeed = 0.1;
     public static final double kDeadRecogningDeadZone = 0.05;
     public static final double kRestInput = 0.02;
-    public static final Angle kSetpointTolerance = Rotations.of(0.5);
+    public static final Distance kSetpointTolerance = Meters.of(0.1);
     public static final AngularVelocity kMaxVelocity = RotationsPerSecond.of(5);
     public static final AngularAcceleration kMaxAcceleration = RotationsPerSecondPerSecond.of(5);
+    public static final Angle rotVelTolerance = Rotations.of(0.05);
 
-    public static Time totalExtensionTime = Seconds.of(1);
+    public static double totalExtensionTime = kMaxHeight.in(Units.Meters) / kDeadReckoningSpeed;
 
     public static final Distance kEncoderOffset = Meters.of(0);
 
@@ -259,27 +243,35 @@ public final class Constants {
     public static final double kPositionConversionFactor = 1 / kRotsPerFullExtension;
 
     public static final FeedbackSensor feedbackSensor = FeedbackSensor.kAbsoluteEncoder;
-    public static final double kG = 0.5;
-    public static final double kP = 0.5;
+    public static final double kP = 0.2;
     public static final double kI = 0;
-    public static final double kD = 0.1;
-    public static final double kS = 0.1;
+    public static final double kD = 0;
+    public static final double kFF = 0.5;
 
-    public static final Slot0Configs elevatorGains =
-        new Slot0Configs()
-            .withKP(kP)
-            .withKI(kI)
-            .withKD(kD)
-            .withKS(kS)
-            .withGravityType(GravityTypeValue.Elevator_Static)
-            .withKG(kG);
+    public static SparkMaxConfig getSharedConfig() {
+      SparkMaxConfig config = new SparkMaxConfig();
+      config.closedLoop.pid(kP, kI, kD);
+      return config;
+    }
 
-    public static final TalonFXConfiguration elevatorConfig =
-        new TalonFXConfiguration()
-            .withCurrentLimits(
-                new CurrentLimitsConfigs()
-                    .withStatorCurrentLimit(Amps.of(60))
-                    .withStatorCurrentLimitEnable(true));
+    public static SparkMaxConfig getLeaderConfig() {
+      SparkMaxConfig config = getSharedConfig();
+      config.inverted(kIsInverted);
+      return config;
+    }
+
+    public static SparkMaxConfig getFollowerConfig() {
+      SparkMaxConfig config = getSharedConfig();
+      config.follow(kSparkMaxCANId);
+      return config;
+    }
+
+    public static TrapezoidProfile getProfile() {
+      return new TrapezoidProfile(
+          new Constraints(
+              ElevatorConstants.kMaxVelocity.in(Units.RotationsPerSecond),
+              ElevatorConstants.kMaxAcceleration.in(Units.RotationsPerSecondPerSecond)));
+    }
   }
 
   public static class FaultConstants {
