@@ -47,6 +47,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
   private final Debouncer followerConnectedDebounce = new Debouncer(0.5);
 
   private CTREFaultChecker leadChecker;
+  private CTREFaultChecker followerChecker;
 
   public Elevator(TalonFX talonLeader, TalonFX talonFollower) {
     this.talonLeader = talonLeader;
@@ -87,6 +88,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
     ParentDevice.optimizeBusUtilizationForAll(talonLeader, talonFollower);
 
     this.leadChecker = new CTREFaultChecker(talonLeader, "Elevator leader");
+    this.followerChecker = new CTREFaultChecker(talonFollower, "Elevator follower");
   }
 
   @Override
@@ -116,6 +118,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
     this.log("elevator/follower current (A)", followerCurrent.getValueAsDouble());
 
     this.leadChecker.updateFaults();
+    this.followerChecker.updateFaults();
   }
 
   public void setSetpoint(GameState stage) {
