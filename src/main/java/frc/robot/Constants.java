@@ -37,6 +37,8 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.units.AngleUnit;
+import edu.wpi.first.units.DistanceUnit;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularAcceleration;
@@ -49,6 +51,7 @@ import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.units.measure.MomentOfInertia;
+import edu.wpi.first.units.measure.Per;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
@@ -239,8 +242,14 @@ public final class Constants {
     public static final boolean kIsInverted = true;
 
     // factor to make full extension 1 (1 / num rotations per full extension)
-    public static final double kRotsPerFullExtension = 17.893;
-    public static final double kPositionConversionFactor = 1 / kRotsPerFullExtension;
+    public static final Angle kFullExtentionAngle = Rotations.of(17.893);
+
+    public static final Per<DistanceUnit, AngleUnit> kAngularSpan =
+        kMaxHeight.div(kFullExtentionAngle);
+    public static final Per<AngleUnit, DistanceUnit> kSpanAngle =
+        kFullExtentionAngle.div(kMaxHeight);
+
+    public static final double kPositionConversionFactor = 1 / kFullExtentionAngle.in(Rotations);
 
     public static final FeedbackSensor feedbackSensor = FeedbackSensor.kAbsoluteEncoder;
     public static final double kP = 2.0;

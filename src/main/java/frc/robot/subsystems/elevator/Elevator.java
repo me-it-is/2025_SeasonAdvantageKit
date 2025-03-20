@@ -1,6 +1,6 @@
 package frc.robot.subsystems.elevator;
 
-import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.*;
 
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.ClosedLoopSlot;
@@ -13,6 +13,7 @@ import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -77,16 +78,16 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
     this.log("elevator/profile setpoint pos", profileSetpoint.position);
     this.log("elevator/profile setpoint vel", profileSetpoint.velocity);
     pidControllerLeader.setReference(
-    profileSetpoint.position,
-    ControlType.kPosition,
-    ClosedLoopSlot.kSlot0,
-    ElevatorConstants.kFF * profileSetpoint.velocity,
-    ArbFFUnits.kPercentOut);
+        profileSetpoint.position,
+        ControlType.kPosition,
+        ClosedLoopSlot.kSlot0,
+        ElevatorConstants.kFF * profileSetpoint.velocity,
+        ArbFFUnits.kPercentOut);
   }
 
   public void setSetpoint(GameState stage) {
     this.setpoint = Constants.reefMap.get(stage).distance();
-    this.m_goal = new TrapezoidProfile.State(metersToRots(setpoint.in(Units.Meters)), 0);
+    this.m_goal = new TrapezoidProfile.State(heightToAngle(setpoint).in(Rotations), 0);
     // pidControllerLeader.setReference(metersToRots(setpoint.in(Meters)), ControlType.kPosition);
 
     leaderChecker.updateFaults();
@@ -99,17 +100,15 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   public Distance getElevatorHeight() {
-    return Meters.of(rotsToMeters(encoder.getPosition()));
+    return angleToHeight(Rotations.of(encoder.getPosition()));
   }
 
-  private double rotsToMeters(double rots) {
-    return rots / ElevatorConstants.kRotsPerFullExtension * ElevatorConstants.kMaxHeight.in(Meters);
+  private Distance angleToHeight(Angle angle) {
+    return (Distance) ElevatorConstants.kAngularSpan.timesDivisor(angle);
   }
 
-  private double metersToRots(double meters) {
-    return meters
-        / ElevatorConstants.kMaxHeight.in(Meters)
-        * ElevatorConstants.kRotsPerFullExtension;
+  private Angle heightToAngle(Distance height) {
+    return (Angle) ElevatorConstants.kSpanAngle.timesDivisor(height);
   }
 
   public void stop() {
