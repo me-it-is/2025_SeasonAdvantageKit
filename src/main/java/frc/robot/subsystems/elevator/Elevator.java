@@ -10,7 +10,6 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
 import com.revrobotics.spark.SparkMax;
-
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.units.Units;
@@ -35,7 +34,6 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
   private State m_prevGoal;
   private State profileSetpoint;
   private static double kDt = 0.02;
-  
 
   public Elevator(SparkMax sparkMaxLeader, SparkMax sparkMaxFollower) {
     this.sparkMaxLeader = sparkMaxLeader;
@@ -64,12 +62,14 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
   public void periodic() {
     this.log("elevator/height meters", getElevatorHeight().in(Meters));
     this.log("elevator/setpoint meters", setpoint.in(Units.Meters));
-    this.log("elevator/leader output", sparkMaxLeader.get());
-    this.log("elevator/follower output", sparkMaxFollower.get());
+    this.log("elevator/leader appl out", sparkMaxLeader.getAppliedOutput());
+    this.log("elevator/follower appl out", sparkMaxFollower.getAppliedOutput());
 
     if (!m_prevGoal.equals(m_goal)) {
       System.out.println("reinitializing profile");
-      profile = ElevatorConstants.getProfile(); // reinitialize the profile to calculate new motion trajectory
+      profile =
+          ElevatorConstants
+              .getProfile(); // reinitialize the profile to calculate new motion trajectory
       m_prevGoal = new State(m_goal.position, m_goal.velocity);
     }
 
@@ -77,16 +77,17 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
     this.log("elevator/profile setpoint pos", profileSetpoint.position);
     this.log("elevator/profile setpoint vel", profileSetpoint.velocity);
     pidControllerLeader.setReference(
-        profileSetpoint.position,
-        ControlType.kPosition,
-        ClosedLoopSlot.kSlot0,
-        ElevatorConstants.kFF * profileSetpoint.velocity,
-        ArbFFUnits.kPercentOut);
+    profileSetpoint.position,
+    ControlType.kPosition,
+    ClosedLoopSlot.kSlot0,
+    ElevatorConstants.kFF * profileSetpoint.velocity,
+    ArbFFUnits.kPercentOut);
   }
 
   public void setSetpoint(GameState stage) {
     this.setpoint = Constants.reefMap.get(stage).distance();
     this.m_goal = new TrapezoidProfile.State(metersToRots(setpoint.in(Units.Meters)), 0);
+    // pidControllerLeader.setReference(metersToRots(setpoint.in(Meters)), ControlType.kPosition);
 
     leaderChecker.updateFaults();
     followerChecker.updateFaults();

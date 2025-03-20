@@ -53,7 +53,6 @@ import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.manipulator.Manipulator;
-import frc.robot.util.BrownoutMonitor;
 import monologue.Logged;
 import monologue.Monologue;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -71,7 +70,6 @@ public class RobotContainer implements Logged {
   private final Manipulator manipulator;
   private final Climber climber;
   private final Elevator elevator;
-  private final BrownoutMonitor brownoutMonitor;
 
   // Controllers
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -128,7 +126,6 @@ public class RobotContainer implements Logged {
         new Manipulator(
             new SparkMax(ManipulatorConstants.kPivotId, MotorType.kBrushless),
             new SparkMax(ManipulatorConstants.kRollerId, MotorType.kBrushless));
-    brownoutMonitor = new BrownoutMonitor(drive, climber, elevator, manipulator);
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -302,12 +299,12 @@ public class RobotContainer implements Logged {
   /* Move to correct elevator height, pivot angle, and spin manipulator rollers */
   private Command pickupAction(GameState state, boolean eject) {
     return sequence(
-        runOnce(() -> elevator.setSetpoint(state), elevator),
-        waitUntil(() -> elevator.atSetpoint()),
-        runOnce(() -> manipulator.setAngle(state), manipulator),
-        waitUntil(() -> manipulator.atAngle(state)),
-        manipulator.spinRollers(eject).withTimeout(ManipulatorConstants.kDefaultPickupTime),
-        manipulator.stopRollers());
+        /*runOnce(() -> elevator.setSetpoint(state), elevator));
+        waitUntil(() -> elevator.atSetpoint()),*/
+        runOnce(() -> manipulator.setAngle(state), manipulator));
+    /*waitUntil(() -> manipulator.atAngle(state)),
+    manipulator.spinRollers(eject).withTimeout(ManipulatorConstants.kDefaultPickupTime),
+    manipulator.stopRollers());*/
   }
 
   /**

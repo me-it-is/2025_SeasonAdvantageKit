@@ -25,6 +25,9 @@ public class Climber extends SubsystemBase implements AutoCloseable, Logged {
   private SparkFaultChecker climberFaultChecker;
   private SparkAbsoluteEncoder encoder;
   private SparkClosedLoopController controller;
+  private double encoderPos;
+  private double error = 0.0;
+  private boolean atSetpoint = false;
 
   private State curState = State.BOTTOM;
   private Angle setpoint;
@@ -36,14 +39,25 @@ public class Climber extends SubsystemBase implements AutoCloseable, Logged {
     this.encoder = motorController.getAbsoluteEncoder();
     this.controller = motorController.getClosedLoopController();
     this.setpoint = stateMap.get(curState);
+    this.encoderPos = encoder.getPosition();
 
-    config.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder).pid(kP, kI, kD);
+    config.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder).pidf(kP, kI, kD, kFF);
     motorController.configure(
         config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   @Override
   public void periodic() {
+    this.log("climber/appl out", motorController.getAppliedOutput());
+    this.log("climber/at setpoint", atSetpoint);
+    this.log("climber/setpoint error", error);
+    this.log("climber/setpoint", setpoint.in(Rotations));
+
+    encoderPos = encoder.getPosition();
+    this.log("climber/encoder pos", encoderPos);
+
+    Angle diff = this.setpoint.minus(Rotations.of(encoderPos));
+    this.error = diff.in(Rotations);
     climberFaultChecker.updateFaults();
   }
 
@@ -52,18 +66,19 @@ public class Climber extends SubsystemBase implements AutoCloseable, Logged {
     motorController.close();
   }
 
-  public void run(boolean reverse) {
-    motorController.set(ClimberConstants.kClimberMotorMult * RobotMath.signBool(reverse));
+  public void run(boolean forward) {
+    motorController.set(ClimberConstants.kClimberMotorMult * RobotMath.signBool(forward));
   }
 
   public void moveToSetpoint(State state) {
     this.setpoint = stateMap.get(state);
+    this.atSetpoint = false;
     controller.setReference(setpoint.in(Rotations), ControlType.kPosition);
   }
 
   public boolean atSetpoint() {
-    Angle diff = this.setpoint.minus(Rotations.of(encoder.getPosition()));
-    return RobotMath.measureWithinBounds(diff, setpointTolerance);
+    this.atSetpoint = RobotMath.measureWithinBounds(Rotations.of(error), setpointTolerance);
+    return atSetpoint;
   }
 
   public void stop() {

@@ -34,6 +34,8 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
   private SparkFaultChecker rollersChecker;
   private AbsoluteEncoder pivotEncoder;
   private double setpoint = Constants.reefMap.get(GameState.NONE).angle().in(Units.Rotations);
+  private double error = 0.0;
+  private boolean atSetpoint = false;
 
   public Manipulator(SparkMax pivot, SparkMax rollers) {
     this.pivot = pivot;
@@ -45,7 +47,7 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
     this.pivotChecker = new SparkFaultChecker(pivot, "Pivot SparkMax");
     this.rollersChecker = new SparkFaultChecker(rollers, "Rollers SparkMax");
 
-    pivotConfig.inverted(false);
+    pivotConfig.inverted(false).smartCurrentLimit(ManipulatorConstants.currentLimit);
     pivotConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder).pid(kP, kI, kD);
     rollerConfig.idleMode(IdleMode.kCoast);
 
@@ -56,9 +58,13 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
   @Override
   public void periodic() {
     this.log("manipulator/angle", getEncoderPosition().in(Units.Rotations));
-    this.log("manipulator/rollers", rollers.get());
+    this.log("manipulator/rollers appl out", rollers.getAppliedOutput());
     this.log("manipulator/setpoint", setpoint);
-    this.log("manipulator/pivot motor output", pivot.get());
+    this.log("manipulator/pivot appl out", pivot.getAppliedOutput());
+
+    this.error = Math.abs(getEncoderPosition().in(Rotations) - setpoint);
+    this.log("manipulator/error", error);
+    this.log("manipulator/at setpoint", atSetpoint);
 
     double ff = Math.sin(getEncoderPosition().in(Units.Radians)) * kFF;
     this.log("manipulator/ff", ff);
@@ -74,7 +80,8 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
   }
 
   public void setAngle(GameState state) {
-    setpoint = getAngle(state);
+    this.setpoint = getAngle(state);
+    this.atSetpoint = false;
   }
 
   private Angle getEncoderPosition() {
@@ -82,10 +89,9 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
   }
 
   /** Check if pivot is at angle setpoint to some degree of error */
-  public boolean atAngle(GameState state) {
-    double setpoint = getAngle(state);
-    return Math.abs(getEncoderPosition().in(Rotations) - setpoint)
-        < ManipulatorConstants.kRotTolerance.in(Rotations);
+  public boolean atAngle() {
+    this.atSetpoint = error < ManipulatorConstants.kRotTolerance.in(Rotations);
+    return atSetpoint;
   }
 
   /** Spin rollers forward or backward at default speed */

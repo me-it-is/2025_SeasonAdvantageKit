@@ -137,14 +137,14 @@ public final class Constants {
     public static final int kRollerId = 6;
     public static final int kLineBreakPort = 3;
 
-    public static final Angle kFullRoll = Degrees.of(130);
     public static final Angle kRotTolerance = Rotations.of(0.1);
     public static final double kDefaultRollerSpeed = 1.0;
     public static final Time kDefaultPickupTime = Seconds.of(1);
     public static final double kP = 0.7;
     public static final double kI = 0;
     public static final double kD = 0.01;
-    public static final double kFF = 0.4;
+    public static final double kFF = 0.5;
+    public static final int currentLimit = 40;
   }
 
   public static class VisionConstants {
@@ -201,6 +201,7 @@ public final class Constants {
     public static final double kP = 0.5;
     public static final double kI = 0.0;
     public static final double kD = 0.0;
+    public static final double kFF = 0.2;
 
     public static enum State {
       TOP,
@@ -242,16 +243,17 @@ public final class Constants {
     public static final double kPositionConversionFactor = 1 / kRotsPerFullExtension;
 
     public static final FeedbackSensor feedbackSensor = FeedbackSensor.kAbsoluteEncoder;
-    public static final double kP = 0.5;
+    public static final double kP = 2.0;
     public static final double kI = 0;
     public static final double kD = 0.1;
     public static final double kFF = 20;
-    public static final int currentLimit = 40;
+    public static final int currentLimit = 60;
 
     public static SparkMaxConfig getSharedConfig() {
       SparkMaxConfig config = new SparkMaxConfig();
+      config.secondaryCurrentLimit(currentLimit);
       config.smartCurrentLimit(currentLimit);
-      config.closedLoop.pid(kP, kI, kD);
+      config.closedLoop.pidf(kP, kI, kD, kFF);
       return config;
     }
 
@@ -263,7 +265,7 @@ public final class Constants {
 
     public static SparkMaxConfig getFollowerConfig() {
       SparkMaxConfig config = getSharedConfig();
-      config.follow(kSparkMaxCANId);
+      config.follow(kSparkMaxCANId, true);
       return config;
     }
 
