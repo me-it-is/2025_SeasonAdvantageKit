@@ -3,7 +3,7 @@ package frc.robot.subsystems.manipulator;
 import static edu.wpi.first.units.Units.Rotations;
 import static frc.robot.Constants.ManipulatorConstants.*;
 
-import com.revrobotics.RelativeEncoder;
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -32,7 +32,7 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
   private SparkClosedLoopController pivotController;
   private SparkFaultChecker pivotChecker;
   private SparkFaultChecker rollersChecker;
-  private RelativeEncoder pivotEncoder;
+  private AbsoluteEncoder pivotEncoder;
   private double setpoint = Constants.reefMap.get(GameState.NONE).angle().in(Units.Rotations);
 
   public Manipulator(SparkMax pivot, SparkMax rollers) {
@@ -40,14 +40,12 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
     this.rollers = rollers;
     this.pivotConfig = new SparkMaxConfig();
     this.rollerConfig = new SparkMaxConfig();
-    this.pivotEncoder = pivot.getEncoder();
+    this.pivotEncoder = pivot.getAbsoluteEncoder();
     this.pivotController = pivot.getClosedLoopController();
     this.pivotChecker = new SparkFaultChecker(pivot, "Pivot SparkMax");
     this.rollersChecker = new SparkFaultChecker(rollers, "Rollers SparkMax");
 
-    pivotEncoder.setPosition(0);
     pivotConfig.inverted(false);
-    pivotConfig.encoder.positionConversionFactor(1 / ManipulatorConstants.kGearRatio);
     pivotConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder).pid(kP, kI, kD);
     rollerConfig.idleMode(IdleMode.kCoast);
 

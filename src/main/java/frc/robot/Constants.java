@@ -141,7 +141,6 @@ public final class Constants {
     public static final Angle kRotTolerance = Rotations.of(0.1);
     public static final double kDefaultRollerSpeed = 1.0;
     public static final Time kDefaultPickupTime = Seconds.of(1);
-    public static final double kGearRatio = 16;
     public static final double kP = 0.7;
     public static final double kI = 0;
     public static final double kD = 0.01;
@@ -228,8 +227,8 @@ public final class Constants {
     public static final double kDeadRecogningDeadZone = 0.05;
     public static final double kRestInput = 0.02;
     public static final Distance kSetpointTolerance = Meters.of(0.1);
-    public static final AngularVelocity kMaxVelocity = RotationsPerSecond.of(5);
-    public static final AngularAcceleration kMaxAcceleration = RotationsPerSecondPerSecond.of(5);
+    public static final AngularVelocity kMaxVelocity = RotationsPerSecond.of(40);
+    public static final AngularAcceleration kMaxAcceleration = RotationsPerSecondPerSecond.of(20);
     public static final Angle rotVelTolerance = Rotations.of(0.05);
 
     public static double totalExtensionTime = kMaxHeight.in(Units.Meters) / kDeadReckoningSpeed;
@@ -243,10 +242,10 @@ public final class Constants {
     public static final double kPositionConversionFactor = 1 / kRotsPerFullExtension;
 
     public static final FeedbackSensor feedbackSensor = FeedbackSensor.kAbsoluteEncoder;
-    public static final double kP = 0.2;
+    public static final double kP = 0.5;
     public static final double kI = 0;
-    public static final double kD = 0;
-    public static final double kFF = 0.1;
+    public static final double kD = 0.1;
+    public static final double kFF = 20;
     public static final int currentLimit = 40;
 
     public static SparkMaxConfig getSharedConfig() {
