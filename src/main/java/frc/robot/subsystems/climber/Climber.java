@@ -12,7 +12,6 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.util.RobotMath;
@@ -57,10 +56,9 @@ public class Climber extends SubsystemBase implements AutoCloseable, Logged {
     motorController.set(ClimberConstants.kClimberMotorMult * RobotMath.signBool(reverse));
   }
 
-  public Command moveToSetpoint(State state) {
+  public void moveToSetpoint(State state) {
     this.setpoint = stateMap.get(state);
-    return run(() -> controller.setReference(setpoint.in(Rotations), ControlType.kPosition))
-        .until(this::atSetpoint);
+    controller.setReference(setpoint.in(Rotations), ControlType.kPosition);
   }
 
   public boolean atSetpoint() {

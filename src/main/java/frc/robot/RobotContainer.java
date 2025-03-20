@@ -274,15 +274,18 @@ public class RobotContainer implements Logged {
     // climber setpoints
     opController
         .povLeft()
-        .onTrue(climber.moveToSetpoint(State.BOTTOM))
+        .onTrue(
+            runOnce(() -> climber.moveToSetpoint(State.BOTTOM), climber).until(climber::atSetpoint))
         .onFalse(runOnce(climber::stop));
     opController
         .povDown()
-        .onTrue(climber.moveToSetpoint(State.MID))
+        .onTrue(
+            runOnce(() -> climber.moveToSetpoint(State.MID), climber).until(climber::atSetpoint))
         .onFalse(runOnce(climber::stop));
     opController
         .povRight()
-        .onTrue(climber.moveToSetpoint(State.TOP))
+        .onTrue(
+            runOnce(() -> climber.moveToSetpoint(State.TOP), climber).until(climber::atSetpoint))
         .onFalse(runOnce(climber::stop));
 
     opController

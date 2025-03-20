@@ -8,7 +8,6 @@ import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
-
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -37,11 +36,14 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
 
     encoder.setPosition(0);
     sparkMaxLeader.configure(
-        ElevatorConstants.getLeaderConfig(), ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        ElevatorConstants.getLeaderConfig(),
+        ResetMode.kResetSafeParameters,
+        PersistMode.kPersistParameters);
     sparkMaxFollower.configure(
-        ElevatorConstants.getFollowerConfig(), ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        ElevatorConstants.getFollowerConfig(),
+        ResetMode.kResetSafeParameters,
+        PersistMode.kPersistParameters);
   }
-
 
   @Override
   public void periodic() {
@@ -60,7 +62,8 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   public boolean atSetpoint() {
-    return Math.abs(setpoint.in(Meters) - getElevatorHeight().in(Meters)) < ElevatorConstants.kSetpointTolerance.in(Meters);
+    return Math.abs(setpoint.in(Meters) - getElevatorHeight().in(Meters))
+        < ElevatorConstants.kSetpointTolerance.in(Meters);
   }
 
   public Distance getElevatorHeight() {
@@ -72,7 +75,9 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   private double metersToRots(double meters) {
-    return meters / ElevatorConstants.kMaxHeight.in(Meters) * ElevatorConstants.kRotsPerFullExtension;
+    return meters
+        / ElevatorConstants.kMaxHeight.in(Meters)
+        * ElevatorConstants.kRotsPerFullExtension;
   }
 
   public void stop() {
