@@ -109,14 +109,14 @@ public final class Constants {
 
   public static Map<GameState, AngleAndDistance> reefMap =
       Map.of(
-          GameState.L1_SCORE, new AngleAndDistance(Rotations.of(0.45), Inches.of(3.5)),
-          GameState.L2_SCORE, new AngleAndDistance(Rotations.of(0.11), Inches.of(16.5)),
-          GameState.L3_SCORE, new AngleAndDistance(Rotations.of(0.11), Inches.of(29)),
-          GameState.L4_SCORE, new AngleAndDistance(Rotations.of(0.15), Inches.of(35)),
+          GameState.L1_SCORE, new AngleAndDistance(Rotations.of(0.4), Inches.of(5)),
+          GameState.L2_SCORE, new AngleAndDistance(Degrees.of(0), Inches.of(10)),
+          GameState.L3_SCORE, new AngleAndDistance(Degrees.of(0), Inches.of(18)),
+          GameState.L4_SCORE, new AngleAndDistance(Rotations.of(0.1), Inches.of(32)),
           GameState.L2_ALGAE, new AngleAndDistance(Degrees.of(58), Inches.of(3.5)),
           GameState.L3_ALGAE, new AngleAndDistance(Degrees.of(58), Inches.of(31)),
-          GameState.HUMAN_PLAYER_STATION, new AngleAndDistance(Rotations.of(0.34), Inches.of(23)),
-          GameState.NONE, new AngleAndDistance(Degrees.of(0), Inches.of(0)));
+          GameState.HUMAN_PLAYER_STATION, new AngleAndDistance(Rotations.of(0.34), Inches.of(12)),
+          GameState.NONE, new AngleAndDistance(Degrees.of(5), Inches.of(0)));
 
   public static class DriveConstants {
     public static final Distance kChassisSize = Inches.of(34.24);
@@ -142,12 +142,14 @@ public final class Constants {
     public static final int kLineBreakPort = 3;
 
     public static final Angle kRotTolerance = Rotations.of(0.05);
-    public static final double kDefaultRollerSpeed = 1.0;
+    public static final double kManualRollerSpeed = 0.2;
+    public static final double kAutoRollerSpeed = 0.5;
+    public static final double kManualPivotSpeed = 0.2;
     public static final Time kDefaultPickupTime = Seconds.of(1);
     public static final double kP = 10;
     public static final double kI = 0;
     public static final double kD = 0;
-    public static final double kFF = 1;
+    public static final double kFF = 0;
     public static final int currentLimit = 40;
   }
 
@@ -232,8 +234,8 @@ public final class Constants {
     public static final double kDeadRecogningDeadZone = 0.05;
     public static final double kRestInput = 0.02;
     public static final Distance kSetpointTolerance = Meters.of(0.1);
-    public static final AngularVelocity kMaxVelocity = RotationsPerSecond.of(40);
-    public static final AngularAcceleration kMaxAcceleration = RotationsPerSecondPerSecond.of(20);
+    public static final AngularVelocity kMaxVelocity = RotationsPerSecond.of(30);
+    public static final AngularAcceleration kMaxAcceleration = RotationsPerSecondPerSecond.of(10);
     public static final Angle rotVelTolerance = Rotations.of(0.05);
 
     public static double totalExtensionTime = kMaxHeight.in(Units.Meters) / kDeadReckoningSpeed;
@@ -273,7 +275,7 @@ public final class Constants {
       SparkMaxConfig config = new SparkMaxConfig();
       config.secondaryCurrentLimit(currentLimit);
       config.smartCurrentLimit(currentLimit);
-      config.closedLoop.pidf(kP, kI, kD, kFF);
+      config.closedLoop.pidf(kP, kI, kD, kFF).outputRange(-0.5, 0.5);
       return config;
     }
 

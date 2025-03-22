@@ -248,13 +248,13 @@ public class RobotContainer implements Logged {
     // intake coral
     opController
         .rightBumper()
-        .whileTrue(manipulator.spinRollers(true))
+        .whileTrue(manipulator.spinRollers(true, true))
         .onFalse(manipulator.stopRollers());
 
     // outtake coral
     opController
         .leftBumper()
-        .whileTrue(manipulator.spinRollers(false))
+        .whileTrue(manipulator.spinRollers(false, true))
         .onFalse(manipulator.stopRollers());
 
     // intake and release algae
@@ -303,7 +303,7 @@ public class RobotContainer implements Logged {
             runOnce(() -> elevator.setSetpoint(state), elevator),
             runOnce(() -> manipulator.setAngle(state), manipulator)),
         waitUntil(() -> (manipulator.atAngle() && elevator.atSetpoint())),
-        manipulator.spinRollers(eject).withTimeout(ManipulatorConstants.kDefaultPickupTime),
+        manipulator.spinRollers(eject, false).withTimeout(ManipulatorConstants.kDefaultPickupTime),
         manipulator.stopRollers());
   }
 

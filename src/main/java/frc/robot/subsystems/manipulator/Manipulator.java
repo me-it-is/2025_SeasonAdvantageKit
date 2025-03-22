@@ -71,9 +71,12 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
     this.log("manipulator/ff", ff);
     pivotController.setReference(
         setpoint, ControlType.kPosition, ClosedLoopSlot.kSlot0, ff, ArbFFUnits.kPercentOut);
-
     pivotChecker.updateFaults();
     rollersChecker.updateFaults();
+  }
+
+  public void move(boolean reverse) {
+    pivot.set(kManualPivotSpeed * (reverse ? -1 : 1));
   }
 
   private double getAngle(GameState state) {
@@ -96,9 +99,10 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
   }
 
   /** Spin rollers forward or backward at default speed */
-  public Command spinRollers(boolean forward) {
+  public Command spinRollers(boolean forward, boolean manual) {
     int multipler = forward == true ? 1 : -1;
-    return this.runOnce(() -> rollers.set(kDefaultRollerSpeed * multipler));
+    return this.runOnce(
+        () -> rollers.set((manual ? kManualRollerSpeed : kAutoRollerSpeed) * multipler));
   }
 
   public Command stopRollers() {
