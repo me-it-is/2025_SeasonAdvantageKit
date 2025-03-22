@@ -66,7 +66,8 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
     this.log("manipulator/error", error);
     this.log("manipulator/at setpoint", atSetpoint);
 
-    double ff = Math.sin(getEncoderPosition().in(Units.Radians)) * kFF;
+    // zeroed at 180 degrees
+    double ff = Math.sin(Math.PI - getEncoderPosition().in(Units.Radians)) * kFF;
     this.log("manipulator/ff", ff);
     pivotController.setReference(
         setpoint, ControlType.kPosition, ClosedLoopSlot.kSlot0, ff, ArbFFUnits.kPercentOut);
