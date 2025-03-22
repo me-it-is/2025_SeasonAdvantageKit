@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.GameState;
+import frc.robot.util.RobotMath;
 import frc.robot.util.faultChecker.SparkFaultChecker;
 import monologue.Logged;
 
@@ -32,9 +33,12 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
   private Distance setpoint = Constants.reefMap.get(GameState.NONE).distance();
   private TrapezoidProfile profile;
   private State m_goal;
-  private State m_prevGoal;
   private State profileSetpoint;
   private static double kDt = 0.02;
+  private Distance setpointError = Meters.zero();
+  private boolean atSetpoint = false;
+
+  private boolean usingMotionProfile = true;
 
   public Elevator(SparkMax sparkMaxLeader, SparkMax sparkMaxFollower) {
     this.sparkMaxLeader = sparkMaxLeader;
@@ -43,9 +47,9 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
     this.followerChecker = new SparkFaultChecker(sparkMaxFollower, "elevator follower");
     this.encoder = sparkMaxLeader.getEncoder();
     this.pidControllerLeader = sparkMaxLeader.getClosedLoopController();
+
     this.profile = ElevatorConstants.getProfile();
     this.m_goal = new TrapezoidProfile.State();
-    this.m_prevGoal = new TrapezoidProfile.State();
     this.profileSetpoint = new TrapezoidProfile.State();
 
     encoder.setPosition(0);
@@ -61,42 +65,46 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
 
   @Override
   public void periodic() {
+    profileSetpoint = profile.calculate(kDt, profileSetpoint, m_goal);
+
+    this.setpointError = RobotMath.abs(getElevatorHeight().minus(setpoint));
+    this.atSetpoint = setpointError.lt(ElevatorConstants.kSetpointTolerance);
+    if (usingMotionProfile) {
+      pidControllerLeader.setReference(
+          profileSetpoint.position,
+          ControlType.kPosition,
+          ClosedLoopSlot.kSlot0,
+          ElevatorConstants.kFF * profileSetpoint.velocity,
+          ArbFFUnits.kPercentOut);
+    }
+
+    this.log("elevator/error", setpointError.in(Meters));
+    this.log("elevator/at setpoint", atSetpoint);
     this.log("elevator/height meters", getElevatorHeight().in(Meters));
     this.log("elevator/setpoint meters", setpoint.in(Units.Meters));
     this.log("elevator/leader appl out", sparkMaxLeader.getAppliedOutput());
     this.log("elevator/follower appl out", sparkMaxFollower.getAppliedOutput());
-
-    if (!m_prevGoal.equals(m_goal)) {
-      System.out.println("reinitializing profile");
-      profile =
-          ElevatorConstants
-              .getProfile(); // reinitialize the profile to calculate new motion trajectory
-      m_prevGoal = new State(m_goal.position, m_goal.velocity);
+    if (usingMotionProfile) {
+      this.log("elevator/profile setpoint pos", profileSetpoint.position);
+      this.log("elevator/profile setpoint vel", profileSetpoint.velocity);
     }
-
-    profileSetpoint = profile.calculate(kDt, profileSetpoint, m_goal);
-    this.log("elevator/profile setpoint pos", profileSetpoint.position);
-    this.log("elevator/profile setpoint vel", profileSetpoint.velocity);
-    pidControllerLeader.setReference(
-        profileSetpoint.position,
-        ControlType.kPosition,
-        ClosedLoopSlot.kSlot0,
-        ElevatorConstants.kFF * profileSetpoint.velocity,
-        ArbFFUnits.kPercentOut);
   }
 
   public void setSetpoint(GameState stage) {
     this.setpoint = Constants.reefMap.get(stage).distance();
+
     this.m_goal = new TrapezoidProfile.State(heightToAngle(setpoint).in(Rotations), 0);
-    // pidControllerLeader.setReference(metersToRots(setpoint.in(Meters)), ControlType.kPosition);
+    if (!usingMotionProfile) {
+      pidControllerLeader.setReference(
+          heightToAngle(setpoint).in(Rotations), ControlType.kPosition);
+    }
 
     leaderChecker.updateFaults();
     followerChecker.updateFaults();
   }
 
   public boolean atSetpoint() {
-    return Math.abs(setpoint.in(Meters) - getElevatorHeight().in(Meters))
-        < ElevatorConstants.kSetpointTolerance.in(Meters);
+    return atSetpoint;
   }
 
   public Distance getElevatorHeight() {
