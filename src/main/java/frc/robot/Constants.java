@@ -242,8 +242,8 @@ public final class Constants {
 
     public static final boolean kIsInverted = true;
 
-    // factor to make full extension 1 (1 / num rotations per full extension)
-    public static final Angle kFullExtentionAngle = Rotations.of(17.893);
+    // 3 to 1 ratio on the motor
+    public static final Angle kFullExtentionAngle = Rotations.of(9.56 * 3);
 
     public static final Per<DistanceUnit, AngleUnit> kAngularSpan =
         kMaxHeight.div(kFullExtentionAngle);
