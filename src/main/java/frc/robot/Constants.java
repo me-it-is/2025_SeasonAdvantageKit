@@ -245,8 +245,11 @@ public final class Constants {
     // 3 to 1 ratio on the motor
     public static final Angle kFullExtentionAngle = Rotations.of(9.56 * 3);
 
+    // Ratio of height to angle
     public static final Per<DistanceUnit, AngleUnit> kAngularSpan =
         kMaxHeight.div(kFullExtentionAngle);
+
+    // Ratio of angle to height
     public static final Per<AngleUnit, DistanceUnit> kSpanAngle =
         kFullExtentionAngle.div(kMaxHeight);
 
