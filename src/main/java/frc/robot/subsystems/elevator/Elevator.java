@@ -33,6 +33,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
   private Distance setpoint = Constants.reefMap.get(GameState.NONE).distance();
   private TrapezoidProfile profile;
   private State m_goal;
+  private State currentState;
   private State profileSetpoint;
   private static double kDt = 0.02;
   private Distance setpointError = Meters.zero();
@@ -65,17 +66,19 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
 
   @Override
   public void periodic() {
+    currentState = profileSetpoint;
     profileSetpoint = profile.calculate(kDt, profileSetpoint, m_goal);
 
     this.setpointError = RobotMath.abs(getElevatorHeight().minus(setpoint));
     this.atSetpoint = setpointError.lt(ElevatorConstants.kSetpointTolerance);
     if (usingMotionProfile) {
       pidControllerLeader.setReference(
-          profileSetpoint.position,
-          ControlType.kPosition,
+          profileSetpoint.velocity,
+          ControlType.kVelocity,
           ClosedLoopSlot.kSlot0,
-          ElevatorConstants.kFF * profileSetpoint.velocity,
-          ArbFFUnits.kPercentOut);
+          ElevatorConstants.kFFCalculator.calculateWithVelocities(
+              currentState.velocity, profileSetpoint.velocity),
+          ArbFFUnits.kVoltage);
     }
 
     this.log("elevator/error", setpointError.in(Meters));

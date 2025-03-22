@@ -29,6 +29,7 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.hal.PowerDistributionFaults;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -257,6 +258,13 @@ public final class Constants {
     public static final double kD = 0.1;
     public static final double kFF = 20;
     public static final int currentLimit = 60;
+
+    public static final double kS = 0.1;
+    public static final double kG = 0;
+    public static final double kV = 0;
+    public static final double kA = 0;
+
+    public static final ElevatorFeedforward kFFCalculator = new ElevatorFeedforward(kS, kG, kV, kA);
 
     public static SparkMaxConfig getSharedConfig() {
       SparkMaxConfig config = new SparkMaxConfig();
