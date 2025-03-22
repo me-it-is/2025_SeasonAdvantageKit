@@ -242,7 +242,7 @@ public final class Constants {
     public static final boolean kIsInverted = true;
 
     // 3 to 1 ratio on the motor
-    public static final Angle kFullExtentionAngle = Rotations.of(5); // 9.56 * 3
+    public static final Angle kFullExtentionAngle = Rotations.of(9.56 / 3); 
 
     // Ratio of height to angle
     public static final Per<DistanceUnit, AngleUnit> kAngularSpan =
