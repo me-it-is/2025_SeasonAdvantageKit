@@ -299,12 +299,12 @@ public class RobotContainer implements Logged {
   /* Move to correct elevator height, pivot angle, and spin manipulator rollers */
   private Command pickupAction(GameState state, boolean eject) {
     return sequence(
-        /*runOnce(() -> elevator.setSetpoint(state), elevator));
-        waitUntil(() -> elevator.atSetpoint()),*/
-        runOnce(() -> manipulator.setAngle(state), manipulator));
-    /*waitUntil(() -> manipulator.atAngle(state)),
-    manipulator.spinRollers(eject).withTimeout(ManipulatorConstants.kDefaultPickupTime),
-    manipulator.stopRollers());*/
+        parallel(
+            runOnce(() -> elevator.setSetpoint(state), elevator),
+            runOnce(() -> manipulator.setAngle(state), manipulator)),
+        waitUntil(() -> (manipulator.atAngle() && elevator.atSetpoint())),
+        manipulator.spinRollers(eject).withTimeout(ManipulatorConstants.kDefaultPickupTime),
+        manipulator.stopRollers());
   }
 
   /**
