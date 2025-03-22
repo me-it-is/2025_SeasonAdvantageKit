@@ -116,7 +116,7 @@ public final class Constants {
           GameState.L2_ALGAE, new AngleAndDistance(Degrees.of(58), Inches.of(3.5)),
           GameState.L3_ALGAE, new AngleAndDistance(Degrees.of(58), Inches.of(31)),
           GameState.HUMAN_PLAYER_STATION, new AngleAndDistance(Rotations.of(0.34), Inches.of(23)),
-          GameState.NONE, new AngleAndDistance(Degrees.of(0), Inches.of(0)));
+          GameState.NONE, new AngleAndDistance(Rotations.of(0.4), Inches.of(0)));
 
   public static class DriveConstants {
     public static final Distance kChassisSize = Inches.of(34.24);
@@ -147,7 +147,7 @@ public final class Constants {
     public static final double kP = 10;
     public static final double kI = 0;
     public static final double kD = 0;
-    public static final double kFF = 1;
+    public static final double kFF = 0;
     public static final int currentLimit = 40;
   }
 
@@ -202,10 +202,9 @@ public final class Constants {
     public static final int kMidBeamBreakId = 2;
     public static final double kClimberMotorMult = 0.9;
 
-    public static final double kP = 0.5;
+    public static final double kP = 1;
     public static final double kI = 0.0;
     public static final double kD = 0.0;
-    public static final double kFF = 0.2;
 
     public static enum State {
       TOP,
@@ -218,9 +217,9 @@ public final class Constants {
             State.TOP,
             Rotations.of(0),
             State.MID,
-            Rotations.of(0.2),
+            Rotations.of(0.255),
             State.BOTTOM,
-            Rotations.of(0.25));
+            Rotations.of(0.285));
     public static final Angle setpointTolerance = Rotations.of(0.05);
   }
 
@@ -243,7 +242,7 @@ public final class Constants {
     public static final boolean kIsInverted = true;
 
     // 3 to 1 ratio on the motor
-    public static final Angle kFullExtentionAngle = Rotations.of(9.56 * 3);
+    public static final Angle kFullExtentionAngle = Rotations.of(5); // 9.56 * 3
 
     // Ratio of height to angle
     public static final Per<DistanceUnit, AngleUnit> kAngularSpan =

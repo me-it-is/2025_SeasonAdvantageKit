@@ -39,7 +39,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
   private Distance setpointError = Meters.zero();
   private boolean atSetpoint = false;
 
-  private boolean usingMotionProfile = true;
+  private boolean usingMotionProfile = false;
 
   public Elevator(SparkMax sparkMaxLeader, SparkMax sparkMaxFollower) {
     this.sparkMaxLeader = sparkMaxLeader;
