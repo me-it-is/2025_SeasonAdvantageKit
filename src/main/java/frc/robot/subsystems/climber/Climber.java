@@ -41,7 +41,8 @@ public class Climber extends SubsystemBase implements AutoCloseable, Logged {
     this.setpoint = stateMap.get(curState);
     this.encoderPos = encoder.getPosition();
 
-    config.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder).pidf(kP, kI, kD, kFF);
+    config.inverted(true);
+    config.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder).pid(kP, kI, kD);
     motorController.configure(
         config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
