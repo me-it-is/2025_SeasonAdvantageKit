@@ -83,6 +83,7 @@ public class Climber extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   public void stop() {
+    System.out.println("stop climber");
     motorController.stopMotor();
   }
 

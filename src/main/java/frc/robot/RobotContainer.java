@@ -186,10 +186,8 @@ public class RobotContainer implements Logged {
     autoChooser.addDefaultOption("top leave", AutoBuilder.buildAuto("top leave"));
     autoChooser.addOption("middle leave", AutoBuilder.buildAuto("middle leave"));
     autoChooser.addOption("bottom leave", AutoBuilder.buildAuto("bottom leave"));
-    autoChooser.addOption(
-        "top leave single score", AutoBuilder.buildAuto("top reef single score"));
-    autoChooser.addOption(
-        "top leave double score", AutoBuilder.buildAuto("top reef double score"));
+    autoChooser.addOption("top leave single score", AutoBuilder.buildAuto("top reef single score"));
+    autoChooser.addOption("top leave double score", AutoBuilder.buildAuto("top reef double score"));
     autoChooser.addOption(
         "bottom leave single score", AutoBuilder.buildAuto("bottom reef single score"));
     autoChooser.addOption(
