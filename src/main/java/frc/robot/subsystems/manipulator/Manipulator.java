@@ -78,9 +78,12 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
     this.log("manipulator/ff", ff);
     pivotController.setReference(
         setpoint, ControlType.kPosition, ClosedLoopSlot.kSlot0, ff, ArbFFUnits.kPercentOut);
-
     pivotChecker.updateFaults();
     rollersChecker.updateFaults();
+  }
+
+  public void move(boolean reverse) {
+    pivot.set(kManualPivotSpeed * (reverse ? -1 : 1));
   }
 
   private double getAngle(GameState state) {

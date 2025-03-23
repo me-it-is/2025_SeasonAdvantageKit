@@ -14,8 +14,6 @@
 package frc.robot;
 
 import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.cscore.CvSink;
-import edu.wpi.first.cscore.MjpegServer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -37,9 +35,6 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 public class Robot extends LoggedRobot {
   private Command autonomousCommand;
   private RobotContainer robotContainer;
-  private MjpegServer mjpegServer1;
-  private MjpegServer mjpegServer2;
-  private CvSink cvSink;
 
   public Robot() {
     // Record metadata
@@ -93,19 +88,6 @@ public class Robot extends LoggedRobot {
   @Override
   public void robotInit() {
     CameraServer.startAutomaticCapture();
-    // CameraServer.getServer().setConfigJson("{'Exposure': 'auto'}");
-    /*UsbCamera usbCamera = new UsbCamera("USB Camera 0", 0);
-    mjpegServer1 = new MjpegServer("serve_USB Camera 0", 1181);
-    mjpegServer1.setSource(usbCamera);
-
-    // Creates the CvSink and connects it to the UsbCamera
-    cvSink = new CvSink("opencv_USB Camera 0");
-    cvSink.setSource(usbCamera);
-    // Creates the CvSource and MjpegServer [2] and connects them
-    CvSource outputStream = new CvSource("Blur", PixelFormat.kMJPEG, 640, 480, 30);
-
-    mjpegServer2 = new MjpegServer("serve_Blur", 1182);
-    mjpegServer2.setSource(outputStream);*/
   }
 
   /** This function is called periodically during all modes. */

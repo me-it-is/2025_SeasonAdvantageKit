@@ -145,6 +145,7 @@ public final class Constants {
     public static final double kDefaultRollerSpeed = 0.2;
     public static final double kHumanPlayerStationSpeed = 0.5;
     public static final double kWhilePivotingSpeed = 0.05;
+    public static final double kManualPivotSpeed = 0.3;
     public static final Time kDefaultPickupTime = Seconds.of(1);
     public static final double kP = 10;
     public static final double kI = 0;
