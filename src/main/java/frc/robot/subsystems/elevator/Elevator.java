@@ -39,7 +39,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
   private Distance setpointError = Meters.zero();
   private boolean atSetpoint = false;
 
-  private boolean usingMotionProfile = false;
+  private boolean usingMotionProfile = true;
 
   public Elevator(SparkMax sparkMaxLeader, SparkMax sparkMaxFollower) {
     this.sparkMaxLeader = sparkMaxLeader;
@@ -83,7 +83,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
 
     this.log("elevator/error", setpointError.in(Meters));
     this.log("elevator/at setpoint", atSetpoint);
-    this.log("elevator/height meters", getElevatorHeight().in(Meters));
+    this.log("elevator/height rotations", heightToAngle(getElevatorHeight()).in(Rotations));
     this.log("elevator/setpoint meters", setpoint.in(Units.Meters));
     this.log("elevator/leader appl out", sparkMaxLeader.getAppliedOutput());
     this.log("elevator/follower appl out", sparkMaxFollower.getAppliedOutput());

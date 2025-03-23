@@ -13,6 +13,7 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 import static frc.robot.util.GetAliance.getAllianceBoolean;
 
@@ -32,7 +33,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.ClimberConstants.State;
@@ -178,12 +178,17 @@ public class RobotContainer implements Logged {
   }
 
   private void configureAutos() {
-    NamedCommands.registerCommand("score", pickupAction(GameState.L4_SCORE, true));
     NamedCommands.registerCommand(
-        "hps pickup", pickupAction(GameState.HUMAN_PLAYER_STATION, false));
-    NamedCommands.registerCommand("remove algae", pickupAction(GameState.L2_ALGAE, false));
+        "score", pickupAction(GameState.L4_SCORE, true).andThen(rollerAction(false)));
+    NamedCommands.registerCommand(
+        "hps pickup",
+        pickupAction(GameState.HUMAN_PLAYER_STATION, true).andThen(rollerAction(true)));
+    NamedCommands.registerCommand(
+        "remove algae", pickupAction(GameState.L2_ALGAE, true).andThen(rollerAction(true)));
 
     autoChooser.addDefaultOption("top leave", AutoBuilder.buildAuto("top leave"));
+    autoChooser.addOption(
+        "middle leave single score", AutoBuilder.buildAuto("middle leave single score"));
     autoChooser.addOption("middle leave", AutoBuilder.buildAuto("middle leave"));
     autoChooser.addOption("bottom leave", AutoBuilder.buildAuto("bottom leave"));
     autoChooser.addOption("top leave single score", AutoBuilder.buildAuto("top reef single score"));
@@ -246,40 +251,43 @@ public class RobotContainer implements Logged {
     // intake coral
     opController
         .rightBumper()
-        .whileTrue(manipulator.spinRollers(true))
-        .onFalse(manipulator.stopRollers());
+        .whileTrue(runOnce(() -> manipulator.spinRollers(true), manipulator))
+        .onFalse(runOnce(() -> manipulator.stopRollers(), manipulator));
 
     // outtake coral
     opController
         .leftBumper()
-        .whileTrue(manipulator.spinRollers(false))
-        .onFalse(manipulator.stopRollers());
+        .whileTrue(runOnce(() -> manipulator.spinRollers(false), manipulator))
+        .onFalse(runOnce(() -> manipulator.stopRollers(), manipulator));
 
     // intake and release algae
-    new Trigger(() -> (Math.abs(opController.getLeftY())) > 0.5)
-        .onTrue(pickupAction(GameState.L2_ALGAE, Math.signum(opController.getLeftY()) == 1.0));
+    // new Trigger(() -> (Math.abs(opController.getLeftY())) > 0.5)
+    //     .onTrue(pickupAction(GameState.L2_ALGAE, false));
+    opController.povLeft().onTrue(pickupAction(GameState.L2_ALGAE, false));
+    opController.povRight().onTrue(pickupAction(GameState.L3_ALGAE, false));
 
-    opController.a().onTrue(pickupAction(GameState.L1_SCORE, true));
-    opController.b().onTrue(pickupAction(GameState.L2_SCORE, true));
-    opController.y().onTrue(pickupAction(GameState.L3_SCORE, true));
-    opController.x().onTrue(pickupAction(GameState.L4_SCORE, true));
+    opController.a().onTrue(pickupAction(GameState.L1_SCORE, false));
+    opController.b().onTrue(pickupAction(GameState.L2_SCORE, false));
+    opController.y().onTrue(pickupAction(GameState.L3_SCORE, false));
+    opController.x().onTrue(pickupAction(GameState.L4_SCORE, false));
 
     // human player station intake
     opController.povUp().onTrue(pickupAction(GameState.HUMAN_PLAYER_STATION, false));
     // climber setpoints
-    opController
-        .povLeft()
-        .onTrue(
-            runOnce(() -> climber.moveToSetpoint(State.BOTTOM), climber)
-                .until(climber::atSetpoint));
+    // opController
+    //     .povLeft()
+    //     .onTrue(
+    //         runOnce(() -> climber.moveToSetpoint(State.BOTTOM), climber)
+    //             .until(climber::atSetpoint));
     opController
         .povDown()
         .onTrue(
             runOnce(() -> climber.moveToSetpoint(State.MID), climber).until(climber::atSetpoint));
-    opController
-        .povRight()
-        .onTrue(
-            runOnce(() -> climber.moveToSetpoint(State.TOP), climber).until(climber::atSetpoint));
+    // opController
+    //     .povRight()
+    //     .onTrue(
+    //         runOnce(() -> climber.moveToSetpoint(State.TOP),
+    // climber).until(climber::atSetpoint));
 
     opController
         .leftTrigger()
@@ -293,14 +301,18 @@ public class RobotContainer implements Logged {
   }
 
   /* Move to correct elevator height, pivot angle, and spin manipulator rollers */
-  private Command pickupAction(GameState state, boolean eject) {
+  private Command pickupAction(GameState state, boolean auto) {
     return sequence(
-        parallel(
-            runOnce(() -> elevator.setSetpoint(state), elevator),
-            runOnce(() -> manipulator.setAngle(state), manipulator),
-            waitUntil(() -> (manipulator.atAngle()))));
-    /*manipulator.spinRollers(eject).withTimeout(ManipulatorConstants.kDefaultPickupTime),
-    manipulator.stopRollers());*/
+        runOnce(() -> elevator.setSetpoint(state), elevator),
+        waitSeconds(auto ? 2 : 0.5),
+        runOnce(() -> manipulator.setAngle(state), manipulator),
+        waitUntil(() -> manipulator.atAngle()).andThen(manipulator::stopRollers));
+  }
+
+  private Command rollerAction(boolean forward) {
+    // BooleanSupplier coralState = () -> forward ? !manipulator.hasCoral() :
+    // manipulator.hasCoral();
+    return runOnce(() -> manipulator.spinRollers(forward)).withTimeout(Seconds.of(2));
   }
 
   /**

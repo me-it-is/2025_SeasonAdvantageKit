@@ -16,7 +16,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.GameState;
@@ -33,9 +33,12 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
   private SparkFaultChecker pivotChecker;
   private SparkFaultChecker rollersChecker;
   private AbsoluteEncoder pivotEncoder;
+  private GameState curState = GameState.NONE;
   private double setpoint = Constants.reefMap.get(GameState.NONE).angle().in(Units.Rotations);
   private double error = 0.0;
   private boolean atSetpoint = false;
+  private DigitalInput beamBreak;
+  private boolean beamBroken = false;
 
   public Manipulator(SparkMax pivot, SparkMax rollers) {
     this.pivot = pivot;
@@ -46,6 +49,7 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
     this.pivotController = pivot.getClosedLoopController();
     this.pivotChecker = new SparkFaultChecker(pivot, "Pivot SparkMax");
     this.rollersChecker = new SparkFaultChecker(rollers, "Rollers SparkMax");
+    this.beamBreak = new DigitalInput(kBeamBreakPort);
 
     pivotConfig.inverted(false).smartCurrentLimit(ManipulatorConstants.currentLimit);
     pivotConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder).pid(kP, kI, kD);
@@ -66,6 +70,9 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
     this.log("manipulator/error", error);
     this.log("manipulator/at setpoint", atSetpoint);
 
+    this.beamBroken = !beamBreak.get();
+    this.log("manipulator/has coral", beamBroken);
+
     // zeroed at 180 degrees
     double ff = Math.sin(Math.PI - getEncoderPosition().in(Units.Radians)) * kFF;
     this.log("manipulator/ff", ff);
@@ -77,10 +84,13 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
   }
 
   private double getAngle(GameState state) {
-    return Constants.reefMap.get(state).angle().in(Units.Rotations);
+    return Constants.reefMap.get(state).angle().in(Rotations);
   }
 
   public void setAngle(GameState state) {
+    this.curState = state;
+    boolean reverse = Constants.reefMap.get(state).angle().in(Rotations) > setpoint;
+    rollers.set(kWhilePivotingSpeed * (reverse ? -1 : 1));
     this.setpoint = getAngle(state);
     this.atSetpoint = false;
   }
@@ -91,18 +101,26 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
 
   /** Check if pivot is at angle setpoint to some degree of error */
   public boolean atAngle() {
-    this.atSetpoint = error < ManipulatorConstants.kRotTolerance.in(Rotations);
+    this.atSetpoint = error < kRotTolerance.in(Rotations);
     return atSetpoint;
   }
 
   /** Spin rollers forward or backward at default speed */
-  public Command spinRollers(boolean forward) {
-    int multipler = forward == true ? 1 : -1;
-    return this.runOnce(() -> rollers.set(kDefaultRollerSpeed * multipler));
+  public void spinRollers(boolean forward) {
+    int multiplier = forward == true ? 1 : -1;
+    double speed = kDefaultRollerSpeed;
+    if (curState == GameState.HUMAN_PLAYER_STATION) {
+      speed = kHumanPlayerStationSpeed;
+    }
+    rollers.set(speed * multiplier);
   }
 
-  public Command stopRollers() {
-    return this.runOnce(() -> rollers.set(0.0));
+  public boolean hasCoral() {
+    return beamBroken;
+  }
+
+  public void stopRollers() {
+    rollers.set(0.0);
   }
 
   public void stop() {

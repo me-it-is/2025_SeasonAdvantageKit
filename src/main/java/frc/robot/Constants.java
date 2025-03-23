@@ -109,13 +109,13 @@ public final class Constants {
 
   public static Map<GameState, AngleAndDistance> reefMap =
       Map.of(
-          GameState.L1_SCORE, new AngleAndDistance(Rotations.of(0.45), Inches.of(3.5)),
-          GameState.L2_SCORE, new AngleAndDistance(Rotations.of(0.11), Inches.of(16.5)),
-          GameState.L3_SCORE, new AngleAndDistance(Rotations.of(0.11), Inches.of(29)),
-          GameState.L4_SCORE, new AngleAndDistance(Rotations.of(0.15), Inches.of(35)),
-          GameState.L2_ALGAE, new AngleAndDistance(Degrees.of(58), Inches.of(3.5)),
-          GameState.L3_ALGAE, new AngleAndDistance(Degrees.of(58), Inches.of(31)),
-          GameState.HUMAN_PLAYER_STATION, new AngleAndDistance(Rotations.of(0.34), Inches.of(23)),
+          GameState.L1_SCORE, new AngleAndDistance(Rotations.of(0.45), Inches.of(7)),
+          GameState.L2_SCORE, new AngleAndDistance(Rotations.of(0.11), Inches.of(11)),
+          GameState.L3_SCORE, new AngleAndDistance(Rotations.of(0.11), Inches.of(19)),
+          GameState.L4_SCORE, new AngleAndDistance(Rotations.of(0.15), Inches.of(33)),
+          GameState.L2_ALGAE, new AngleAndDistance(Degrees.of(58), Inches.of(7)),
+          GameState.L3_ALGAE, new AngleAndDistance(Degrees.of(58), Inches.of(15)),
+          GameState.HUMAN_PLAYER_STATION, new AngleAndDistance(Rotations.of(0.34), Inches.of(10)),
           GameState.NONE, new AngleAndDistance(Rotations.of(0.4), Inches.of(0)));
 
   public static class DriveConstants {
@@ -139,12 +139,14 @@ public final class Constants {
   public static class ManipulatorConstants {
     public static final int kPivotId = 5;
     public static final int kRollerId = 6;
-    public static final int kLineBreakPort = 3;
+    public static final int kBeamBreakPort = 9;
 
     public static final Angle kRotTolerance = Rotations.of(0.05);
-    public static final double kDefaultRollerSpeed = 1.0;
+    public static final double kDefaultRollerSpeed = 0.2;
+    public static final double kHumanPlayerStationSpeed = 0.5;
+    public static final double kWhilePivotingSpeed = 0.05;
     public static final Time kDefaultPickupTime = Seconds.of(1);
-    public static final double kP = 15;
+    public static final double kP = 10;
     public static final double kI = 0;
     public static final double kD = 0;
     public static final double kFF = 0;
@@ -242,7 +244,7 @@ public final class Constants {
     public static final boolean kIsInverted = true;
 
     // 3 to 1 ratio on the motor
-    public static final Angle kFullExtentionAngle = Rotations.of(5); // 9.56 /
+    public static final Angle kFullExtentionAngle = Rotations.of(5); //  9.56 / 3
 
     // Ratio of height to angle
     public static final Per<DistanceUnit, AngleUnit> kAngularSpan =
