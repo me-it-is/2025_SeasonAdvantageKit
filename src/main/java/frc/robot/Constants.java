@@ -234,8 +234,8 @@ public final class Constants {
     public static final double kDeadRecogningDeadZone = 0.05;
     public static final double kRestInput = 0.02;
     public static final Distance kSetpointTolerance = Meters.of(0.1);
-    public static final AngularVelocity kMaxVelocity = RotationsPerSecond.of(20);
-    public static final AngularAcceleration kMaxAcceleration = RotationsPerSecondPerSecond.of(10);
+    public static final AngularVelocity kMaxVelocity = RotationsPerSecond.of(5);
+    public static final AngularAcceleration kMaxAcceleration = RotationsPerSecondPerSecond.of(2);
     public static final Angle rotVelTolerance = Rotations.of(0.05);
 
     public static double totalExtensionTime = kMaxHeight.in(Units.Meters) / kDeadReckoningSpeed;
@@ -245,7 +245,7 @@ public final class Constants {
     public static final boolean kIsInverted = true;
 
     // 3 to 1 ratio on the motor
-    public static final Angle kFullExtentionAngle = Rotations.of(5); //  9.56 / 3
+    public static final Angle kFullExtentionAngle = Rotations.of(9.56 / 3);
 
     // Ratio of height to angle
     public static final Per<DistanceUnit, AngleUnit> kAngularSpan =
@@ -258,15 +258,15 @@ public final class Constants {
     public static final double kPositionConversionFactor = 1 / kFullExtentionAngle.in(Rotations);
 
     public static final FeedbackSensor feedbackSensor = FeedbackSensor.kAbsoluteEncoder;
-    public static final double kP = 2.0;
+    public static final double kP = 0; // 2
     public static final double kI = 0;
-    public static final double kD = 0.1;
-    public static final double kFF = 20;
+    public static final double kD = 0; // 0.1
+    public static final double kFF = 0; // 20
     public static final int currentLimit = 60;
 
     public static final double kS = 0.0;
-    public static final double kG = 0;
-    public static final double kV = 0;
+    public static final double kG = 1;
+    public static final double kV = 1.5;
     public static final double kA = 0;
 
     public static final ElevatorFeedforward kFFCalculator = new ElevatorFeedforward(kS, kG, kV, kA);

@@ -323,4 +323,8 @@ public class RobotContainer implements Logged {
   public Command getAutonomousCommand() {
     return autoChooser.get();
   }
+
+  public void resetElevator() {
+    elevator.zeroElevator();
+  }
 }

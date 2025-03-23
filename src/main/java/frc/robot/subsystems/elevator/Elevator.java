@@ -71,6 +71,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
 
     this.setpointError = RobotMath.abs(getElevatorHeight().minus(setpoint));
     this.atSetpoint = setpointError.lt(ElevatorConstants.kSetpointTolerance);
+
     if (usingMotionProfile) {
       pidControllerLeader.setReference(
           profileSetpoint.velocity,
@@ -120,6 +121,11 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
 
   private Angle heightToAngle(Distance height) {
     return (Angle) ElevatorConstants.kSpanAngle.timesDivisor(height);
+  }
+
+  public void zeroElevator() {
+    this.profileSetpoint = new State(0, 0);
+    encoder.setPosition(0);
   }
 
   public void stop() {
