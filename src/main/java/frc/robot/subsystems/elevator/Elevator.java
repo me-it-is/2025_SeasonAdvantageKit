@@ -92,6 +92,9 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
       this.log("elevator/profile setpoint pos", profileSetpoint.position);
       this.log("elevator/profile setpoint vel", profileSetpoint.velocity);
     }
+
+    leaderChecker.updateFaults();
+    followerChecker.updateFaults();
   }
 
   public void setSetpoint(GameState stage) {
@@ -102,9 +105,6 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
       pidControllerLeader.setReference(
           heightToAngle(setpoint).in(Rotations), ControlType.kPosition);
     }
-
-    leaderChecker.updateFaults();
-    followerChecker.updateFaults();
   }
 
   public boolean atSetpoint() {
