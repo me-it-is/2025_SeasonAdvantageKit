@@ -36,8 +36,8 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
   private State currentState;
   private State nextState;
   private static double kDt = 0.02;
-  private Distance setpointError = Meters.zero();
-  private boolean atSetpoint = false;
+  private Distance setpointError;
+  private boolean atSetpoint;
 
   private boolean usingMotionProfile = true;
 
