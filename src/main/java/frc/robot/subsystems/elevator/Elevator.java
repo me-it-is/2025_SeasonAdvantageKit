@@ -32,9 +32,9 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
   public SparkClosedLoopController pidControllerLeader;
   private Distance setpoint = Constants.reefMap.get(GameState.NONE).distance();
   private TrapezoidProfile profile;
-  private State m_goal;
+  private State goalState;
   private State currentState;
-  private State profileSetpoint;
+  private State nextState;
   private static double kDt = 0.02;
   private Distance setpointError = Meters.zero();
   private boolean atSetpoint = false;
@@ -50,8 +50,8 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
     this.pidControllerLeader = sparkMaxLeader.getClosedLoopController();
 
     this.profile = ElevatorConstants.getProfile();
-    this.m_goal = new TrapezoidProfile.State();
-    this.profileSetpoint = new TrapezoidProfile.State();
+    this.goalState = new TrapezoidProfile.State();
+    this.nextState = new TrapezoidProfile.State();
 
     encoder.setPosition(0);
     sparkMaxLeader.configure(
@@ -66,19 +66,19 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
 
   @Override
   public void periodic() {
-    currentState = profileSetpoint;
-    profileSetpoint = profile.calculate(kDt, profileSetpoint, m_goal);
+    currentState = nextState;
+    nextState = profile.calculate(kDt, currentState, goalState);
 
     this.setpointError = RobotMath.abs(getElevatorHeight().minus(setpoint));
     this.atSetpoint = setpointError.lt(ElevatorConstants.kSetpointTolerance);
 
     if (usingMotionProfile) {
       pidControllerLeader.setReference(
-          profileSetpoint.velocity,
+          nextState.velocity,
           ControlType.kVelocity,
           ClosedLoopSlot.kSlot0,
           ElevatorConstants.kFFCalculator.calculateWithVelocities(
-              currentState.velocity, profileSetpoint.velocity),
+              currentState.velocity, nextState.velocity),
           ArbFFUnits.kVoltage);
     }
 
@@ -89,8 +89,8 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
     this.log("elevator/leader appl out", sparkMaxLeader.getAppliedOutput());
     this.log("elevator/follower appl out", sparkMaxFollower.getAppliedOutput());
     if (usingMotionProfile) {
-      this.log("elevator/profile setpoint pos", profileSetpoint.position);
-      this.log("elevator/profile setpoint vel", profileSetpoint.velocity);
+      this.log("elevator/profile setpoint pos", nextState.position);
+      this.log("elevator/profile setpoint vel", nextState.velocity);
     }
 
     leaderChecker.updateFaults();
@@ -100,7 +100,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
   public void setSetpoint(GameState stage) {
     this.setpoint = Constants.reefMap.get(stage).distance();
 
-    this.m_goal = new TrapezoidProfile.State(heightToAngle(setpoint).in(Rotations), 0);
+    this.goalState = new TrapezoidProfile.State(heightToAngle(setpoint).in(Rotations), 0);
     if (!usingMotionProfile) {
       pidControllerLeader.setReference(
           heightToAngle(setpoint).in(Rotations), ControlType.kPosition);
@@ -124,7 +124,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   public void zeroElevator() {
-    this.profileSetpoint = new State(0, 0);
+    this.nextState = new State(0, 0);
     encoder.setPosition(0);
   }
 
