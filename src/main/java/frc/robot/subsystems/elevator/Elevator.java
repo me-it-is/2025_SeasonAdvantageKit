@@ -125,6 +125,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
 
   public void zeroElevator() {
     this.nextState = new State(0, 0);
+    this.goalState = new State(0, 0);
     encoder.setPosition(0);
   }
 
