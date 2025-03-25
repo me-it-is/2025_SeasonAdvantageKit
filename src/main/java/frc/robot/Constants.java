@@ -505,7 +505,7 @@ public final class Constants {
           add(new Fault(() -> (faults.get().firmware), ERROR, "Firmware fault"));
           add(new Fault(() -> (faults.get().gateDriver), ERROR, "Gate driver fault"));
           add(new Fault(() -> (faults.get().motorType), ERROR, "Incorect motor type"));
-          add(new Fault(() -> (faults.get().other), ERROR, "Other Fault"));
+          add(new Fault(() -> (faults.get().other), ERROR, "Other fault"));
           add(new Fault(() -> (faults.get().sensor), ERROR, "Sensor fault"));
           add(new Fault(() -> (faults.get().temperature), ERROR, "Over temp"));
 
