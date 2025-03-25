@@ -57,6 +57,14 @@ public abstract class AbstractFaultChecker {
   }
 
   /**
+   * @return List of all faults of the device.
+   */
+  public List<Fault> getAllFaults() {
+    return Stream.concat(warningFaults.stream(), errorFaults.stream())
+    .toList();
+  }
+
+  /**
    * @return List of all currently faulted faults.
    */
   public List<Fault> getActiveFaults() {
