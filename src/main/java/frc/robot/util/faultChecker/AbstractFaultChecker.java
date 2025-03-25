@@ -36,16 +36,24 @@ public abstract class AbstractFaultChecker {
     for (Fault f : warningFaults) {
       f.updateFault();
       if (f.hasFault != f.hadFault) {
-        f.logFault(commponentName, stringLog);
+        logFault(f);
       }
     }
     for (Fault f : errorFaults) {
       f.updateFault();
       if (f.hasFault != f.hadFault) {
-        f.logFault(commponentName, stringLog);
-        f.sendNotification(commponentName);
+        logFault(f);
+        notifyFault(f);
       }
     }
+  }
+
+  void logFault(Fault fault) {
+    fault.logFault(commponentName, stringLog);
+  }
+
+  void notifyFault(Fault fault) {
+    fault.sendNotification(commponentName);
   }
 
   /**
