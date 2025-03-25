@@ -38,6 +38,7 @@ public class SparkFaultChecker extends AbstractFaultChecker {
    * Updates all faults in the fault checker. If any faults have been resolved or stated it will log
    * or report them based on sevarity
    */
+  @Override
   public void updateFaults() {
     faults = faultSupplier.get();
     warnings = warningSupplier.get();
