@@ -11,7 +11,7 @@ import java.util.function.Supplier;
  * Encodes the status of a fault as well as the required resorces to update and notify the driver
  */
 public class Fault {
-  String faultName;
+  public String faultName;
   Supplier<Boolean> supplierToCheckFault;
   NotificationLevel level = NotificationLevel.ERROR;
   boolean hasFault;
