@@ -60,8 +60,7 @@ public abstract class AbstractFaultChecker {
    * @return List of all faults of the device.
    */
   public List<Fault> getAllFaults() {
-    return Stream.concat(warningFaults.stream(), errorFaults.stream())
-    .toList();
+    return Stream.concat(warningFaults.stream(), errorFaults.stream()).toList();
   }
 
   /**
