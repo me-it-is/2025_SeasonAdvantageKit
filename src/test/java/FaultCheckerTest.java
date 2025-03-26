@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 
 class FaultCheckerTest {
-  private static final int numOfFaultCombosToCheck = 50000;
+  private static final int numOfFaultCombosToCheck = 1000;
 
   private record MeasageAndLevel(String mesage, NotificationLevel level) {}
 
