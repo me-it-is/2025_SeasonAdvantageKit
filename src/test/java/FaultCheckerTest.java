@@ -24,7 +24,7 @@ class FaultCheckerTest {
 
   @Test
   public void automaticSparkMaxFaultCheckerTest() {
-    final SparkMax testSparkMax = new SparkMax(0, MotorType.kBrushless);
+    final SparkMax testSparkMax = new SparkMax(1000, MotorType.kBrushless);
     final SparkSimFaultManager sparkMaxFaultManager = new SparkSimFaultManager(testSparkMax);
     final UnitTestSparkFaultChecker sparkMaxChecker =
         new UnitTestSparkFaultChecker(testSparkMax, "SparkMax");
@@ -33,13 +33,156 @@ class FaultCheckerTest {
   }
 
   @Test
+  public void manualSparkMaxFaultCheckerTest() {
+    final SparkMax testSparkMax = new SparkMax(1001, MotorType.kBrushless);
+    final SparkSimFaultManager sparkMaxFaultManager = new SparkSimFaultManager(testSparkMax);
+    final UnitTestSparkFaultChecker sparkMaxChecker =
+        new UnitTestSparkFaultChecker(testSparkMax, "SparkMax");
+
+    manualSparkFaultCheckerTester(sparkMaxChecker, sparkMaxFaultManager);
+  }
+
+  @Test
   public void automaticSparkFlexFaultCheckerTest() {
-    final SparkFlex testSparkFlex = new SparkFlex(1, MotorType.kBrushless);
+    final SparkFlex testSparkFlex = new SparkFlex(1002, MotorType.kBrushless);
     final SparkSimFaultManager sparkFlexFaultManager = new SparkSimFaultManager(testSparkFlex);
     final UnitTestSparkFaultChecker sparkFlexChecker =
         new UnitTestSparkFaultChecker(testSparkFlex, "SparkFlex");
 
     automaticSparkFaultCheckerTester(sparkFlexChecker, sparkFlexFaultManager);
+  }
+
+  @Test
+  public void manualSparkFlexFaultCheckerTest() {
+    final SparkFlex testSparkFlex = new SparkFlex(1003, MotorType.kBrushless);
+    final SparkSimFaultManager sparkFlexFaultManager = new SparkSimFaultManager(testSparkFlex);
+    final UnitTestSparkFaultChecker sparkFlexChecker =
+        new UnitTestSparkFaultChecker(testSparkFlex, "SparkFlex");
+
+    manualSparkFaultCheckerTester(sparkFlexChecker, sparkFlexFaultManager);
+  }
+
+  private void manualSparkFaultCheckerTester(
+      UnitTestSparkFaultChecker checker, SparkSimFaultManager faultManager) {
+    faultManager.setFaults(
+        createFaultsFromBools(false, false, false, false, false, false, false, false));
+    faultManager.setWarnings(
+        createWarningFromBools(false, false, false, false, false, false, false, false));
+
+    checker.updateFaults();
+
+    assertEquals(checker.loggedFaults.size(), 0);
+    assertEquals(checker.notifiedFaults.size(), 0);
+
+    faultManager.setFaults(createFaultsFromBools(true, true, true, true, true, true, true, true));
+
+    checker.updateFaults();
+
+    assertEquals(checker.loggedFaults.size(), 8);
+    assertEquals(checker.notifiedFaults.size(), 8);
+
+    checker.updateFaults();
+
+    assertEquals(checker.loggedFaults.size(), 0);
+    assertEquals(checker.notifiedFaults.size(), 0);
+
+    faultManager.setWarnings(
+        createWarningFromBools(true, true, true, true, true, true, true, true));
+
+    checker.updateFaults();
+
+    assertEquals(checker.loggedFaults.size(), 8);
+    assertEquals(checker.notifiedFaults.size(), 6);
+
+    faultManager.setFaults(
+        createFaultsFromBools(false, false, false, false, false, false, false, false));
+    faultManager.setWarnings(
+        createWarningFromBools(false, false, false, false, false, false, false, false));
+
+    checker.updateFaults();
+
+    assertEquals(checker.loggedFaults.size(), 16);
+    assertEquals(checker.notifiedFaults.size(), 14);
+
+    faultManager.setFaults(
+        createFaultsFromBools(false, false, false, false, false, false, false, false));
+    faultManager.setWarnings(
+        createWarningFromBools(false, false, false, false, false, true, true, false));
+
+    checker.updateFaults();
+
+    assertEquals(checker.loggedFaults.size(), 2);
+    assertEquals(checker.notifiedFaults.size(), 0);
+
+    faultManager.setFaults(
+        createFaultsFromBools(true, true, true, false, false, false, false, false));
+    faultManager.setWarnings(
+        createWarningFromBools(true, false, false, true, false, true, true, true));
+
+    checker.updateFaults();
+
+    assertEquals(checker.loggedFaults.size(), 6);
+    assertEquals(checker.notifiedFaults.size(), 6);
+
+    faultManager.setFaults(
+        createFaultsFromBools(false, false, false, false, false, false, false, false));
+    faultManager.setWarnings(
+        createWarningFromBools(false, false, false, false, false, false, false, false));
+
+    checker.updateFaults();
+
+    assertEquals(checker.loggedFaults.size(), 8);
+    assertEquals(checker.notifiedFaults.size(), 6);
+
+    faultManager.setFaults(
+        createFaultsFromBools(false, false, false, false, false, false, false, false));
+    faultManager.setWarnings(
+        createWarningFromBools(false, false, false, false, false, false, false, false));
+
+    checker.updateFaults();
+
+    assertEquals(checker.loggedFaults.size(), 0);
+    assertEquals(checker.notifiedFaults.size(), 0);
+  }
+
+  private Faults createFaultsFromBools(
+      boolean other,
+      boolean motorType,
+      boolean sensor,
+      boolean can,
+      boolean temperature,
+      boolean gateDriver,
+      boolean escEeprom,
+      boolean firmware) {
+    return new Faults(
+        (other ? 0x1 : 0)
+            + (motorType ? 0x2 : 0)
+            + (sensor ? 0x4 : 0)
+            + (can ? 0x8 : 0)
+            + (temperature ? 0x10 : 0)
+            + (gateDriver ? 0x20 : 0)
+            + (escEeprom ? 0x40 : 0)
+            + (firmware ? 0x80 : 0));
+  }
+
+  private Warnings createWarningFromBools(
+      boolean brownout,
+      boolean overcurrent,
+      boolean escEeprom,
+      boolean extEeprom,
+      boolean sensor,
+      boolean stall,
+      boolean hasReset,
+      boolean other) {
+    return new Warnings(
+        (brownout ? 0x1 : 0)
+            + (overcurrent ? 0x2 : 0)
+            + (escEeprom ? 0x4 : 0)
+            + (extEeprom ? 0x8 : 0)
+            + (sensor ? 0x10 : 0)
+            + (stall ? 0x20 : 0)
+            + (hasReset ? 0x40 : 0)
+            + (other ? 0x80 : 0));
   }
 
   private void automaticSparkFaultCheckerTester(
