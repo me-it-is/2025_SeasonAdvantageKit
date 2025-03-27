@@ -78,9 +78,7 @@ public final class Constants {
   public static final Mass ROBOT_MASS_KG = Pounds.of(138.308);
   // Converted form lbs in2 becuse wpi doesnt have a unit
   public static final MomentOfInertia ROBOT_MOI = KilogramSquareMeters.of(0.0588);
-  // esemate based of of this
-  // https://www.researchgate.net/figure/Coefficient-of-friction-of-neoprene-rubber-with-different-part-materials_tbl1_223593062
-  public static final double WHEEL_COF = 0.8;
+  public static final double WHEEL_COF = 1.75;
   public static final double kDt = 0.02;
 
   public static enum Mode {
