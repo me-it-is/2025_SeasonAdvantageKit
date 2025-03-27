@@ -353,13 +353,18 @@ public class RobotContainer {
         .onFalse(runOnce(climber::stop));
   }
 
-  /* Move to correct elevator height, pivot angle, and spin manipulator rollers to counteract the force applyd on the coral by spinning the manipulator */
-  private Command moveToState(GameState state, boolean auto) {
+  /* Move to correct elevator height, pivot angle, and spin manipulator rollers */
+  public static Command moveToState(
+      GameState state, boolean auto, Elevator elevator, Manipulator manipulator) {
     return sequence(
         runOnce(() -> elevator.setSetpoint(state), elevator),
         waitSeconds(auto ? 2 : 0.5),
         runOnce(() -> manipulator.setAngle(state), manipulator),
         waitUntil(() -> manipulator.atAngle()).andThen(manipulator::stopRollers));
+  }
+
+  private Command moveToState(GameState state, boolean auto) {
+    return moveToState(state, auto, this.elevator, this.manipulator);
   }
 
   private Command rollerAction(boolean forward) {
