@@ -65,8 +65,8 @@ public class Climber extends SubsystemBase implements AutoCloseable {
     motorController.close();
   }
 
-  public void run(boolean forward) {
-    motorController.set(ClimberConstants.kClimberMotorMult * RobotMath.signBool(forward));
+  public void run(boolean reverse) {
+    motorController.set(ClimberConstants.kClimberMotorMult * RobotMath.signBool(reverse));
   }
 
   public void moveToSetpoint(State state) {
