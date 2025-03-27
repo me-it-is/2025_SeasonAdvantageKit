@@ -98,6 +98,7 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
   public void setAngle(GameState state) {
     this.curState = state;
     boolean reverse = Constants.reefMap.get(state).angle().gt(setpoint);
+    // Speed to counteract inertial of the coral that may be in the manipulator
     rollers.set(kWhilePivotingSpeed * (reverse ? -1 : 1));
     this.setpoint = getAngle(state);
     this.atSetpoint = false;

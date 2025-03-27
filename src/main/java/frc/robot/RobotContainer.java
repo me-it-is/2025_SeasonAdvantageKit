@@ -179,12 +179,12 @@ public class RobotContainer implements Logged {
 
   private void configureAutos() {
     NamedCommands.registerCommand(
-        "score", pickupAction(GameState.L4_SCORE, true).andThen(rollerAction(false)));
+        "score", moveToState(GameState.L4_SCORE, true).andThen(rollerAction(false)));
     NamedCommands.registerCommand(
         "hps pickup",
-        pickupAction(GameState.HUMAN_PLAYER_STATION, true).andThen(rollerAction(true)));
+        moveToState(GameState.HUMAN_PLAYER_STATION, true).andThen(rollerAction(true)));
     NamedCommands.registerCommand(
-        "remove algae", pickupAction(GameState.L2_ALGAE, true).andThen(rollerAction(true)));
+        "remove algae", moveToState(GameState.L2_ALGAE, true).andThen(rollerAction(true)));
 
     autoChooser.addDefaultOption("top leave", AutoBuilder.buildAuto("top leave"));
     autoChooser.addOption(
@@ -263,16 +263,16 @@ public class RobotContainer implements Logged {
     // intake and release algae
     // new Trigger(() -> (Math.abs(opController.getLeftY())) > 0.5)
     //     .onTrue(pickupAction(GameState.L2_ALGAE, false));
-    opController.povLeft().onTrue(pickupAction(GameState.L2_ALGAE, false));
-    opController.povRight().onTrue(pickupAction(GameState.L3_ALGAE, false));
+    opController.povLeft().onTrue(moveToState(GameState.L2_ALGAE, false));
+    opController.povRight().onTrue(moveToState(GameState.L3_ALGAE, false));
 
-    opController.a().onTrue(pickupAction(GameState.L1_SCORE, false));
-    opController.b().onTrue(pickupAction(GameState.L2_SCORE, false));
-    opController.y().onTrue(pickupAction(GameState.L3_SCORE, false));
-    opController.x().onTrue(pickupAction(GameState.L4_SCORE, false));
+    opController.a().onTrue(moveToState(GameState.L1_SCORE, false));
+    opController.b().onTrue(moveToState(GameState.L2_SCORE, false));
+    opController.y().onTrue(moveToState(GameState.L3_SCORE, false));
+    opController.x().onTrue(moveToState(GameState.L4_SCORE, false));
 
     // human player station intake
-    opController.povUp().onTrue(pickupAction(GameState.HUMAN_PLAYER_STATION, false));
+    opController.povUp().onTrue(moveToState(GameState.HUMAN_PLAYER_STATION, false));
     // climber setpoints
     // opController
     //     .povLeft()
@@ -300,8 +300,8 @@ public class RobotContainer implements Logged {
         .onFalse(runOnce(climber::stop));
   }
 
-  /* Move to correct elevator height, pivot angle, and spin manipulator rollers */
-  private Command pickupAction(GameState state, boolean auto) {
+  /* Move to correct elevator height, pivot angle, and spin manipulator rollers to counteract the force applyd on the coral by spinning the manipulator */
+  private Command moveToState(GameState state, boolean auto) {
     return sequence(
         runOnce(() -> elevator.setSetpoint(state), elevator),
         waitSeconds(auto ? 2 : 0.5),
