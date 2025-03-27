@@ -16,6 +16,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClimberConstants;
+import frc.robot.Constants.ClimberConstants.State;
 import frc.robot.util.RobotMath;
 import frc.robot.util.faultChecker.SparkFaultChecker;
 
@@ -79,6 +80,10 @@ public class Climber extends SubsystemBase implements AutoCloseable {
   public Command setReferenceCommand(State state) {
     this.setpoint = stateMap.get(state);
     return run(() -> controller.setReference(setpoint.in(Rotations), ControlType.kPosition));
+  }
+
+  public Command untilState(State stage, Command cmd) {
+    return cmd.until(this::atSetpoint);
   }
 
   public boolean atSetpoint() {
