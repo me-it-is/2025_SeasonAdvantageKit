@@ -77,7 +77,7 @@ public class Climber extends SubsystemBase implements AutoCloseable {
   }
 
   public boolean atSetpoint() {
-    return this.setpoint.isNear(encoderPos, setpointTolerance);
+    return this.setpoint.isNear(this.getPosition(), setpointTolerance);
   }
 
   public Angle getPosition() {
