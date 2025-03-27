@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.GameState;
 import frc.robot.Constants.ManipulatorConstants;
+import frc.robot.util.RobotMath;
 import frc.robot.util.faultChecker.SparkFaultChecker;
 import monologue.Logged;
 
@@ -34,8 +35,8 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
   private SparkFaultChecker rollersChecker;
   private AbsoluteEncoder pivotEncoder;
   private GameState curState = GameState.NONE;
-  private double setpoint = Constants.reefMap.get(GameState.NONE).angle().in(Units.Rotations);
-  private double error = 0.0;
+  private Angle setpoint = Constants.reefMap.get(GameState.NONE).angle();
+  private Angle error = Rotations.zero();
   private boolean atSetpoint = false;
   private DigitalInput beamBreak;
   private boolean beamBroken = false;
@@ -63,11 +64,11 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
   public void periodic() {
     this.log("manipulator/angle", getEncoderPosition().in(Units.Rotations));
     this.log("manipulator/rollers appl out", rollers.getAppliedOutput());
-    this.log("manipulator/setpoint", setpoint);
+    this.log("manipulator/setpoint", setpoint.in(Rotations));
     this.log("manipulator/pivot appl out", pivot.getAppliedOutput());
 
-    this.error = Math.abs(getEncoderPosition().in(Rotations) - setpoint);
-    this.log("manipulator/error", error);
+    this.error = RobotMath.dist(setpoint, getEncoderPosition());
+    this.log("manipulator/error", error.in(Rotations));
     this.log("manipulator/at setpoint", atSetpoint);
 
     this.beamBroken = !beamBreak.get();
@@ -77,7 +78,11 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
     double ff = Math.sin(Math.PI - getEncoderPosition().in(Units.Radians)) * kFF;
     this.log("manipulator/ff", ff);
     pivotController.setReference(
-        setpoint, ControlType.kPosition, ClosedLoopSlot.kSlot0, ff, ArbFFUnits.kPercentOut);
+        setpoint.in(Rotations),
+        ControlType.kPosition,
+        ClosedLoopSlot.kSlot0,
+        ff,
+        ArbFFUnits.kPercentOut);
     pivotChecker.updateFaults();
     rollersChecker.updateFaults();
   }
@@ -86,13 +91,13 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
     pivot.set(kManualPivotSpeed * (reverse ? -1 : 1));
   }
 
-  private double getAngle(GameState state) {
-    return Constants.reefMap.get(state).angle().in(Rotations);
+  private Angle getAngle(GameState state) {
+    return Constants.reefMap.get(state).angle();
   }
 
   public void setAngle(GameState state) {
     this.curState = state;
-    boolean reverse = Constants.reefMap.get(state).angle().in(Rotations) > setpoint;
+    boolean reverse = Constants.reefMap.get(state).angle().gt(setpoint);
     rollers.set(kWhilePivotingSpeed * (reverse ? -1 : 1));
     this.setpoint = getAngle(state);
     this.atSetpoint = false;
@@ -104,7 +109,7 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
 
   /** Check if pivot is at angle setpoint to some degree of error */
   public boolean atAngle() {
-    this.atSetpoint = error < kRotTolerance.in(Rotations);
+    this.atSetpoint = error.lt(kRotTolerance);
     return atSetpoint;
   }
 
