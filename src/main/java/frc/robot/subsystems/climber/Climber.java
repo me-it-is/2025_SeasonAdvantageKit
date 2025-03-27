@@ -25,8 +25,8 @@ public class Climber extends SubsystemBase implements AutoCloseable, Logged {
   private SparkFaultChecker climberFaultChecker;
   private SparkAbsoluteEncoder encoder;
   private SparkClosedLoopController controller;
-  private double encoderPos;
-  private double error = 0.0;
+  private Angle encoderPos;
+  private Angle error;
   private boolean atSetpoint = false;
 
   private State curState = State.BOTTOM;
@@ -39,7 +39,7 @@ public class Climber extends SubsystemBase implements AutoCloseable, Logged {
     this.encoder = motorController.getAbsoluteEncoder();
     this.controller = motorController.getClosedLoopController();
     this.setpoint = stateMap.get(curState);
-    this.encoderPos = encoder.getPosition();
+    this.encoderPos = Rotations.of(encoder.getPosition());
 
     config.inverted(true);
     config.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder).pid(kP, kI, kD);
@@ -51,14 +51,13 @@ public class Climber extends SubsystemBase implements AutoCloseable, Logged {
   public void periodic() {
     this.log("climber/appl out", motorController.getAppliedOutput());
     this.log("climber/at setpoint", atSetpoint);
-    this.log("climber/setpoint error", error);
+    this.log("climber/setpoint error", error.in(Rotations));
     this.log("climber/setpoint", setpoint.in(Rotations));
 
-    encoderPos = encoder.getPosition();
-    this.log("climber/encoder pos", encoderPos);
+    encoderPos = Rotations.of(encoder.getPosition());
+    this.log("climber/encoder pos", encoderPos.in(Rotations));
 
-    Angle diff = this.setpoint.minus(Rotations.of(encoderPos));
-    this.error = diff.in(Rotations);
+    this.error = this.setpoint.minus(encoderPos);
     climberFaultChecker.updateFaults();
   }
 
@@ -78,8 +77,7 @@ public class Climber extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   public boolean atSetpoint() {
-    this.atSetpoint = Rotations.of(encoder.getPosition()).isNear(setpoint, setpointTolerance);
-    return atSetpoint;
+    return this.setpoint.isNear(encoderPos, setpointTolerance);
   }
 
   public void stop() {
