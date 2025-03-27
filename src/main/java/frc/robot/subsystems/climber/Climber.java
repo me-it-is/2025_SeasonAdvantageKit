@@ -20,17 +20,17 @@ import frc.robot.util.faultChecker.SparkFaultChecker;
 
 public class Climber extends SubsystemBase implements AutoCloseable {
 
-  private SparkMax motorController;
-  private SparkMaxConfig config;
+  protected SparkMax motorController;
+  protected SparkMaxConfig config;
   private SparkFaultChecker climberFaultChecker;
-  private SparkAbsoluteEncoder encoder;
-  private SparkClosedLoopController controller;
+  protected SparkAbsoluteEncoder encoder;
+  protected SparkClosedLoopController controller;
   private Angle encoderPos;
   private Angle error;
   private boolean atSetpoint = false;
 
-  private State curState = State.BOTTOM;
-  private Angle setpoint;
+  protected State curState = State.BOTTOM;
+  protected Angle setpoint;
 
   public Climber(SparkMax motorController) {
     this.motorController = motorController;
