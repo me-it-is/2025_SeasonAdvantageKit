@@ -76,6 +76,11 @@ public class Climber extends SubsystemBase implements AutoCloseable {
         .until(this::atSetpoint);
   }
 
+  public Command setReferenceCommand(State state) {
+    this.setpoint = stateMap.get(state);
+    return run(() -> controller.setReference(setpoint.in(Rotations), ControlType.kPosition));
+  }
+
   public boolean atSetpoint() {
     return this.setpoint.isNear(this.getPosition(), setpointTolerance);
   }
