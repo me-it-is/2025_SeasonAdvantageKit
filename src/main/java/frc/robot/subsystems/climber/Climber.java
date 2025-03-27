@@ -80,6 +80,11 @@ public class Climber extends SubsystemBase implements AutoCloseable {
     return this.setpoint.isNear(encoderPos, setpointTolerance);
   }
 
+  public Angle getPosition() {
+    encoderPos = Rotations.of(encoder.getPosition());
+    return encoderPos;
+  }
+
   public void stop() {
     System.out.println("stop climber");
     motorController.stopMotor();
