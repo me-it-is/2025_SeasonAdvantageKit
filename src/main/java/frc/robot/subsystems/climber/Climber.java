@@ -96,4 +96,8 @@ public class Climber extends SubsystemBase implements AutoCloseable {
   public State getSensorState() {
     return curState;
   }
+
+  public double getAppliedOutput() {
+    return motorController.getAppliedOutput();
+  }
 }
