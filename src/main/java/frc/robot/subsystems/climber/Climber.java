@@ -27,7 +27,6 @@ public class Climber extends SubsystemBase implements AutoCloseable {
   protected SparkClosedLoopController controller;
   private Angle encoderPos;
   private Angle error;
-  private boolean atSetpoint = false;
 
   protected State curState = State.BOTTOM;
   protected Angle setpoint;
