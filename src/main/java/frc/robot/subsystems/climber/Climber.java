@@ -49,16 +49,16 @@ public class Climber extends SubsystemBase implements AutoCloseable, Logged {
 
   @Override
   public void periodic() {
+    encoderPos = Rotations.of(encoder.getPosition());
+
+    this.error = this.setpoint.minus(encoderPos);
+    climberFaultChecker.updateFaults();
+
     this.log("climber/appl out", motorController.getAppliedOutput());
     this.log("climber/at setpoint", atSetpoint);
     this.log("climber/setpoint error", error.in(Rotations));
     this.log("climber/setpoint", setpoint.in(Rotations));
-
-    encoderPos = Rotations.of(encoder.getPosition());
     this.log("climber/encoder pos", encoderPos.in(Rotations));
-
-    this.error = this.setpoint.minus(encoderPos);
-    climberFaultChecker.updateFaults();
   }
 
   @Override
