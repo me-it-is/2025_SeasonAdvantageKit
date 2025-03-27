@@ -184,11 +184,11 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
         MetersPerSecond.zero());
   }
 
-  private Distance angleToHeight(Angle angle) {
+  public Distance angleToHeight(Angle angle) {
     return (Distance) ElevatorConstants.kAngularSpan.timesDivisor(angle);
   }
 
-  private Angle heightToAngle(Distance height) {
+  public Angle heightToAngle(Distance height) {
     return (Angle) ElevatorConstants.kSpanAngle.timesDivisor(height);
   }
 
