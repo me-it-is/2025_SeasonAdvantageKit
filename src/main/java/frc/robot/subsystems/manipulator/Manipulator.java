@@ -35,7 +35,7 @@ public class Manipulator extends SubsystemBase implements AutoCloseable {
   private SparkFaultChecker rollersChecker;
   private AbsoluteEncoder pivotEncoder;
   private GameState curState = GameState.NONE;
-  private Angle setpoint = Constants.reefMap.get(GameState.NONE).angle();
+  public Angle setpoint = Constants.reefMap.get(GameState.NONE).angle();
   private Angle error = Rotations.zero();
   private boolean atSetpoint = false;
   private DigitalInput beamBreak;
