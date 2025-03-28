@@ -360,7 +360,7 @@ public class RobotContainer {
         runOnce(() -> elevator.setSetpoint(state), elevator),
         waitSeconds(auto ? 2 : 0.5),
         runOnce(() -> manipulator.setAngle(state), manipulator),
-        waitUntil(() -> manipulator.atAngle()).andThen(manipulator::stopRollers));
+        waitUntil(manipulator::atAngle).andThen(manipulator::stopRollers));
   }
 
   private Command moveToState(GameState state, boolean auto) {
