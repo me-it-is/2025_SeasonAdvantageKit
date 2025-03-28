@@ -1,3 +1,5 @@
+package frc.robot.util;
+
 import static edu.wpi.first.units.Units.*;
 import static frc.robot.util.RobotMath.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;

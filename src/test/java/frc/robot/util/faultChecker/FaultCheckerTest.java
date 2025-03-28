@@ -1,3 +1,5 @@
+package frc.robot.util.faultChecker;
+
 import static frc.robot.util.Elastic.Notification.NotificationLevel.ERROR;
 import static frc.robot.util.Elastic.Notification.NotificationLevel.WARNING;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -10,7 +12,6 @@ import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import frc.robot.util.Elastic.Notification.NotificationLevel;
-import frc.robot.util.faultChecker.UnitTestSparkFaultChecker;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
