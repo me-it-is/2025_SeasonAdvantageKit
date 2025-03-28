@@ -110,6 +110,7 @@ public class Manipulator extends SubsystemBase implements AutoCloseable {
 
   /** Check if pivot is at angle setpoint to some degree of error */
   public boolean atAngle() {
+    this.error = RobotMath.dist(setpoint, getEncoderPosition());
     this.atSetpoint = error.lt(kRotTolerance);
     return atSetpoint;
   }
