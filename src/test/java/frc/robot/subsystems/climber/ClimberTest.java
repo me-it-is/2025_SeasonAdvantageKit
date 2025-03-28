@@ -87,7 +87,6 @@ public class ClimberTest {
                 .ignoringDisable(true)
                 .handleInterrupt(
                     () -> {
-                      System.out.println("lol");
                       this.hasInterrupted = true;
                     }));
 
