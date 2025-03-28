@@ -85,7 +85,7 @@ public class SuperStructureTest {
       Date startTime = new Date();
       Date currentTime = startTime;
       while (CommandScheduler.getInstance().isScheduled(cmd)
-          && (currentTime.getTime() - startTime.getTime()) < 600) {
+          && (currentTime.getTime() - startTime.getTime()) < ((auto ? 2000 : 500) + 100)) {
         CommandScheduler.getInstance().run();
         currentTime = new Date();
       }
