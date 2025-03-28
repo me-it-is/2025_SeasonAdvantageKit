@@ -13,7 +13,6 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 import static frc.robot.util.GetAliance.getAllianceBoolean;
 
@@ -310,9 +309,10 @@ public class RobotContainer implements Logged {
   }
 
   private Command rollerAction(boolean forward) {
-    // BooleanSupplier coralState = () -> forward ? !manipulator.hasCoral() :
-    // manipulator.hasCoral();
-    return runOnce(() -> manipulator.spinRollers(forward)).withTimeout(Seconds.of(2));
+    return sequence(
+        runOnce(() -> manipulator.spinRollers(forward), manipulator),
+        waitUntil(() -> (forward ? !manipulator.hasCoral() : manipulator.hasCoral())),
+        runOnce(manipulator::stopRollers, manipulator));
   }
 
   /**
