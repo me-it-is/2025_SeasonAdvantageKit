@@ -14,8 +14,8 @@ public abstract class AbstractFaultChecker {
 
   public String commponentName;
 
-  private DataLog log = DataLogManager.getLog();
-  private StringLogEntry stringLog = new StringLogEntry(log, commponentName);
+  private DataLog log;
+  private StringLogEntry stringLog;
 
   /**
    * @param commponentName Name of the commponent that the fault checkers atatched to. creates a
@@ -23,6 +23,8 @@ public abstract class AbstractFaultChecker {
    */
   public AbstractFaultChecker(String commponentName) {
     this.commponentName = commponentName;
+    log = DataLogManager.getLog();
+    stringLog = new StringLogEntry(log, commponentName);
     DataLogManager.start();
   }
 
