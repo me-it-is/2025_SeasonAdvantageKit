@@ -160,10 +160,6 @@ public class Vision extends SubsystemBase implements AutoCloseable {
             .allMatch(trackedTarget -> trackedTarget.getPoseAmbiguity() < maxAmbiguity);
   }
 
-  private static boolean isUsingTwoTags(EstimateTuple estimateAndInfo) {
-    return estimateAndInfo.visionEstimate.targetsUsed.size() >= 2;
-  }
-
   /**
    * Whether max distance to target from current pose falls in range, measured in meters, for
    * accurate readings
