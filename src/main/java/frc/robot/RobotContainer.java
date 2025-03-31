@@ -144,6 +144,7 @@ public class RobotContainer implements Logged {
         "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
     autoChooser.addOption(
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    autoChooser.addOption("Elevator Charactraization", charactarizeElevator(Direction.kForward));
 
     configureAutos();
     // Configure the button bindings
