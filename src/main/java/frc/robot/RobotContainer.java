@@ -33,6 +33,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.ClimberConstants.State;
 import frc.robot.Constants.DriveConstants;
@@ -313,6 +314,15 @@ public class RobotContainer implements Logged {
         runOnce(() -> manipulator.spinRollers(forward), manipulator),
         waitUntil(() -> (forward ? !manipulator.hasCoral() : manipulator.hasCoral())),
         runOnce(manipulator::stopRollers, manipulator));
+  }
+
+  private Command charactarizeElevator(Direction dir) {
+    SysIdRoutine routine =
+        new SysIdRoutine(
+            new SysIdRoutine.Config(),
+            new SysIdRoutine.Mechanism(
+                elevator::voltageDrive, elevator::sysIdLog, elevator, "Elevator"));
+    return sequence(routine.quasistatic(dir), routine.dynamic(dir));
   }
 
   /**

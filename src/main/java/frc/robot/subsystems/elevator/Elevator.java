@@ -15,6 +15,9 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
@@ -111,8 +114,26 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
     return atSetpoint;
   }
 
+  public void voltageDrive(Voltage volts) {
+    sparkMaxLeader.setVoltage(volts.in(Volts));
+  }
+
+  public void sysIdLog(SysIdRoutineLog log) {
+    log.motor("Elevator motors")
+        .voltage(Volts.of(sparkMaxLeader.getBusVoltage() * sparkMaxLeader.getAppliedOutput()))
+        .linearPosition(getElevatorHeight())
+        .linearVelocity(getElevatorVelocity());
+  }
+
   public Distance getElevatorHeight() {
     return angleToHeight(Rotations.of(encoder.getPosition()));
+  }
+
+  public LinearVelocity getElevatorVelocity() {
+    return RobotMath.castToMoreSpecificUnits(
+        RobotMath.useConversionFactorFromLowerOrderUnitForHigherOrderConversion(
+            ElevatorConstants.kAngularSpan, RotationsPerSecond.of(encoder.getVelocity())),
+        MetersPerSecond.zero());
   }
 
   private Distance angleToHeight(Angle angle) {
