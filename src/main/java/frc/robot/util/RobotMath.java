@@ -6,8 +6,10 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.PerUnit;
 import edu.wpi.first.units.Unit;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Per;
 
 public final class RobotMath {
   /**
@@ -112,6 +114,50 @@ public final class RobotMath {
 
   public static Distance distanceBetweenPoses(Pose2d pose1, Pose2d pose2) {
     return distanceBetweenTranslations(pose1.getTranslation(), pose2.getTranslation());
+  }
+  /**
+   * Used to convert things like a LinearVelocity into an AngularVelocity using a conversion factor
+   * for Distance to Angle
+   *
+   * @param conversionFactor ConversionFactor in the form Per<U,T>
+   * @param measure Measure in the form Measure<PerUnit<T,R>>
+   * @return Measure in the form Measure<PerUnit<U,R>>
+   */
+  @SuppressWarnings("unchecked")
+  public static <
+          U extends Unit,
+          P extends Per<PDividend, U>,
+          PDividend extends Unit,
+          M extends Measure<MUnit>,
+          MUnit extends PerUnit<U, MDivisor>,
+          MDivisor extends Unit,
+          Out extends Measure<PerUnit<PDividend, MDivisor>>>
+      Out useConversionFactorFromLowerOrderUnitForHigherOrderConversion(
+          P conversionFactor, M measure) {
+    return (Out)
+        conversionFactor
+            .timesDivisor((Measure<U>) measure.times(measure.unit().denominator().one()))
+            .div(measure.unit().denominator().one());
+  }
+
+  /**
+   * @param measure a Measure in the form Measure<PerUnit<U,T>>
+   * @param returnUnit a Measure or a type that extends in the form Measure<SpecificUnit> where
+   *     SpecificUnit extends PerUnit<U,T> and has the same base unit. The measure can have any
+   *     value;
+   * @return Value of the measure passed while wraped in returnUnit.
+   */
+  @SuppressWarnings("unchecked")
+  public static <
+          SpecificUnint extends SupplyedUnit,
+          SupplyedUnit extends PerUnit<U, I>,
+          U extends Unit,
+          I extends Unit,
+          M extends Measure<SpecificUnint>,
+          T extends Measure<SupplyedUnit>>
+      M castToMoreSpecificUnits(T measure, M returnUnit) {
+
+    return (M) returnUnit.unit().ofBaseUnits(measure.baseUnitMagnitude());
   }
 
   /**
