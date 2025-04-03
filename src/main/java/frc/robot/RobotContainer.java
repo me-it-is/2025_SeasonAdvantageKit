@@ -224,8 +224,8 @@ public class RobotContainer implements Logged {
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive,
-            () -> MathUtil.applyDeadband(controller.getLeftY(), DriveConstants.kDriveDeadband),
-            () -> MathUtil.applyDeadband(controller.getLeftX(), DriveConstants.kDriveDeadband),
+            () -> -MathUtil.applyDeadband(controller.getLeftY(), DriveConstants.kDriveDeadband),
+            () -> -MathUtil.applyDeadband(controller.getLeftX(), DriveConstants.kDriveDeadband),
             () -> MathUtil.applyDeadband(-controller.getRightX(), DriveConstants.kDriveDeadband),
             controller.leftTrigger()));
 
