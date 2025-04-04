@@ -1,6 +1,7 @@
 package frc.robot.subsystems.elevator;
 
 import static edu.wpi.first.units.Units.*;
+import static frc.robot.Constants.ElevatorConstants.kFF;
 
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.ClosedLoopSlot;
@@ -75,6 +76,10 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
     this.setpointError = RobotMath.abs(getElevatorHeight().minus(setpoint));
     this.atSetpoint = setpointError.lt(ElevatorConstants.kSetpointTolerance);
 
+    if (encoder.getPosition() > 20 || encoder.getPosition() < -0.1) {
+      close();
+    }
+
     if (usingMotionProfile) {
       pidControllerLeader.setReference(
           nextState.velocity,
@@ -106,7 +111,11 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
     this.goalState = new TrapezoidProfile.State(heightToAngle(setpoint).in(Rotations), 0);
     if (!usingMotionProfile) {
       pidControllerLeader.setReference(
-          heightToAngle(setpoint).in(Rotations), ControlType.kPosition);
+          heightToAngle(setpoint).in(Rotations),
+          ControlType.kPosition,
+          ClosedLoopSlot.kSlot0,
+          kFF,
+          ArbFFUnits.kVoltage);
     }
   }
 
@@ -115,7 +124,8 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   public void voltageDrive(Voltage volts) {
-    sparkMaxLeader.setVoltage(volts.in(Volts));
+    this.log("elevator/applied voltage in routine", -volts.in(Volts));
+    sparkMaxLeader.setVoltage(-volts.in(Volts));
   }
 
   public void sysIdLog(SysIdRoutineLog log) {
@@ -142,6 +152,15 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
 
   private Angle heightToAngle(Distance height) {
     return (Angle) ElevatorConstants.kSpanAngle.timesDivisor(height);
+  }
+
+  public void hold() {
+    pidControllerLeader.setReference(
+        encoder.getPosition(),
+        ControlType.kPosition,
+        ClosedLoopSlot.kSlot1,
+        kFF,
+        ArbFFUnits.kVoltage);
   }
 
   public void zeroElevator() {

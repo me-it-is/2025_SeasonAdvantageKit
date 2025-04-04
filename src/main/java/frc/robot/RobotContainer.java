@@ -13,6 +13,7 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Volts;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 import static frc.robot.util.GetAliance.getAllianceBoolean;
 
@@ -32,6 +33,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.ClimberConstants;
@@ -144,7 +146,7 @@ public class RobotContainer implements Logged {
         "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
     autoChooser.addOption(
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-    autoChooser.addOption("Elevator Charactraization", charactarizeElevator(Direction.kForward));
+    autoChooser.addOption("Elevator Charactraization", characterizeElevator(Direction.kForward));
 
     configureAutos();
     // Configure the button bindings
@@ -229,6 +231,7 @@ public class RobotContainer implements Logged {
             () -> MathUtil.applyDeadband(-controller.getRightX(), DriveConstants.kDriveDeadband),
             controller.leftTrigger()));
 
+    elevator.setDefaultCommand(run(() -> elevator.hold(), elevator));
     // Rotate and translate to closest April Tag based on tag odometry
     // controller.b().whileTrue(new AutoAim(drive, vision, controller));
 
@@ -261,9 +264,12 @@ public class RobotContainer implements Logged {
         .whileTrue(runOnce(() -> manipulator.spinRollers(false), manipulator))
         .onFalse(runOnce(() -> manipulator.stopRollers(), manipulator));
 
-    // intake and release algae
-    // new Trigger(() -> (Math.abs(opController.getLeftY())) > 0.5)
-    //     .onTrue(pickupAction(GameState.L2_ALGAE, false));
+    new Trigger(() -> (Math.abs(opController.getLeftY())) > 0.5)
+        .whileTrue(
+            runOnce(
+                () -> elevator.voltageDrive(Volts.of(6 * Math.signum(opController.getLeftY()))),
+                elevator));
+
     opController.povLeft().onTrue(moveToState(GameState.L2_ALGAE, false));
     opController.povRight().onTrue(moveToState(GameState.L3_ALGAE, false));
 
@@ -317,7 +323,7 @@ public class RobotContainer implements Logged {
         runOnce(manipulator::stopRollers, manipulator));
   }
 
-  private Command charactarizeElevator(Direction dir) {
+  private Command characterizeElevator(Direction dir) {
     SysIdRoutine routine =
         new SysIdRoutine(
             new SysIdRoutine.Config(),

@@ -20,6 +20,7 @@ import static frc.robot.util.Elastic.Notification.NotificationLevel.WARNING;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkBase.Faults;
 import com.revrobotics.spark.SparkBase.Warnings;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
@@ -259,7 +260,7 @@ public final class Constants {
     public static final double kP = 0; // 2
     public static final double kI = 0;
     public static final double kD = 0; // 0.1
-    public static final double kFF = 0; // 20
+    public static final double kFF = 1.3125;
     public static final int currentLimit = 60;
 
     public static final double kS = 0.0;
@@ -267,13 +268,18 @@ public final class Constants {
     public static final double kV = 1.5;
     public static final double kA = 0;
 
+    public static final double kPSlot1 = 0;
+    public static final double kISlot1 = 0;
+    public static final double kDSlot1 = 0;
+
     public static final ElevatorFeedforward kFFCalculator = new ElevatorFeedforward(kS, kG, kV, kA);
 
     public static SparkMaxConfig getSharedConfig() {
       SparkMaxConfig config = new SparkMaxConfig();
       config.secondaryCurrentLimit(currentLimit);
       config.smartCurrentLimit(currentLimit);
-      config.closedLoop.pidf(kP, kI, kD, kFF).outputRange(-0.5, 0.5);
+      config.closedLoop.pid(kP, kI, kD, ClosedLoopSlot.kSlot0).outputRange(-0.5, 0.5);
+      config.closedLoop.pid(kPSlot1, kISlot1, kDSlot1, ClosedLoopSlot.kSlot1);
       return config;
     }
 
