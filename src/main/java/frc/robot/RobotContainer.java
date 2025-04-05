@@ -231,7 +231,7 @@ public class RobotContainer implements Logged {
             () -> MathUtil.applyDeadband(-controller.getRightX(), DriveConstants.kDriveDeadband),
             controller.leftTrigger()));
 
-    elevator.setDefaultCommand(run(() -> elevator.hold(), elevator));
+    elevator.setDefaultCommand(runOnce(() -> elevator.hold(), elevator));
     // Rotate and translate to closest April Tag based on tag odometry
     // controller.b().whileTrue(new AutoAim(drive, vision, controller));
 
@@ -268,7 +268,8 @@ public class RobotContainer implements Logged {
         .whileTrue(
             runOnce(
                 () -> elevator.voltageDrive(Volts.of(6 * Math.signum(opController.getLeftY()))),
-                elevator));
+                elevator))
+        .onFalse(runOnce(() -> elevator.setUseVoltageControl(false), elevator));
 
     opController.povLeft().onTrue(moveToState(GameState.L2_ALGAE, false));
     opController.povRight().onTrue(moveToState(GameState.L3_ALGAE, false));
@@ -280,21 +281,11 @@ public class RobotContainer implements Logged {
 
     // human player station intake
     opController.povUp().onTrue(moveToState(GameState.HUMAN_PLAYER_STATION, false));
-    // climber setpoints
-    // opController
-    //     .povLeft()
-    //     .onTrue(
-    //         runOnce(() -> climber.moveToSetpoint(State.BOTTOM), climber)
-    //             .until(climber::atSetpoint));
+
     opController
         .povDown()
         .onTrue(
             runOnce(() -> climber.moveToSetpoint(State.MID), climber).until(climber::atSetpoint));
-    // opController
-    //     .povRight()
-    //     .onTrue(
-    //         runOnce(() -> climber.moveToSetpoint(State.TOP),
-    // climber).until(climber::atSetpoint));
 
     opController
         .leftTrigger()
@@ -329,7 +320,10 @@ public class RobotContainer implements Logged {
             new SysIdRoutine.Config(),
             new SysIdRoutine.Mechanism(
                 elevator::voltageDrive, elevator::sysIdLog, elevator, "Elevator"));
-    return sequence(routine.quasistatic(dir), routine.dynamic(dir));
+    return sequence(
+        routine.quasistatic(dir),
+        routine.dynamic(dir),
+        runOnce(() -> elevator.setUseVoltageControl(false), elevator));
   }
 
   /**

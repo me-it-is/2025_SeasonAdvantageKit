@@ -44,6 +44,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
   private boolean atSetpoint;
 
   private boolean usingMotionProfile = true;
+  private boolean usingVoltageControl = false;
 
   public Elevator(SparkMax sparkMaxLeader, SparkMax sparkMaxFollower) {
     this.sparkMaxLeader = sparkMaxLeader;
@@ -80,7 +81,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
       close();
     }
 
-    if (usingMotionProfile) {
+    if (usingMotionProfile && !usingVoltageControl) {
       pidControllerLeader.setReference(
           nextState.velocity,
           ControlType.kVelocity,
@@ -109,7 +110,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
     this.setpoint = Constants.reefMap.get(stage).distance();
 
     this.goalState = new TrapezoidProfile.State(heightToAngle(setpoint).in(Rotations), 0);
-    if (!usingMotionProfile) {
+    if (!usingMotionProfile && !usingVoltageControl) {
       pidControllerLeader.setReference(
           heightToAngle(setpoint).in(Rotations),
           ControlType.kPosition,
@@ -124,6 +125,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
   }
 
   public void voltageDrive(Voltage volts) {
+    this.usingVoltageControl = true;
     this.log("elevator/applied voltage in routine", -volts.in(Volts));
     sparkMaxLeader.setVoltage(-volts.in(Volts));
   }
@@ -161,6 +163,10 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
         ClosedLoopSlot.kSlot1,
         kFF,
         ArbFFUnits.kVoltage);
+  }
+
+  public void setUseVoltageControl(boolean useVoltage) {
+    this.usingVoltageControl = useVoltage;
   }
 
   public void zeroElevator() {
