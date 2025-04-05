@@ -230,8 +230,6 @@ public class RobotContainer implements Logged {
             () -> -MathUtil.applyDeadband(controller.getLeftX(), DriveConstants.kDriveDeadband),
             () -> MathUtil.applyDeadband(-controller.getRightX(), DriveConstants.kDriveDeadband),
             controller.leftTrigger()));
-
-    elevator.setDefaultCommand(runOnce(() -> elevator.hold(), elevator));
     // Rotate and translate to closest April Tag based on tag odometry
     // controller.b().whileTrue(new AutoAim(drive, vision, controller));
 
@@ -267,17 +265,29 @@ public class RobotContainer implements Logged {
     new Trigger(() -> (Math.abs(opController.getLeftY())) > 0.5)
         .whileTrue(
             runOnce(
-                () -> elevator.voltageDrive(Volts.of(6 * Math.signum(opController.getLeftY()))),
+                () -> elevator.voltageDrive(Volts.of(2 * Math.signum(opController.getLeftY()))),
                 elevator))
         .onFalse(runOnce(() -> elevator.setUseVoltageControl(false), elevator));
 
     opController.povLeft().onTrue(moveToState(GameState.L2_ALGAE, false));
     opController.povRight().onTrue(moveToState(GameState.L3_ALGAE, false));
 
-    opController.a().onTrue(moveToState(GameState.L1_SCORE, false));
-    opController.b().onTrue(moveToState(GameState.L2_SCORE, false));
-    opController.y().onTrue(moveToState(GameState.L3_SCORE, false));
-    opController.x().onTrue(moveToState(GameState.L4_SCORE, false));
+    opController
+        .a()
+        .onTrue(moveToState(GameState.L1_SCORE, false))
+        .onFalse(runOnce(elevator::hold, elevator));
+    opController
+        .b()
+        .onTrue(moveToState(GameState.L2_SCORE, false))
+        .onFalse(runOnce(elevator::hold, elevator));
+    opController
+        .y()
+        .onTrue(moveToState(GameState.L3_SCORE, false))
+        .onFalse(runOnce(elevator::hold, elevator));
+    opController
+        .x()
+        .onTrue(moveToState(GameState.L4_SCORE, false))
+        .onFalse(runOnce(elevator::hold, elevator));
 
     // human player station intake
     opController.povUp().onTrue(moveToState(GameState.HUMAN_PLAYER_STATION, false));

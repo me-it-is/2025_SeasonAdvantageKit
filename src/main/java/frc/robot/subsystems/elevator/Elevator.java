@@ -11,6 +11,7 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.units.Units;
@@ -18,6 +19,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -42,6 +44,9 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
   private static double kDt = 0.02;
   private Distance setpointError;
   private boolean atSetpoint;
+  private double kP = ElevatorConstants.kP;
+  private double kI = ElevatorConstants.kI;
+  private double kD = ElevatorConstants.kD;
 
   private boolean usingMotionProfile = true;
   private boolean usingVoltageControl = false;
@@ -67,18 +72,45 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
         ElevatorConstants.getFollowerConfig(),
         ResetMode.kResetSafeParameters,
         PersistMode.kPersistParameters);
+
+    SmartDashboard.putNumber("elevator/kP", kP);
+    SmartDashboard.putNumber("elevator/kI", kI);
+    SmartDashboard.putNumber("elevator/kD", kD);
+    SmartDashboard.putNumber("elevator/kFF", kFF);
   }
 
   @Override
   public void periodic() {
     currentState = nextState;
-    nextState = profile.calculate(kDt, currentState, goalState);
+    nextState =
+        profile.calculate(profile.timeLeftUntil(goalState.position), currentState, goalState);
+    this.log("elevator/goal state position", goalState.position);
+    this.log("elevator/goal state velocity", goalState.velocity);
 
-    this.setpointError = RobotMath.abs(getElevatorHeight().minus(setpoint));
+    this.setpointError = getElevatorHeight().minus(setpoint);
     this.atSetpoint = setpointError.lt(ElevatorConstants.kSetpointTolerance);
 
     if (encoder.getPosition() > 20 || encoder.getPosition() < -0.1) {
       close();
+    }
+
+    double dashkP = SmartDashboard.getNumber("elevator/kP", kP);
+    double dashkI = SmartDashboard.getNumber("elevator/kI", kI);
+    double dashkD = SmartDashboard.getNumber("elevator/kD", kD);
+    if (kP != dashkP || kI != dashkI || kD != dashkD) {
+      SparkMaxConfig newConfig = new SparkMaxConfig();
+      newConfig.closedLoop.pid(dashkP, dashkI, dashkD).outputRange(-0.5, 0.5);
+      sparkMaxLeader.configure(
+          ElevatorConstants.getLeaderConfig().apply(newConfig),
+          ResetMode.kResetSafeParameters,
+          PersistMode.kPersistParameters);
+      sparkMaxFollower.configure(
+          ElevatorConstants.getFollowerConfig().apply(newConfig),
+          ResetMode.kResetSafeParameters,
+          PersistMode.kPersistParameters);
+      kP = dashkP;
+      kI = dashkI;
+      kD = dashkD;
     }
 
     if (usingMotionProfile && !usingVoltageControl) {
@@ -93,11 +125,13 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
 
     this.log("elevator/error", setpointError.in(Meters));
     this.log("elevator/at setpoint", atSetpoint);
-    this.log("elevator/height rotations", heightToAngle(getElevatorHeight()).in(Rotations));
+    this.log("elevator/height rotations", encoder.getPosition());
+    this.log("elevator/height meters", getElevatorHeight().in(Meters));
     this.log("elevator/setpoint meters", setpoint.in(Units.Meters));
     this.log("elevator/leader appl out", sparkMaxLeader.getAppliedOutput());
     this.log("elevator/follower appl out", sparkMaxFollower.getAppliedOutput());
     if (usingMotionProfile) {
+      this.log("elevator/time until setpoint", profile.timeLeftUntil(5.099));
       this.log("elevator/profile setpoint pos", nextState.position);
       this.log("elevator/profile setpoint vel", nextState.velocity);
     }
@@ -109,10 +143,14 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
   public void setSetpoint(GameState stage) {
     this.setpoint = Constants.reefMap.get(stage).distance();
 
-    this.goalState = new TrapezoidProfile.State(heightToAngle(setpoint).in(Rotations), 0);
+    this.goalState =
+        new TrapezoidProfile.State(
+            5.099
+            /** heightToAngle(Meters.of(setpoint.in(Meters))).in(Rotations) */
+            , 0);
     if (!usingMotionProfile && !usingVoltageControl) {
       pidControllerLeader.setReference(
-          heightToAngle(setpoint).in(Rotations),
+          heightToAngle(Meters.of(setpoint.in(Meters))).in(Rotations),
           ControlType.kPosition,
           ClosedLoopSlot.kSlot0,
           kFF,
