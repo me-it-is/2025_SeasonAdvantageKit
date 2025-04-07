@@ -115,7 +115,9 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
 
     if (usingMotionProfile && !usingVoltageControl) {
       pidControllerLeader.setReference(
-          nextState.velocity,
+          // convert from RPS to RPM
+          // https://docs.revrobotics.com/brushless/revlib/closed-loop-control-overview/velocity-control-mode
+          nextState.velocity * 60,
           ControlType.kVelocity,
           ClosedLoopSlot.kSlot0,
           ElevatorConstants.kFFCalculator.calculateWithVelocities(
