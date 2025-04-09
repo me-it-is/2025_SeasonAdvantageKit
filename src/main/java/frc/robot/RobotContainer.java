@@ -13,7 +13,6 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Volts;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 import static frc.robot.util.GetAliance.getAllianceBoolean;
 
@@ -146,7 +145,6 @@ public class RobotContainer implements Logged {
         "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
     autoChooser.addOption(
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-    autoChooser.addOption("Elevator Charactraization", characterizeElevator(Direction.kForward));
 
     configureAutos();
     // Configure the button bindings
@@ -262,12 +260,18 @@ public class RobotContainer implements Logged {
         .whileTrue(runOnce(() -> manipulator.spinRollers(false), manipulator))
         .onFalse(runOnce(() -> manipulator.stopRollers(), manipulator));
 
-    new Trigger(() -> (Math.abs(opController.getLeftY())) > 0.5)
-        .whileTrue(
-            runOnce(
-                () -> elevator.voltageDrive(Volts.of(2 * Math.signum(opController.getLeftY()))),
-                elevator))
-        .onFalse(runOnce(() -> elevator.setUseVoltageControl(false), elevator));
+    // new Trigger(() -> (Math.abs(opController.getLeftY())) > 0.5)
+    //     .whileTrue(
+    //         runOnce(
+    //             () -> elevator.voltageDrive(Volts.of(2 * Math.signum(opController.getLeftY()))),
+    //             elevator))
+    //     .onFalse(runOnce(() -> elevator.setUseVoltageControl(false), elevator));
+    new Trigger(() -> (opController.getLeftY()) > 0.5 && elevator.isWithinUpperBounds())
+        .whileTrue(runOnce(() -> characterizeElevatorQuasistatic(Direction.kForward), elevator))
+        .onFalse(runOnce(elevator::stop, elevator));
+    new Trigger(() -> (opController.getLeftY()) < -0.5 && elevator.isWithinLowerBounds())
+        .whileTrue(runOnce(() -> characterizeElevatorQuasistatic(Direction.kReverse), elevator))
+        .onFalse(runOnce(elevator::stop, elevator));
 
     opController.povLeft().onTrue(moveToState(GameState.L2_ALGAE, false));
     opController.povRight().onTrue(moveToState(GameState.L3_ALGAE, false));
@@ -324,7 +328,7 @@ public class RobotContainer implements Logged {
         runOnce(manipulator::stopRollers, manipulator));
   }
 
-  private Command characterizeElevator(Direction dir) {
+  private Command characterizeElevatorQuasistatic(Direction dir) {
     SysIdRoutine routine =
         new SysIdRoutine(
             new SysIdRoutine.Config(),
@@ -332,8 +336,19 @@ public class RobotContainer implements Logged {
                 elevator::voltageDrive, elevator::sysIdLog, elevator, "Elevator"));
     return sequence(
         routine.quasistatic(dir),
-        routine.dynamic(dir),
+        // routine.dynamic(dir),
         runOnce(() -> elevator.setUseVoltageControl(false), elevator));
+  }
+
+  private Command characterizeElevatorDynamic(Direction dir) {
+    SysIdRoutine routine =
+        new SysIdRoutine(
+            new SysIdRoutine.Config(),
+            new SysIdRoutine.Mechanism(
+                elevator::voltageDrive, elevator::sysIdLog, elevator, "Elevator"));
+    return sequence(
+        // routine.quasistatic(dir),
+        routine.dynamic(dir), runOnce(() -> elevator.setUseVoltageControl(false), elevator));
   }
 
   /**

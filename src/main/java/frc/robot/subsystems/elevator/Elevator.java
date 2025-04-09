@@ -79,20 +79,23 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
     SmartDashboard.putNumber("elevator/kFF", kFF);
   }
 
+  public boolean isWithinUpperBounds() {
+    return getElevatorHeight().lt(ElevatorConstants.kMaxHeight.times(0.75));
+  }
+
+  public boolean isWithinLowerBounds() {
+    return getElevatorHeight().gt(ElevatorConstants.kMaxHeight.times(0.25));
+  }
+
   @Override
   public void periodic() {
     currentState = nextState;
-    nextState =
-        profile.calculate(profile.timeLeftUntil(goalState.position), currentState, goalState);
+    nextState = profile.calculate(kDt, currentState, goalState);
     this.log("elevator/goal state position", goalState.position);
     this.log("elevator/goal state velocity", goalState.velocity);
 
     this.setpointError = getElevatorHeight().minus(setpoint);
     this.atSetpoint = setpointError.lt(ElevatorConstants.kSetpointTolerance);
-
-    if (encoder.getPosition() > 20 || encoder.getPosition() < -0.1) {
-      close();
-    }
 
     double dashkP = SmartDashboard.getNumber("elevator/kP", kP);
     double dashkI = SmartDashboard.getNumber("elevator/kI", kI);
@@ -164,8 +167,8 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
 
   public void voltageDrive(Voltage volts) {
     this.usingVoltageControl = true;
-    this.log("elevator/applied voltage in routine", -volts.in(Volts));
-    sparkMaxLeader.setVoltage(-volts.in(Volts));
+    this.log("elevator/applied voltage in routine", volts.in(Volts));
+    sparkMaxLeader.setVoltage(volts.in(Volts));
   }
 
   public void sysIdLog(SysIdRoutineLog log) {
