@@ -298,8 +298,8 @@ public final class Constants {
     public static TrapezoidProfile getProfile() {
       return new TrapezoidProfile(
           new Constraints(
-              ElevatorConstants.kMaxVelocity.in(Units.RotationsPerSecond),
-              ElevatorConstants.kMaxAcceleration.in(Units.RotationsPerSecondPerSecond)));
+              ElevatorConstants.kMaxVelocity.in(Rotations.per(Minute)),
+              ElevatorConstants.kMaxAcceleration.in(Rotations.per(Minute).per(Minute))));
     }
   }
 
