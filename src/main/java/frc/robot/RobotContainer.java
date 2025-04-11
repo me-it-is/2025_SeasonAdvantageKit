@@ -75,6 +75,7 @@ public class RobotContainer implements Logged {
   // Controllers
   private final CommandXboxController controller = new CommandXboxController(0);
   private final CommandXboxController opController = new CommandXboxController(1);
+  private final CommandXboxController testController = new CommandXboxController(2);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -131,6 +132,34 @@ public class RobotContainer implements Logged {
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
     // Set up SysId routines
+    testController
+        .y()
+        .whileTrue(DriveCommands.wheelRadiusCharacterization(drive))
+        .onFalse((runOnce(() -> drive.stop(), drive)));
+    testController
+        .b()
+        .whileTrue(DriveCommands.feedforwardCharacterization(drive))
+        .onFalse((runOnce(() -> drive.stop(), drive)));
+    testController
+        .a()
+        .whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward))
+        .onFalse((runOnce(() -> drive.stop(), drive)));
+    testController
+        .x()
+        .whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse))
+        .onFalse((runOnce(() -> drive.stop(), drive)));
+    testController
+        .povDownRight()
+        .whileTrue(DriveCommands.wheelRadiusCharacterization(drive))
+        .onFalse((runOnce(() -> drive.stop(), drive)));
+    testController
+        .povUp()
+        .whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kForward))
+        .onFalse((runOnce(() -> drive.stop(), drive)));
+    testController
+        .povLeft()
+        .whileTrue(characterizeElevator(Direction.kForward))
+        .onFalse((runOnce(() -> drive.stop(), drive)));
     autoChooser.addOption(
         "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
     autoChooser.addOption(
