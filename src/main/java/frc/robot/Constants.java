@@ -119,7 +119,7 @@ public final class Constants {
 
   public static class DriveConstants {
     public static final Distance kChassisSize = Inches.of(34.24);
-    public static final LinearVelocity kMaxTranslationSpeed = MetersPerSecond.of(30);
+    public static final LinearVelocity kMaxTranslationSpeed = MetersPerSecond.of(60);
     public static final LinearAcceleration kMaxTranslationAcceleration =
         MetersPerSecondPerSecond.of(6);
     public static final AngularVelocity kMaxRotVelocity = RadiansPerSecond.of(4 * Math.PI);

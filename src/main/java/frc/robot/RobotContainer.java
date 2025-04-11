@@ -132,6 +132,7 @@ public class RobotContainer implements Logged {
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
     // Set up SysId routines
+<<<<<<< Updated upstream
     testController
         .y()
         .whileTrue(DriveCommands.wheelRadiusCharacterization(drive))
@@ -162,6 +163,11 @@ public class RobotContainer implements Logged {
         .onFalse((runOnce(() -> drive.stop(), drive)));
     autoChooser.addOption(
         "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
+=======
+    Command ffCharacterization = DriveCommands.wheelRadiusCharacterization(drive);
+    autoChooser.addOption("Drive Wheel Radius Characterization", ffCharacterization);
+    testController.a().whileTrue(ffCharacterization);
+>>>>>>> Stashed changes
     autoChooser.addOption(
         "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
     autoChooser.addOption(
