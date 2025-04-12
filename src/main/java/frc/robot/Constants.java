@@ -233,8 +233,8 @@ public final class Constants {
     public static final double kDeadRecogningDeadZone = 0.05;
     public static final double kRestInput = 0.02;
     public static final Distance kSetpointTolerance = Meters.of(0.1);
-    public static final AngularVelocity kMaxVelocity = RotationsPerSecond.of(10);
-    public static final AngularAcceleration kMaxAcceleration = RotationsPerSecondPerSecond.of(5);
+    public static final AngularVelocity kMaxVelocity = RotationsPerSecond.of(15);
+    public static final AngularAcceleration kMaxAcceleration = RotationsPerSecondPerSecond.of(10);
     public static final Angle rotVelTolerance = Rotations.of(0.05);
 
     public static double totalExtensionTime = kMaxHeight.in(Units.Meters) / kDeadReckoningSpeed;
@@ -244,7 +244,8 @@ public final class Constants {
     public static final boolean kIsInverted = true;
 
     // 3 to 1 ratio on the motor
-    public static final Angle kFullExtentionAngle = Rotations.of(9.56 * 3);
+    public static final int kGearRatio = 3;
+    public static final Angle kFullExtentionAngle = Rotations.of(9.56 * kGearRatio);
 
     // Ratio of height to angle
     public static final Per<DistanceUnit, AngleUnit> kAngularSpan =
@@ -298,8 +299,8 @@ public final class Constants {
     public static TrapezoidProfile getProfile() {
       return new TrapezoidProfile(
           new Constraints(
-              ElevatorConstants.kMaxVelocity.in(Rotations.per(Minute)),
-              ElevatorConstants.kMaxAcceleration.in(Rotations.per(Minute).per(Minute))));
+              ElevatorConstants.kMaxVelocity.in(RotationsPerSecond),
+              ElevatorConstants.kMaxAcceleration.in(RotationsPerSecondPerSecond)));
     }
   }
 

@@ -2,6 +2,7 @@ package frc.robot.subsystems.elevator;
 
 import static edu.wpi.first.units.Units.*;
 import static frc.robot.Constants.ElevatorConstants.kFF;
+import static frc.robot.Constants.ElevatorConstants.kGearRatio;
 
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.ClosedLoopSlot;
@@ -16,6 +17,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Voltage;
@@ -117,12 +119,15 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
     }
 
     if (usingMotionProfile && !usingVoltageControl) {
+      LinearVelocity curLinearVel = getElevatorVelocity(RotationsPerSecond.of(currentState.velocity));
+      LinearVelocity nextLinearVel = getElevatorVelocity(RotationsPerSecond.of(nextState.velocity));
+
       pidControllerLeader.setReference(
-          nextState.velocity,
+          nextState.velocity / kGearRatio, // encoder is on motor shaft, so spins kGearRatio times per physical rotation
           ControlType.kVelocity,
           ClosedLoopSlot.kSlot0,
           ElevatorConstants.kFFCalculator.calculateWithVelocities(
-              currentState.velocity, nextState.velocity),
+              curLinearVel.in(MetersPerSecond), nextLinearVel.in(MetersPerSecond)),
           ArbFFUnits.kVoltage);
     }
 
@@ -151,7 +156,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
     this.goalState = new TrapezoidProfile.State(heightToAngle(setpoint).in(Rotations), 0);
     if (!usingMotionProfile && !usingVoltageControl) {
       pidControllerLeader.setReference(
-          heightToAngle(Meters.of(setpoint.in(Meters))).in(Rotations),
+          heightToAngle(setpoint).in(Rotations),
           ControlType.kPosition,
           ClosedLoopSlot.kSlot0,
           kFF,
@@ -173,17 +178,17 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
     log.motor("Elevator motors")
         .voltage(Volts.of(sparkMaxLeader.getBusVoltage() * sparkMaxLeader.getAppliedOutput()))
         .linearPosition(getElevatorHeight())
-        .linearVelocity(getElevatorVelocity());
+        .linearVelocity(getElevatorVelocity(RotationsPerSecond.of(encoder.getVelocity())));
   }
 
   public Distance getElevatorHeight() {
     return angleToHeight(Rotations.of(encoder.getPosition()));
   }
 
-  public LinearVelocity getElevatorVelocity() {
+  private LinearVelocity getElevatorVelocity(AngularVelocity velocity) {
     return RobotMath.castToMoreSpecificUnits(
         RobotMath.useConversionFactorFromLowerOrderUnitForHigherOrderConversion(
-            ElevatorConstants.kAngularSpan, RotationsPerSecond.of(encoder.getVelocity())),
+            ElevatorConstants.kAngularSpan, velocity),
         MetersPerSecond.zero());
   }
 
