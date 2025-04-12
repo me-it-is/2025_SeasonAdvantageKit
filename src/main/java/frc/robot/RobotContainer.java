@@ -32,7 +32,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.ClimberConstants;
@@ -289,18 +288,18 @@ public class RobotContainer implements Logged {
         .whileTrue(runOnce(() -> manipulator.spinRollers(false), manipulator))
         .onFalse(runOnce(() -> manipulator.stopRollers(), manipulator));
 
-    // new Trigger(() -> (Math.abs(opController.getLeftY())) > 0.5)
-    //     .whileTrue(
-    //         runOnce(
-    //             () -> elevator.voltageDrive(Volts.of(2 * Math.signum(opController.getLeftY()))),
-    //             elevator))
-    //     .onFalse(runOnce(() -> elevator.setUseVoltageControl(false), elevator));
-    new Trigger(() -> (opController.getLeftY()) > 0.5 && elevator.isWithinUpperBounds())
+    /*new Trigger(() -> (Math.abs(opController.getLeftY())) > 0.5)
+    .whileTrue(
+        runOnce(
+            () -> elevator.voltageDrive(Volts.of(2 * Math.signum(opController.getLeftY()))),
+            elevator))
+    .onFalse(runOnce(() -> elevator.setUseVoltageControl(false), elevator));*/
+    /*new Trigger(() -> (opController.getLeftY()) > 0.5 && elevator.isWithinUpperBounds())
         .whileTrue(runOnce(() -> characterizeElevatorQuasistatic(Direction.kForward), elevator))
         .onFalse(runOnce(elevator::stop, elevator));
     new Trigger(() -> (opController.getLeftY()) < -0.5 && elevator.isWithinLowerBounds())
         .whileTrue(runOnce(() -> characterizeElevatorQuasistatic(Direction.kReverse), elevator))
-        .onFalse(runOnce(elevator::stop, elevator));
+        .onFalse(runOnce(elevator::stop, elevator));*/
 
     opController.povLeft().onTrue(moveToState(GameState.L2_ALGAE, false));
     opController.povRight().onTrue(moveToState(GameState.L3_ALGAE, false));

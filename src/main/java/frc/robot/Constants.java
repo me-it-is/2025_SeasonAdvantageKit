@@ -108,10 +108,10 @@ public final class Constants {
 
   public static Map<GameState, AngleAndDistance> reefMap =
       Map.of(
-          GameState.L1_SCORE, new AngleAndDistance(Rotations.of(0.45), Inches.of(7)),
-          GameState.L2_SCORE, new AngleAndDistance(Rotations.of(0.11), Inches.of(11)),
-          GameState.L3_SCORE, new AngleAndDistance(Rotations.of(0.11), Inches.of(19)),
-          GameState.L4_SCORE, new AngleAndDistance(Rotations.of(0.15), Inches.of(33)),
+          GameState.L1_SCORE, new AngleAndDistance(Rotations.of(0.45), Inches.of(7.3)),
+          GameState.L2_SCORE, new AngleAndDistance(Rotations.of(0.11), Inches.of(20.3)),
+          GameState.L3_SCORE, new AngleAndDistance(Rotations.of(0.11), Inches.of(32)),
+          GameState.L4_SCORE, new AngleAndDistance(Rotations.of(0.15), Inches.of(57.9)),
           GameState.L2_ALGAE, new AngleAndDistance(Degrees.of(58), Inches.of(7)),
           GameState.L3_ALGAE, new AngleAndDistance(Degrees.of(58), Inches.of(15)),
           GameState.HUMAN_PLAYER_STATION, new AngleAndDistance(Rotations.of(0.34), Inches.of(10)),
@@ -146,7 +146,7 @@ public final class Constants {
     public static final double kWhilePivotingSpeed = 0.05;
     public static final double kManualPivotSpeed = 0.3;
     public static final Time kDefaultPickupTime = Seconds.of(1);
-    public static final double kP = 10;
+    public static final double kP = 2;
     public static final double kI = 0;
     public static final double kD = 0;
     public static final double kFF = 0;
@@ -258,16 +258,16 @@ public final class Constants {
     public static final double kPositionConversionFactor = 1 / kFullExtentionAngle.in(Rotations);
 
     public static final FeedbackSensor feedbackSensor = FeedbackSensor.kAbsoluteEncoder;
-    public static final double kP = 0; // 2
+    public static final double kP = 0;
     public static final double kI = 0;
-    public static final double kD = 0; // 0.1
+    public static final double kD = 0;
     public static final double kFF = 1.3125;
     public static final int currentLimit = 60;
 
-    public static final double kS = 0.0;
-    public static final double kG = 1;
-    public static final double kV = 1.5;
-    public static final double kA = 0;
+    public static final double kS = 0.1;
+    public static final double kG = 1; // 1
+    public static final double kV = 3; // 1.5
+    public static final double kA = 0.8;
 
     public static final double kPSlot1 = 0;
     public static final double kISlot1 = 0;
@@ -279,7 +279,7 @@ public final class Constants {
       SparkMaxConfig config = new SparkMaxConfig();
       config.secondaryCurrentLimit(currentLimit);
       config.smartCurrentLimit(currentLimit);
-      config.closedLoop.pid(kP, kI, kD, ClosedLoopSlot.kSlot0).outputRange(-0.5, 0.5);
+      config.closedLoop.pid(kP, kI, kD, ClosedLoopSlot.kSlot0);
       config.closedLoop.pid(kPSlot1, kISlot1, kDSlot1, ClosedLoopSlot.kSlot1);
       return config;
     }

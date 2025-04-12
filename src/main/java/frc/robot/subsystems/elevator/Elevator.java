@@ -119,29 +119,31 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
     }
 
     if (usingMotionProfile && !usingVoltageControl) {
-      LinearVelocity curLinearVel = getElevatorVelocity(RotationsPerSecond.of(currentState.velocity));
+      LinearVelocity curLinearVel =
+          getElevatorVelocity(RotationsPerSecond.of(currentState.velocity));
       LinearVelocity nextLinearVel = getElevatorVelocity(RotationsPerSecond.of(nextState.velocity));
 
+      double ffOut =
+          ElevatorConstants.kFFCalculator.calculateWithVelocities(
+              curLinearVel.in(MetersPerSecond), nextLinearVel.in(MetersPerSecond));
+      this.log("elevator/ffOut", ffOut);
+
       pidControllerLeader.setReference(
-          nextState.velocity / kGearRatio, // encoder is on motor shaft, so spins kGearRatio times per physical rotation
+          nextState.velocity
+              / kGearRatio, // encoder is on motor shaft, so spins kGearRatio times per physical
+          // rotation
           ControlType.kVelocity,
           ClosedLoopSlot.kSlot0,
-          ElevatorConstants.kFFCalculator.calculateWithVelocities(
-              curLinearVel.in(MetersPerSecond), nextLinearVel.in(MetersPerSecond)),
+          ffOut,
           ArbFFUnits.kVoltage);
     }
 
-    this.log("elevator/error", setpointError.in(Meters));
+    this.log("elevator/error rots", heightToAngle(setpointError).in(Rotations));
     this.log("elevator/at setpoint", atSetpoint);
     this.log("elevator/height rotations", encoder.getPosition());
     this.log("elevator/height meters", getElevatorHeight().in(Meters));
     this.log("elevator/setpoint meters", setpoint.in(Units.Meters));
-    this.log("elevator/leader appl out", sparkMaxLeader.getAppliedOutput());
-    this.log("elevator/follower appl out", sparkMaxFollower.getAppliedOutput());
     if (usingMotionProfile) {
-      this.log(
-          "elevator/time until setpoint",
-          profile.timeLeftUntil(profile.timeLeftUntil(setpoint.in(Meters))));
       this.log("elevator/profile setpoint pos", nextState.position);
       this.log("elevator/profile setpoint vel", nextState.velocity);
     }
@@ -170,7 +172,6 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
 
   public void voltageDrive(Voltage volts) {
     this.usingVoltageControl = true;
-    this.log("elevator/applied voltage in routine", volts.in(Volts));
     sparkMaxLeader.setVoltage(volts.in(Volts));
   }
 
