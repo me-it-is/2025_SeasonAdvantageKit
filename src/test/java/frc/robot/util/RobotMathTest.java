@@ -314,12 +314,6 @@ class RobotMathTest {
                     conversionFactor1, RadiansPerSecond.of(3)),
                 MetersPerSecond.zero())
             .isEquivalent(MetersPerSecond.of(3)));
-    System.out.println(
-        castToMoreSpecificUnits(
-            useConversionFactorFromLowerOrderUnitForHigherOrderConversion(
-                conversionFactor1, RadiansPerSecond.of(Double.POSITIVE_INFINITY)),
-            MetersPerSecond.zero()));
-    System.out.println(MetersPerSecond.of(Double.POSITIVE_INFINITY));
     assertTrue(
         Double.isInfinite(
             castToMoreSpecificUnits(
