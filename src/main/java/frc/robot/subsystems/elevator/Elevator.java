@@ -91,7 +91,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
 
   @Override
   public void periodic() {
-    currentState = nextState;
+    currentState = new State(encoder.getPosition(), encoder.getVelocity());
     nextState = profile.calculate(kDt, currentState, goalState);
     this.log("elevator/goal state position", goalState.position);
     this.log("elevator/goal state velocity", goalState.velocity);
