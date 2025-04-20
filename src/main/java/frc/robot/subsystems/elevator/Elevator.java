@@ -179,7 +179,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
     log.motor("Elevator motors")
         .voltage(Volts.of(sparkMaxLeader.getBusVoltage() * sparkMaxLeader.getAppliedOutput()))
         .linearPosition(getElevatorHeight())
-        .linearVelocity(getElevatorVelocity(RotationsPerSecond.of(encoder.getVelocity())));
+        .linearVelocity(getElevatorVelocity(Rotations.per(Minute).of(encoder.getVelocity())));
   }
 
   public Distance getElevatorHeight() {
