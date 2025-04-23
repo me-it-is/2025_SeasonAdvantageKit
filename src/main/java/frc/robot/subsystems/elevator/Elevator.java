@@ -1,189 +1,160 @@
 package frc.robot.subsystems.elevator;
 
-import static edu.wpi.first.units.Units.*;
-import static frc.robot.Constants.ElevatorConstants.kFF;
-import static frc.robot.Constants.ElevatorConstants.kGearRatio;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Minute;
+import static edu.wpi.first.units.Units.Rotations;
+import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.ClosedLoopSlot;
-import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
-import com.revrobotics.spark.SparkClosedLoopController;
-import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.SparkMaxConfig;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
-import edu.wpi.first.units.Units;
+import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.hardware.ParentDevice;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.GameState;
 import frc.robot.util.RobotMath;
-import frc.robot.util.faultChecker.SparkFaultChecker;
+import frc.robot.util.faultChecker.CTREFaultChecker;
 import monologue.Logged;
 
 public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
-  private SparkMax sparkMaxLeader;
-  private SparkMax sparkMaxFollower;
-  private SparkFaultChecker leaderChecker;
-  private SparkFaultChecker followerChecker;
-  private RelativeEncoder encoder;
-  public SparkClosedLoopController pidControllerLeader;
+  private TalonFX talonLeader;
+  private TalonFX talonFollower;
   private Distance setpoint = Constants.reefMap.get(GameState.NONE).distance();
-  private TrapezoidProfile profile;
-  private State goalState;
-  private State currentState;
-  private State nextState;
-  private static double kDt = 0.02;
-  private Distance setpointError;
-  private boolean atSetpoint;
-  private double kP = ElevatorConstants.kP;
-  private double kI = ElevatorConstants.kI;
-  private double kD = ElevatorConstants.kD;
+  private final VoltageOut voltageRequest = new VoltageOut(0.0).withEnableFOC(true);
+  private final MotionMagicVoltage motionVoltageRequest =
+      new MotionMagicVoltage(0.0).withEnableFOC(true);
 
-  private boolean usingMotionProfile = true;
-  private boolean usingVoltageControl = false;
+  private final StatusSignal<Angle> leaderPosition;
+  private final StatusSignal<AngularVelocity> leaderVelocity;
+  private final StatusSignal<Voltage> leaderAppliedVolts;
+  private final StatusSignal<Current> leaderCurrent;
 
-  public Elevator(SparkMax sparkMaxLeader, SparkMax sparkMaxFollower) {
-    this.sparkMaxLeader = sparkMaxLeader;
-    this.sparkMaxFollower = sparkMaxFollower;
-    this.leaderChecker = new SparkFaultChecker(sparkMaxLeader, "elevator leader");
-    this.followerChecker = new SparkFaultChecker(sparkMaxFollower, "elevator follower");
-    this.encoder = sparkMaxLeader.getEncoder();
-    this.pidControllerLeader = sparkMaxLeader.getClosedLoopController();
+  private final StatusSignal<Angle> followerPosition;
+  private final StatusSignal<AngularVelocity> followerVelocity;
+  private final StatusSignal<Voltage> followerAppliedVolts;
+  private final StatusSignal<Current> followerCurrent;
 
-    this.profile = ElevatorConstants.getProfile();
-    this.goalState = new TrapezoidProfile.State();
-    this.nextState = new TrapezoidProfile.State();
+  private final Debouncer leaderConnectedDebounce = new Debouncer(0.5);
+  private final Debouncer followerConnectedDebounce = new Debouncer(0.5);
 
-    encoder.setPosition(0);
-    sparkMaxLeader.configure(
-        ElevatorConstants.getLeaderConfig(),
-        ResetMode.kResetSafeParameters,
-        PersistMode.kPersistParameters);
-    sparkMaxFollower.configure(
-        ElevatorConstants.getFollowerConfig(),
-        ResetMode.kResetSafeParameters,
-        PersistMode.kPersistParameters);
+  private CTREFaultChecker leadChecker;
+  private CTREFaultChecker followerChecker;
 
-    SmartDashboard.putNumber("elevator/kP", kP);
-    SmartDashboard.putNumber("elevator/kI", kI);
-    SmartDashboard.putNumber("elevator/kD", kD);
-    SmartDashboard.putNumber("elevator/kFF", kFF);
-  }
+  public Elevator(TalonFX talonLeader, TalonFX talonFollower) {
+    this.talonLeader = talonLeader;
+    this.talonFollower = talonFollower;
+    talonFollower.setControl(new Follower(ElevatorConstants.kTalonLeaderCANId, true));
 
-  public boolean isWithinUpperBounds() {
-    return getElevatorHeight().lt(ElevatorConstants.kMaxHeight.times(0.75));
-  }
+    var elevatorConfig = ElevatorConstants.elevatorConfig;
+    elevatorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    elevatorConfig.Slot0 = ElevatorConstants.elevatorGains;
 
-  public boolean isWithinLowerBounds() {
-    return getElevatorHeight().gt(ElevatorConstants.kMaxHeight.times(0.25));
+    elevatorConfig.MotionMagic.MotionMagicCruiseVelocity = 80;
+    elevatorConfig.MotionMagic.MotionMagicAcceleration = 400;
+    elevatorConfig.MotionMagic.MotionMagicJerk = 0;
+
+    tryUntilOk(5, () -> talonLeader.getConfigurator().apply(elevatorConfig, 0.25));
+
+    leaderPosition = talonLeader.getPosition();
+    leaderVelocity = talonLeader.getVelocity();
+    leaderAppliedVolts = talonLeader.getMotorVoltage();
+    leaderCurrent = talonLeader.getStatorCurrent();
+
+    followerPosition = talonFollower.getPosition();
+    followerVelocity = talonFollower.getVelocity();
+    followerAppliedVolts = talonFollower.getMotorVoltage();
+    followerCurrent = talonFollower.getStatorCurrent();
+
+    // Configure periodic frames
+    BaseStatusSignal.setUpdateFrequencyForAll(
+        50.0,
+        leaderPosition,
+        leaderVelocity,
+        leaderAppliedVolts,
+        leaderCurrent,
+        followerPosition,
+        followerVelocity,
+        followerAppliedVolts,
+        followerCurrent);
+    ParentDevice.optimizeBusUtilizationForAll(talonLeader, talonFollower);
+
+    this.leadChecker = new CTREFaultChecker(talonLeader, "Elevator leader");
+    this.followerChecker = new CTREFaultChecker(talonFollower, "Elevator follower");
   }
 
   @Override
   public void periodic() {
-    currentState = new State(encoder.getPosition(), encoder.getVelocity());
-    nextState = profile.calculate(kDt, currentState, goalState);
-    this.log("elevator/goal state position", goalState.position);
-    this.log("elevator/goal state velocity", goalState.velocity);
+    this.log("elevator/height (meters)", getElevatorHeight().in(Meters));
+    this.log("elevator/setpoint (meters)", setpoint.in(Meters));
+    this.log("elevator/leader output", talonLeader.get());
+    this.log("elevator/follower output", talonFollower.get());
 
-    this.setpointError = getElevatorHeight().minus(setpoint);
-    this.atSetpoint = setpointError.lt(ElevatorConstants.kSetpointTolerance);
+    var leaderStatus =
+        BaseStatusSignal.refreshAll(
+            leaderPosition, leaderVelocity, leaderAppliedVolts, leaderCurrent);
+    var followerStatus =
+        BaseStatusSignal.refreshAll(
+            followerPosition, followerVelocity, followerAppliedVolts, followerCurrent);
 
-    double dashkP = SmartDashboard.getNumber("elevator/kP", kP);
-    double dashkI = SmartDashboard.getNumber("elevator/kI", kI);
-    double dashkD = SmartDashboard.getNumber("elevator/kD", kD);
-    if (kP != dashkP || kI != dashkI || kD != dashkD) {
-      SparkMaxConfig newConfig = new SparkMaxConfig();
-      newConfig.closedLoop.pid(dashkP, dashkI, dashkD).outputRange(-0.5, 0.5);
-      sparkMaxLeader.configure(
-          ElevatorConstants.getLeaderConfig().apply(newConfig),
-          ResetMode.kResetSafeParameters,
-          PersistMode.kPersistParameters);
-      sparkMaxFollower.configure(
-          ElevatorConstants.getFollowerConfig().apply(newConfig),
-          ResetMode.kResetSafeParameters,
-          PersistMode.kPersistParameters);
-      kP = dashkP;
-      kI = dashkI;
-      kD = dashkD;
-    }
+    this.log("elevator/leader connected", leaderConnectedDebounce.calculate(leaderStatus.isOK()));
+    this.log(
+        "elevator/follower connected", followerConnectedDebounce.calculate(followerStatus.isOK()));
+    this.log("elevator/leader position (rots)", leaderPosition.getValueAsDouble());
+    this.log("elevator/follower position (rots)", followerPosition.getValueAsDouble());
+    this.log("elevator/leader velocity (rots / sec)", leaderVelocity.getValueAsDouble());
+    this.log("elevator/follower velocity (rots / sec)", followerVelocity.getValueAsDouble());
+    this.log("elevator/leader voltage", leaderAppliedVolts.getValueAsDouble());
+    this.log("elevator/follower voltage", followerAppliedVolts.getValueAsDouble());
+    this.log("elevator/leader current (A)", leaderCurrent.getValueAsDouble());
+    this.log("elevator/follower current (A)", followerCurrent.getValueAsDouble());
 
-    if (usingMotionProfile && !usingVoltageControl) {
-      LinearVelocity curLinearVel =
-          getElevatorVelocity(RotationsPerSecond.of(currentState.velocity));
-      LinearVelocity nextLinearVel = getElevatorVelocity(RotationsPerSecond.of(nextState.velocity));
-
-      double ffOut =
-          ElevatorConstants.kFFCalculator.calculateWithVelocities(
-              curLinearVel.in(MetersPerSecond), nextLinearVel.in(MetersPerSecond));
-      this.log("elevator/ffOut", ffOut);
-
-      pidControllerLeader.setReference(
-          nextState.velocity
-              / kGearRatio, // encoder is on motor shaft, so spins kGearRatio times per physical
-          // rotation
-          ControlType.kVelocity,
-          ClosedLoopSlot.kSlot0,
-          ffOut,
-          ArbFFUnits.kVoltage);
-    }
-
-    this.log("elevator/error rots", heightToAngle(setpointError).in(Rotations));
-    this.log("elevator/at setpoint", atSetpoint);
-    this.log("elevator/height rotations", encoder.getPosition());
-    this.log("elevator/height meters", getElevatorHeight().in(Meters));
-    this.log("elevator/setpoint meters", setpoint.in(Units.Meters));
-    if (usingMotionProfile) {
-      this.log("elevator/profile setpoint pos", nextState.position);
-      this.log("elevator/profile setpoint vel", nextState.velocity);
-    }
-
-    leaderChecker.updateFaults();
-    followerChecker.updateFaults();
+    this.leadChecker.updateFaults();
+    this.followerChecker.updateFaults();
   }
 
   public void setSetpoint(GameState stage) {
     this.setpoint = Constants.reefMap.get(stage).distance();
-
-    this.goalState = new TrapezoidProfile.State(heightToAngle(setpoint).in(Rotations), 0);
-    if (!usingMotionProfile && !usingVoltageControl) {
-      pidControllerLeader.setReference(
-          heightToAngle(setpoint).in(Rotations),
-          ControlType.kPosition,
-          ClosedLoopSlot.kSlot0,
-          kFF,
-          ArbFFUnits.kVoltage);
-    }
+    double rotationSetpoint = heightToAngle(setpoint).in(Rotations);
+    talonLeader.setControl(motionVoltageRequest.withPosition(rotationSetpoint));
   }
 
   public boolean atSetpoint() {
-    return atSetpoint;
+    return Math.abs(leaderPosition.getValueAsDouble() - heightToAngle(setpoint).in(Rotations))
+        < ElevatorConstants.kSetpointTolerance.in(Rotations);
   }
 
-  public void voltageDrive(Voltage volts) {
-    this.usingVoltageControl = true;
-    sparkMaxLeader.setVoltage(volts.in(Volts));
+
+  public void setVoltage(double volts) {
+    talonLeader.setControl(voltageRequest.withOutput(volts));
   }
 
   public void sysIdLog(SysIdRoutineLog log) {
     log.motor("Elevator motors")
-        .voltage(Volts.of(sparkMaxLeader.getBusVoltage() * sparkMaxLeader.getAppliedOutput()))
+        .voltage(talonLeader.getMotorVoltage().getValue())
         .linearPosition(getElevatorHeight())
-        .linearVelocity(getElevatorVelocity(Rotations.per(Minute).of(encoder.getVelocity())));
+        .linearVelocity(getElevatorVelocity(Rotations.per(Minute).of(talonLeader.getVelocity().getValueAsDouble())));
+  }
+
+  public void voltageDrive(Voltage volts) {
+    talonLeader.setControl(new VoltageOut(volts));
   }
 
   public Distance getElevatorHeight() {
-    return angleToHeight(Rotations.of(encoder.getPosition()));
+    return angleToHeight(Rotations.of(talonLeader.getPosition().getValueAsDouble()));
   }
 
   private LinearVelocity getElevatorVelocity(AngularVelocity velocity) {
@@ -201,32 +172,12 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
     return (Angle) ElevatorConstants.kSpanAngle.timesDivisor(height);
   }
 
-  public void hold() {
-    pidControllerLeader.setReference(
-        encoder.getPosition(),
-        ControlType.kPosition,
-        ClosedLoopSlot.kSlot1,
-        kFF,
-        ArbFFUnits.kVoltage);
-  }
-
-  public void setUseVoltageControl(boolean useVoltage) {
-    this.usingVoltageControl = useVoltage;
-  }
-
-  public void zeroElevator() {
-    this.nextState = new State(0, 0);
-    this.goalState = new State(0, 0);
-    encoder.setPosition(0);
-  }
-
   public void stop() {
-    sparkMaxLeader.stopMotor();
+    talonLeader.stopMotor();
   }
 
   @Override
   public void close() {
-    sparkMaxFollower.close();
-    sparkMaxLeader.close();
+    talonLeader.close();
   }
 }

@@ -16,6 +16,7 @@ package frc.robot;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 import static frc.robot.util.GetAliance.getAllianceBoolean;
 
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -121,8 +122,8 @@ public class RobotContainer implements Logged {
     climber = new Climber(new SparkMax(ClimberConstants.kClimberMotorID, MotorType.kBrushless));
     elevator =
         new Elevator(
-            new SparkMax(ElevatorConstants.kSparkMaxCANId, MotorType.kBrushless),
-            new SparkMax(ElevatorConstants.kSparkMaxFollowerCANId, MotorType.kBrushless));
+            new TalonFX(ElevatorConstants.kTalonLeaderCANId),
+            new TalonFX(ElevatorConstants.kTalonFollowerCANId));
     manipulator =
         new Manipulator(
             new SparkMax(ManipulatorConstants.kPivotId, MotorType.kBrushless),
@@ -306,20 +307,16 @@ public class RobotContainer implements Logged {
 
     opController
         .a()
-        .onTrue(moveToState(GameState.L1_SCORE, false))
-        .onFalse(runOnce(elevator::hold, elevator));
+        .onTrue(moveToState(GameState.L1_SCORE, false));
     opController
         .b()
-        .onTrue(moveToState(GameState.L2_SCORE, false))
-        .onFalse(runOnce(elevator::hold, elevator));
+        .onTrue(moveToState(GameState.L2_SCORE, false));
     opController
         .y()
-        .onTrue(moveToState(GameState.L3_SCORE, false))
-        .onFalse(runOnce(elevator::hold, elevator));
+        .onTrue(moveToState(GameState.L3_SCORE, false));
     opController
         .x()
-        .onTrue(moveToState(GameState.L4_SCORE, false))
-        .onFalse(runOnce(elevator::hold, elevator));
+        .onTrue(moveToState(GameState.L4_SCORE, false));
 
     // human player station intake
     opController.povUp().onTrue(moveToState(GameState.HUMAN_PLAYER_STATION, false));
@@ -364,19 +361,18 @@ public class RobotContainer implements Logged {
                 elevator::voltageDrive, elevator::sysIdLog, elevator, "Elevator"));
     return sequence(
         routine.quasistatic(dir),
-        // routine.dynamic(dir),
-        runOnce(() -> elevator.setUseVoltageControl(false), elevator));
+        routine.dynamic(dir));
   }
 
   private Command characterizeElevatorDynamic(Direction dir) {
     SysIdRoutine routine =
         new SysIdRoutine(
             new SysIdRoutine.Config(),
-            new SysIdRoutine.Mechanism(
-                elevator::voltageDrive, elevator::sysIdLog, elevator, "Elevator"));
+            new SysIdRoutine.Mechanism(elevator::voltageDrive, elevator::sysIdLog, elevator, "Elevator"));
+
     return sequence(
-        // routine.quasistatic(dir),
-        routine.dynamic(dir), runOnce(() -> elevator.setUseVoltageControl(false), elevator));
+        routine.quasistatic(dir),
+        routine.dynamic(dir));
   }
 
   /**
@@ -386,9 +382,5 @@ public class RobotContainer implements Logged {
    */
   public Command getAutonomousCommand() {
     return autoChooser.get();
-  }
-
-  public void resetElevator() {
-    elevator.zeroElevator();
   }
 }
