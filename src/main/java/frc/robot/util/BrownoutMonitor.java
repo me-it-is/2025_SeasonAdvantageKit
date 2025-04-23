@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Celsius;
 import static edu.wpi.first.units.Units.Volts;
 
+import dev.doglog.DogLog;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -13,9 +14,8 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.manipulator.Manipulator;
 import frc.robot.util.faultChecker.PDHFaultChecker;
-import monologue.Logged;
 
-public class BrownoutMonitor extends SubsystemBase implements Logged {
+public class BrownoutMonitor extends SubsystemBase {
   private PowerDistribution robotPower;
   private Drive drive;
   private Climber climber;
@@ -36,8 +36,8 @@ public class BrownoutMonitor extends SubsystemBase implements Logged {
 
   @Override
   public void periodic() {
-    this.log("pdh voltage", robotPower.getVoltage());
-    this.log("pdh current", robotPower.getAllCurrents());
+    DogLog.log("pdh voltage", robotPower.getVoltage());
+    DogLog.log("pdh current", robotPower.getAllCurrents());
 
     faultChecker.updateFaults();
 

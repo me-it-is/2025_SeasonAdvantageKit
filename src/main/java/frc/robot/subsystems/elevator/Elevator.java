@@ -14,6 +14,7 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import dev.doglog.DogLog;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -28,9 +29,8 @@ import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.GameState;
 import frc.robot.util.RobotMath;
 import frc.robot.util.faultChecker.CTREFaultChecker;
-import monologue.Logged;
 
-public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
+public class Elevator extends SubsystemBase implements AutoCloseable {
   private TalonFX talonLeader;
   private TalonFX talonFollower;
   private Distance setpoint = Constants.reefMap.get(GameState.NONE).distance();
@@ -98,10 +98,10 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
 
   @Override
   public void periodic() {
-    this.log("elevator/height (meters)", getElevatorHeight().in(Meters));
-    this.log("elevator/setpoint (meters)", setpoint.in(Meters));
-    this.log("elevator/leader output", talonLeader.get());
-    this.log("elevator/follower output", talonFollower.get());
+    DogLog.log("elevator/height (meters)", getElevatorHeight().in(Meters));
+    DogLog.log("elevator/setpoint (meters)", setpoint.in(Meters));
+    DogLog.log("elevator/leader output", talonLeader.get());
+    DogLog.log("elevator/follower output", talonFollower.get());
 
     var leaderStatus =
         BaseStatusSignal.refreshAll(
@@ -110,17 +110,17 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
         BaseStatusSignal.refreshAll(
             followerPosition, followerVelocity, followerAppliedVolts, followerCurrent);
 
-    this.log("elevator/leader connected", leaderConnectedDebounce.calculate(leaderStatus.isOK()));
-    this.log(
+    DogLog.log("elevator/leader connected", leaderConnectedDebounce.calculate(leaderStatus.isOK()));
+    DogLog.log(
         "elevator/follower connected", followerConnectedDebounce.calculate(followerStatus.isOK()));
-    this.log("elevator/leader position (rots)", leaderPosition.getValueAsDouble());
-    this.log("elevator/follower position (rots)", followerPosition.getValueAsDouble());
-    this.log("elevator/leader velocity (rots / sec)", leaderVelocity.getValueAsDouble());
-    this.log("elevator/follower velocity (rots / sec)", followerVelocity.getValueAsDouble());
-    this.log("elevator/leader voltage", leaderAppliedVolts.getValueAsDouble());
-    this.log("elevator/follower voltage", followerAppliedVolts.getValueAsDouble());
-    this.log("elevator/leader current (A)", leaderCurrent.getValueAsDouble());
-    this.log("elevator/follower current (A)", followerCurrent.getValueAsDouble());
+    DogLog.log("elevator/leader position (rots)", leaderPosition.getValueAsDouble());
+    DogLog.log("elevator/follower position (rots)", followerPosition.getValueAsDouble());
+    DogLog.log("elevator/leader velocity (rots / sec)", leaderVelocity.getValueAsDouble());
+    DogLog.log("elevator/follower velocity (rots / sec)", followerVelocity.getValueAsDouble());
+    DogLog.log("elevator/leader voltage", leaderAppliedVolts.getValueAsDouble());
+    DogLog.log("elevator/follower voltage", followerAppliedVolts.getValueAsDouble());
+    DogLog.log("elevator/leader current (A)", leaderCurrent.getValueAsDouble());
+    DogLog.log("elevator/follower current (A)", followerCurrent.getValueAsDouble());
 
     this.leadChecker.updateFaults();
     this.followerChecker.updateFaults();
@@ -137,7 +137,6 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
         < ElevatorConstants.kSetpointTolerance.in(Rotations);
   }
 
-
   public void setVoltage(double volts) {
     talonLeader.setControl(voltageRequest.withOutput(volts));
   }
@@ -146,7 +145,9 @@ public class Elevator extends SubsystemBase implements AutoCloseable, Logged {
     log.motor("Elevator motors")
         .voltage(talonLeader.getMotorVoltage().getValue())
         .linearPosition(getElevatorHeight())
-        .linearVelocity(getElevatorVelocity(Rotations.per(Minute).of(talonLeader.getVelocity().getValueAsDouble())));
+        .linearVelocity(
+            getElevatorVelocity(
+                Rotations.per(Minute).of(talonLeader.getVelocity().getValueAsDouble())));
   }
 
   public void voltageDrive(Voltage volts) {

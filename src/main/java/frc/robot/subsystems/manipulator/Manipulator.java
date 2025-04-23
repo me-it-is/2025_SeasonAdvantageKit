@@ -14,6 +14,7 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import dev.doglog.DogLog;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -23,9 +24,8 @@ import frc.robot.Constants.GameState;
 import frc.robot.Constants.ManipulatorConstants;
 import frc.robot.util.RobotMath;
 import frc.robot.util.faultChecker.SparkFaultChecker;
-import monologue.Logged;
 
-public class Manipulator extends SubsystemBase implements Logged, AutoCloseable {
+public class Manipulator extends SubsystemBase implements AutoCloseable {
   private SparkMax pivot;
   private SparkMax rollers;
   private SparkMaxConfig pivotConfig;
@@ -62,21 +62,21 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
 
   @Override
   public void periodic() {
-    this.log("manipulator/angle", getEncoderPosition().in(Units.Rotations));
-    this.log("manipulator/rollers appl out", rollers.getAppliedOutput());
-    this.log("manipulator/setpoint", setpoint.in(Rotations));
-    this.log("manipulator/pivot appl out", pivot.getAppliedOutput());
+    DogLog.log("manipulator/angle", getEncoderPosition().in(Units.Rotations));
+    DogLog.log("manipulator/rollers appl out", rollers.getAppliedOutput());
+    DogLog.log("manipulator/setpoint", setpoint.in(Rotations));
+    DogLog.log("manipulator/pivot appl out", pivot.getAppliedOutput());
 
     this.error = RobotMath.dist(setpoint, getEncoderPosition());
-    this.log("manipulator/error", error.in(Rotations));
-    this.log("manipulator/at setpoint", atSetpoint);
+    DogLog.log("manipulator/error", error.in(Rotations));
+    DogLog.log("manipulator/at setpoint", atSetpoint);
 
     this.beamBroken = !beamBreak.get();
-    this.log("manipulator/has coral", beamBroken);
+    DogLog.log("manipulator/has coral", beamBroken);
 
     // zeroed at 180 degrees
     double ff = Math.sin(Math.PI - getEncoderPosition().in(Units.Radians)) * kFF;
-    this.log("manipulator/ff", ff);
+    DogLog.log("manipulator/ff", ff);
     pivotController.setReference(
         setpoint.in(Rotations),
         ControlType.kPosition,

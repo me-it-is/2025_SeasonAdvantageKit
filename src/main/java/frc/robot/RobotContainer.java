@@ -22,12 +22,15 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+import dev.doglog.DogLog;
+import dev.doglog.DogLogOptions;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -54,8 +57,6 @@ import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.manipulator.Manipulator;
-import monologue.Logged;
-import monologue.Monologue;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -64,7 +65,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
  * subsystems, commands, and button mappings) should be declared here.
  */
-public class RobotContainer implements Logged {
+public class RobotContainer {
   // Subsystems
   private final Drive drive;
   // private final Vision vision;
@@ -83,7 +84,9 @@ public class RobotContainer implements Logged {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    Monologue.setupMonologue(this, "Robot", false, false);
+    DogLog.setOptions(new DogLogOptions().withCaptureDs(true));
+    DogLog.setPdh(new PowerDistribution());
+
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
@@ -305,18 +308,10 @@ public class RobotContainer implements Logged {
     opController.povLeft().onTrue(moveToState(GameState.L2_ALGAE, false));
     opController.povRight().onTrue(moveToState(GameState.L3_ALGAE, false));
 
-    opController
-        .a()
-        .onTrue(moveToState(GameState.L1_SCORE, false));
-    opController
-        .b()
-        .onTrue(moveToState(GameState.L2_SCORE, false));
-    opController
-        .y()
-        .onTrue(moveToState(GameState.L3_SCORE, false));
-    opController
-        .x()
-        .onTrue(moveToState(GameState.L4_SCORE, false));
+    opController.a().onTrue(moveToState(GameState.L1_SCORE, false));
+    opController.b().onTrue(moveToState(GameState.L2_SCORE, false));
+    opController.y().onTrue(moveToState(GameState.L3_SCORE, false));
+    opController.x().onTrue(moveToState(GameState.L4_SCORE, false));
 
     // human player station intake
     opController.povUp().onTrue(moveToState(GameState.HUMAN_PLAYER_STATION, false));
@@ -359,20 +354,17 @@ public class RobotContainer implements Logged {
             new SysIdRoutine.Config(),
             new SysIdRoutine.Mechanism(
                 elevator::voltageDrive, elevator::sysIdLog, elevator, "Elevator"));
-    return sequence(
-        routine.quasistatic(dir),
-        routine.dynamic(dir));
+    return sequence(routine.quasistatic(dir), routine.dynamic(dir));
   }
 
   private Command characterizeElevatorDynamic(Direction dir) {
     SysIdRoutine routine =
         new SysIdRoutine(
             new SysIdRoutine.Config(),
-            new SysIdRoutine.Mechanism(elevator::voltageDrive, elevator::sysIdLog, elevator, "Elevator"));
+            new SysIdRoutine.Mechanism(
+                elevator::voltageDrive, elevator::sysIdLog, elevator, "Elevator"));
 
-    return sequence(
-        routine.quasistatic(dir),
-        routine.dynamic(dir));
+    return sequence(routine.quasistatic(dir), routine.dynamic(dir));
   }
 
   /**

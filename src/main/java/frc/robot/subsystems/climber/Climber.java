@@ -11,14 +11,14 @@ import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import dev.doglog.DogLog;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.util.RobotMath;
 import frc.robot.util.faultChecker.SparkFaultChecker;
-import monologue.Logged;
 
-public class Climber extends SubsystemBase implements AutoCloseable, Logged {
+public class Climber extends SubsystemBase implements AutoCloseable {
 
   private SparkMax motorController;
   private SparkMaxConfig config;
@@ -54,11 +54,11 @@ public class Climber extends SubsystemBase implements AutoCloseable, Logged {
     this.error = this.setpoint.minus(encoderPos);
     climberFaultChecker.updateFaults();
 
-    this.log("climber/appl out", motorController.getAppliedOutput());
-    this.log("climber/at setpoint", atSetpoint);
-    this.log("climber/setpoint error", error.in(Rotations));
-    this.log("climber/setpoint", setpoint.in(Rotations));
-    this.log("climber/encoder pos", encoderPos.in(Rotations));
+    DogLog.log("climber/appl out", motorController.getAppliedOutput());
+    DogLog.log("climber/at setpoint", atSetpoint);
+    DogLog.log("climber/setpoint error", error.in(Rotations));
+    DogLog.log("climber/setpoint", setpoint.in(Rotations));
+    DogLog.log("climber/encoder pos", encoderPos.in(Rotations));
   }
 
   @Override
