@@ -1,15 +1,15 @@
 package frc.robot.subsystems.elevator;
 
-import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Minute;
 import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -34,9 +34,8 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
   private TalonFX talonLeader;
   private TalonFX talonFollower;
   private Distance setpoint = Constants.reefMap.get(GameState.NONE).distance();
-  private final VoltageOut voltageRequest = new VoltageOut(0.0).withEnableFOC(true);
-  private final MotionMagicVoltage motionVoltageRequest =
-      new MotionMagicVoltage(0.0).withEnableFOC(true);
+  private MotionMagicExpoVoltage profile =
+      new MotionMagicExpoVoltage(Rotations.of(0)).withEnableFOC(true);
 
   private final StatusSignal<Angle> leaderPosition;
   private final StatusSignal<AngularVelocity> leaderVelocity;
@@ -67,7 +66,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
     elevatorConfig.MotionMagic.MotionMagicAcceleration = 400;
     elevatorConfig.MotionMagic.MotionMagicJerk = 0;
 
-    tryUntilOk(5, () -> talonLeader.getConfigurator().apply(elevatorConfig, 0.25));
+    tryUntilOk(10, () -> talonLeader.getConfigurator().apply(elevatorConfig, 0.25));
 
     leaderPosition = talonLeader.getPosition();
     leaderVelocity = talonLeader.getVelocity();
@@ -98,8 +97,8 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
 
   @Override
   public void periodic() {
-    DogLog.log("elevator/height (meters)", getElevatorHeight().in(Meters));
-    DogLog.log("elevator/setpoint (meters)", setpoint.in(Meters));
+    DogLog.log("elevator/height (rotations)", heightToAngle(getElevatorHeight()).in(Rotations));
+    DogLog.log("elevator/setpoint (rotations)", heightToAngle(setpoint).in(Rotations));
     DogLog.log("elevator/leader output", talonLeader.get());
     DogLog.log("elevator/follower output", talonFollower.get());
 
@@ -115,12 +114,15 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
         "elevator/follower connected", followerConnectedDebounce.calculate(followerStatus.isOK()));
     DogLog.log("elevator/leader position (rots)", leaderPosition.getValueAsDouble());
     DogLog.log("elevator/follower position (rots)", followerPosition.getValueAsDouble());
-    DogLog.log("elevator/leader velocity (rots / sec)", leaderVelocity.getValueAsDouble());
-    DogLog.log("elevator/follower velocity (rots / sec)", followerVelocity.getValueAsDouble());
+    DogLog.log("elevator/leader velocity (rots per sec)", leaderVelocity.getValueAsDouble());
+    DogLog.log("elevator/follower velocity (rots per sec)", followerVelocity.getValueAsDouble());
     DogLog.log("elevator/leader voltage", leaderAppliedVolts.getValueAsDouble());
     DogLog.log("elevator/follower voltage", followerAppliedVolts.getValueAsDouble());
     DogLog.log("elevator/leader current (A)", leaderCurrent.getValueAsDouble());
     DogLog.log("elevator/follower current (A)", followerCurrent.getValueAsDouble());
+    DogLog.log(
+        "elevator/position error",
+        leaderPosition.getValue().minus(heightToAngle(setpoint)).in(Rotations));
 
     this.leadChecker.updateFaults();
     this.followerChecker.updateFaults();
@@ -128,8 +130,8 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
 
   public void setSetpoint(GameState stage) {
     this.setpoint = Constants.reefMap.get(stage).distance();
-    double rotationSetpoint = heightToAngle(setpoint).in(Rotations);
-    talonLeader.setControl(motionVoltageRequest.withPosition(rotationSetpoint));
+    talonLeader.setControl(
+        profile.withPosition(Rotations.of(heightToAngle(setpoint).in(Rotations))));
   }
 
   public boolean atSetpoint() {
@@ -138,7 +140,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
   }
 
   public void setVoltage(double volts) {
-    talonLeader.setControl(voltageRequest.withOutput(volts));
+    talonLeader.setControl(new VoltageOut(Volts.of(volts)));
   }
 
   public void sysIdLog(SysIdRoutineLog log) {
@@ -171,6 +173,10 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
 
   private Angle heightToAngle(Distance height) {
     return (Angle) ElevatorConstants.kSpanAngle.timesDivisor(height);
+  }
+
+  public void zeroElevator() {
+    setSetpoint(GameState.NONE);
   }
 
   public void stop() {

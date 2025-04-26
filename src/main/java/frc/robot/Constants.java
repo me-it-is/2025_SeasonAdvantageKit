@@ -225,8 +225,9 @@ public final class Constants {
   }
 
   public static class ElevatorConstants {
-    public static final int kTalonLeaderCANId = 4;
-    public static final int kTalonFollowerCANId = 3;
+    public static final String canBus = "blinky";
+    public static final int kTalonLeaderCANId = 14;
+    public static final int kTalonFollowerCANId = 15;
     public static final Distance kMaxHeight = Meters.of(1.72);
     public static final double kDeadReckoningSpeed = 0.1;
     public static final double kDeadRecogningDeadZone = 0.05;
@@ -263,10 +264,10 @@ public final class Constants {
     public static final double kFF = 1.3125;
     public static final int currentLimit = 60;
 
-    public static final double kS = 0.1;
-    public static final double kG = 1;
-    public static final double kV = 3;
-    public static final double kA = 0.8;
+    public static final double kS = 0;
+    public static final double kG = 0.65;
+    public static final double kV = 0.15;
+    public static final double kA = 0;
 
     public static final double kPSlot1 = 0;
     public static final double kISlot1 = 0;
@@ -278,6 +279,7 @@ public final class Constants {
             .withKI(kI)
             .withKD(kD)
             .withKS(kS)
+            .withKV(kV)
             .withGravityType(GravityTypeValue.Elevator_Static)
             .withKG(kG);
 
@@ -285,7 +287,7 @@ public final class Constants {
         new TalonFXConfiguration()
             .withCurrentLimits(
                 new CurrentLimitsConfigs()
-                    .withStatorCurrentLimit(Amps.of(60))
+                    .withStatorCurrentLimit(Amps.of(currentLimit))
                     .withStatorCurrentLimitEnable(true));
   }
 

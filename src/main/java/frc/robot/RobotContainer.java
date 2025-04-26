@@ -45,6 +45,7 @@ import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.GameState;
 import frc.robot.Constants.ManipulatorConstants;
 import frc.robot.Constants.VisionConstants;
+import frc.robot.commands.AutoAim;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.SnapToTarget;
 import frc.robot.generated.TunerConstants;
@@ -57,6 +58,7 @@ import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.manipulator.Manipulator;
+import frc.robot.subsystems.vision.Vision;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -68,7 +70,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
-  // private final Vision vision;
+  private final Vision vision;
   private final Manipulator manipulator;
   private final Climber climber;
   private final Elevator elevator;
@@ -121,12 +123,12 @@ public class RobotContainer {
                 new ModuleIO() {});
         break;
     }
-    // vision = new Vision(drive::updateEstimates);
+    vision = new Vision(drive::updateEstimates);
     climber = new Climber(new SparkMax(ClimberConstants.kClimberMotorID, MotorType.kBrushless));
     elevator =
         new Elevator(
-            new TalonFX(ElevatorConstants.kTalonLeaderCANId),
-            new TalonFX(ElevatorConstants.kTalonFollowerCANId));
+            new TalonFX(ElevatorConstants.kTalonLeaderCANId, ElevatorConstants.canBus),
+            new TalonFX(ElevatorConstants.kTalonFollowerCANId, ElevatorConstants.canBus));
     manipulator =
         new Manipulator(
             new SparkMax(ManipulatorConstants.kPivotId, MotorType.kBrushless),
@@ -261,7 +263,7 @@ public class RobotContainer {
             () -> MathUtil.applyDeadband(-controller.getRightX(), DriveConstants.kDriveDeadband),
             controller.leftTrigger()));
     // Rotate and translate to closest April Tag based on tag odometry
-    // controller.b().whileTrue(new AutoAim(drive, vision, controller));
+    controller.b().whileTrue(new AutoAim(drive, vision, controller));
 
     // Automatically align to April Tag based on pose data
     controller.y().onTrue(new SnapToTarget(drive));
@@ -365,6 +367,10 @@ public class RobotContainer {
                 elevator::voltageDrive, elevator::sysIdLog, elevator, "Elevator"));
 
     return sequence(routine.quasistatic(dir), routine.dynamic(dir));
+  }
+
+  public void resetSubsystems() {
+    elevator.zeroElevator();
   }
 
   /**
