@@ -41,11 +41,15 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
   private final StatusSignal<AngularVelocity> leaderVelocity;
   private final StatusSignal<Voltage> leaderAppliedVolts;
   private final StatusSignal<Current> leaderCurrent;
+  private final StatusSignal<Double> leaderSetpoint;
+  private final StatusSignal<Double> leaderSetpointError;
 
   private final StatusSignal<Angle> followerPosition;
   private final StatusSignal<AngularVelocity> followerVelocity;
   private final StatusSignal<Voltage> followerAppliedVolts;
   private final StatusSignal<Current> followerCurrent;
+  private final StatusSignal<Double> followerSetpoint;
+  private final StatusSignal<Double> followerSetpointError;
 
   private final Debouncer leaderConnectedDebounce = new Debouncer(0.5);
   private final Debouncer followerConnectedDebounce = new Debouncer(0.5);
@@ -72,11 +76,15 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
     leaderVelocity = talonLeader.getVelocity();
     leaderAppliedVolts = talonLeader.getMotorVoltage();
     leaderCurrent = talonLeader.getStatorCurrent();
+    leaderSetpoint = talonLeader.getClosedLoopOutput();
+    leaderSetpointError = talonLeader.getClosedLoopError();
 
     followerPosition = talonFollower.getPosition();
     followerVelocity = talonFollower.getVelocity();
     followerAppliedVolts = talonFollower.getMotorVoltage();
     followerCurrent = talonFollower.getStatorCurrent();
+    followerSetpoint = talonFollower.getClosedLoopOutput();
+    followerSetpointError = talonFollower.getClosedLoopError();
 
     // Configure periodic frames
     BaseStatusSignal.setUpdateFrequencyForAll(
@@ -85,10 +93,14 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
         leaderVelocity,
         leaderAppliedVolts,
         leaderCurrent,
+        leaderSetpoint,
+        leaderSetpointError,
         followerPosition,
         followerVelocity,
         followerAppliedVolts,
-        followerCurrent);
+        followerCurrent,
+        followerSetpoint,
+        followerSetpointError);
     ParentDevice.optimizeBusUtilizationForAll(talonLeader, talonFollower);
 
     this.leadChecker = new CTREFaultChecker(talonLeader, "Elevator leader");
@@ -104,10 +116,20 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
 
     var leaderStatus =
         BaseStatusSignal.refreshAll(
-            leaderPosition, leaderVelocity, leaderAppliedVolts, leaderCurrent);
+            leaderPosition,
+            leaderVelocity,
+            leaderAppliedVolts,
+            leaderCurrent,
+            leaderSetpoint,
+            leaderSetpointError);
     var followerStatus =
         BaseStatusSignal.refreshAll(
-            followerPosition, followerVelocity, followerAppliedVolts, followerCurrent);
+            followerPosition,
+            followerVelocity,
+            followerAppliedVolts,
+            followerCurrent,
+            leaderSetpoint,
+            leaderSetpointError);
 
     DogLog.log("elevator/leader connected", leaderConnectedDebounce.calculate(leaderStatus.isOK()));
     DogLog.log(
@@ -123,6 +145,10 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
     DogLog.log(
         "elevator/position error",
         leaderPosition.getValue().minus(heightToAngle(setpoint)).in(Rotations));
+    DogLog.log("elevator/leader setpoint position", leaderSetpoint.getValueAsDouble());
+    DogLog.log("elevator/leader setpoint error", leaderSetpointError.getValueAsDouble());
+    DogLog.log("elevator/folower setpoint position", followerSetpoint.getValueAsDouble());
+    DogLog.log("elevator/folower setpoint error", followerSetpointError.getValueAsDouble());
 
     this.leadChecker.updateFaults();
     this.followerChecker.updateFaults();
