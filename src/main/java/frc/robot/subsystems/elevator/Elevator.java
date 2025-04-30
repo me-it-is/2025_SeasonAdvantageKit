@@ -76,14 +76,14 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
     leaderVelocity = talonLeader.getVelocity();
     leaderAppliedVolts = talonLeader.getMotorVoltage();
     leaderCurrent = talonLeader.getStatorCurrent();
-    leaderSetpoint = talonLeader.getClosedLoopOutput();
+    leaderSetpoint = talonLeader.getClosedLoopReference();
     leaderSetpointError = talonLeader.getClosedLoopError();
 
     followerPosition = talonFollower.getPosition();
     followerVelocity = talonFollower.getVelocity();
     followerAppliedVolts = talonFollower.getMotorVoltage();
     followerCurrent = talonFollower.getStatorCurrent();
-    followerSetpoint = talonFollower.getClosedLoopOutput();
+    followerSetpoint = talonFollower.getClosedLoopReference();
     followerSetpointError = talonFollower.getClosedLoopError();
 
     // Configure periodic frames
