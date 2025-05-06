@@ -1,7 +1,6 @@
 package frc.robot.subsystems.elevator;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.Minute;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
@@ -173,9 +172,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
     log.motor("Elevator motors")
         .voltage(talonLeader.getMotorVoltage().getValue())
         .linearPosition(getElevatorHeight())
-        .linearVelocity(
-            getElevatorVelocity(
-                Rotations.per(Minute).of(talonLeader.getVelocity().getValueAsDouble())));
+        .linearVelocity(getElevatorVelocity(talonLeader.getVelocity().getValue()));
   }
 
   public void voltageDrive(Voltage volts) {

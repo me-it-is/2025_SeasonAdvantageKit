@@ -161,6 +161,23 @@ public class RobotContainer {
         .povUp()
         .whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kForward))
         .onFalse((runOnce(() -> drive.stop(), drive)));
+    testController
+        .leftTrigger()
+        .whileTrue(characterizeElevatorQuasistatic(Direction.kForward))
+        .onFalse((runOnce(elevator::stop, elevator)));
+    testController
+        .leftBumper()
+        .whileTrue(characterizeElevatorQuasistatic(Direction.kReverse))
+        .onFalse((runOnce(elevator::stop, elevator)));
+    testController
+        .rightTrigger()
+        .whileTrue(characterizeElevatorDynamic(Direction.kForward))
+        .onFalse((runOnce(elevator::stop, elevator)));
+    testController
+        .rightBumper()
+        .whileTrue(characterizeElevatorDynamic(Direction.kReverse))
+        .onFalse((runOnce(elevator::stop, elevator)));
+
     // testController
     //     .povLeft()
     //     .whileTrue(characterizeElevator(Direction.kForward))
@@ -353,20 +370,20 @@ public class RobotContainer {
   private Command characterizeElevatorQuasistatic(Direction dir) {
     SysIdRoutine routine =
         new SysIdRoutine(
-            new SysIdRoutine.Config(),
+            ElevatorConstants.sysIdConfig,
             new SysIdRoutine.Mechanism(
                 elevator::voltageDrive, elevator::sysIdLog, elevator, "Elevator"));
-    return sequence(routine.quasistatic(dir), routine.dynamic(dir));
+    return routine.quasistatic(dir);
   }
 
   private Command characterizeElevatorDynamic(Direction dir) {
     SysIdRoutine routine =
         new SysIdRoutine(
-            new SysIdRoutine.Config(),
+            ElevatorConstants.sysIdConfig,
             new SysIdRoutine.Mechanism(
                 elevator::voltageDrive, elevator::sysIdLog, elevator, "Elevator"));
 
-    return sequence(routine.quasistatic(dir), routine.dynamic(dir));
+    return routine.dynamic(dir);
   }
 
   public void resetSubsystems() {

@@ -58,6 +58,7 @@ import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.util.faultChecker.Fault;
 import java.util.ArrayList;
 import java.util.List;
@@ -289,6 +290,9 @@ public final class Constants {
                 new CurrentLimitsConfigs()
                     .withStatorCurrentLimit(Amps.of(currentLimit))
                     .withStatorCurrentLimitEnable(true));
+
+    public static final SysIdRoutine.Config sysIdConfig =
+        new SysIdRoutine.Config(Volts.per(Second).of(0.5), Volts.of(4), Seconds.of(3));
   }
 
   public static class FaultConstants {
