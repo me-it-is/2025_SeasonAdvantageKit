@@ -160,8 +160,8 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
   }
 
   public boolean atSetpoint() {
-    return Math.abs(leaderPosition.getValueAsDouble() - heightToAngle(setpoint).in(Rotations))
-        < ElevatorConstants.kSetpointTolerance.in(Rotations);
+    return RobotMath.abs(leaderPosition.getValue().minus(heightToAngle(setpoint)))
+        .lt(ElevatorConstants.kSetpointTolerance);
   }
 
   public void setVoltage(double volts) {
