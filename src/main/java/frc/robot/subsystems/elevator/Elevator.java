@@ -1,7 +1,6 @@
 package frc.robot.subsystems.elevator;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.Minute;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
@@ -161,8 +160,8 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
   }
 
   public boolean atSetpoint() {
-    return Math.abs(leaderPosition.getValueAsDouble() - heightToAngle(setpoint).in(Rotations))
-        < ElevatorConstants.kSetpointTolerance.in(Rotations);
+    return RobotMath.abs(leaderPosition.getValue().minus(heightToAngle(setpoint)))
+        .lt(ElevatorConstants.kSetpointTolerance);
   }
 
   public void setVoltage(double volts) {
@@ -173,9 +172,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
     log.motor("Elevator motors")
         .voltage(talonLeader.getMotorVoltage().getValue())
         .linearPosition(getElevatorHeight())
-        .linearVelocity(
-            getElevatorVelocity(
-                Rotations.per(Minute).of(talonLeader.getVelocity().getValueAsDouble())));
+        .linearVelocity(getElevatorVelocity(talonLeader.getVelocity().getValue()));
   }
 
   public void voltageDrive(Voltage volts) {
