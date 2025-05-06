@@ -31,7 +31,7 @@ import frc.robot.util.faultChecker.CTREFaultChecker;
 public class Elevator extends SubsystemBase implements AutoCloseable {
   private TalonFX talonLeader;
   private TalonFX talonFollower;
-  private Distance setpoint = Constants.reefMap.get(GameState.NONE).distance();
+  public Distance setpoint = Constants.reefMap.get(GameState.NONE).distance();
   private MotionMagicExpoVoltage profile =
       new MotionMagicExpoVoltage(Rotations.of(0)).withEnableFOC(true);
 
@@ -203,5 +203,22 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
   @Override
   public void close() {
     talonLeader.close();
+  }
+
+  public void preformBlockingRefereshOnAllSignals() {
+    BaseStatusSignal.waitForAll(
+        100,
+        leaderPosition,
+        leaderVelocity,
+        leaderAppliedVolts,
+        leaderCurrent,
+        leaderSetpoint,
+        leaderSetpointError,
+        followerPosition,
+        followerVelocity,
+        followerAppliedVolts,
+        followerCurrent,
+        leaderSetpoint,
+        leaderSetpointError);
   }
 }

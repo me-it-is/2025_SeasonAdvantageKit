@@ -56,7 +56,7 @@ public class Climber extends SubsystemBase implements AutoCloseable {
     climberFaultChecker.updateFaults();
 
     DogLog.log("climber/appl out", motorController.getAppliedOutput());
-    DogLog.log("climber/at setpoint", atSetpoint);
+    DogLog.log("climber/at setpoint", atSetpoint());
     DogLog.log("climber/setpoint error", error.in(Rotations));
     DogLog.log("climber/setpoint", setpoint.in(Rotations));
     DogLog.log("climber/encoder pos", encoderPos.in(Rotations));
