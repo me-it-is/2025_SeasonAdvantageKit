@@ -265,8 +265,9 @@ public final class Constants {
     public static final int currentLimit = 60;
 
     public static final double kS = 0;
-    public static final double kG = 0.65;
-    public static final double kV = 0.15;
+    public static final double kG = 0.5;
+    public static final double kV = 0.13;
+
     public static final double kA = 0;
 
     public static final double kPSlot1 = 0;
