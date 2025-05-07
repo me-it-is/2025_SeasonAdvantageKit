@@ -163,7 +163,9 @@ public class RobotContainer {
         .onFalse((runOnce(() -> drive.stop(), drive)));
     testController
         .leftTrigger()
-        .whileTrue(characterizeElevatorQuasistatic(Direction.kForward))
+        .whileTrue(
+            characterizeElevatorQuasistatic(Direction.kForward)
+                .finallyDo((bool) -> System.out.println(bool)))
         .onFalse((runOnce(elevator::stop, elevator)));
     testController
         .leftBumper()
@@ -371,8 +373,7 @@ public class RobotContainer {
     SysIdRoutine routine =
         new SysIdRoutine(
             ElevatorConstants.sysIdConfig,
-            new SysIdRoutine.Mechanism(
-                elevator::voltageDrive, elevator::sysIdLog, elevator, "Elevator"));
+            new SysIdRoutine.Mechanism(elevator::voltageDrive, elevator::sysIdLog, elevator));
     return routine.quasistatic(dir);
   }
 
@@ -380,8 +381,7 @@ public class RobotContainer {
     SysIdRoutine routine =
         new SysIdRoutine(
             ElevatorConstants.sysIdConfig,
-            new SysIdRoutine.Mechanism(
-                elevator::voltageDrive, elevator::sysIdLog, elevator, "Elevator"));
+            new SysIdRoutine.Mechanism(elevator::voltageDrive, elevator::sysIdLog, elevator));
 
     return routine.dynamic(dir);
   }
