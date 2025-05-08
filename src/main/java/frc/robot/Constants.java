@@ -259,17 +259,17 @@ public final class Constants {
     public static final double kPositionConversionFactor = 1 / kFullExtentionAngle.in(Rotations);
 
     public static final FeedbackSensor feedbackSensor = FeedbackSensor.kAbsoluteEncoder;
-    public static final double kP = 0.29718;
+    public static final double kP = 0.083066;
     public static final double kI = 0;
     public static final double kD = 0;
     public static final double kFF = 0;
     public static final int currentLimit = 60;
 
-    public static final double kS = 0.34594;
-    public static final double kG = 0.65872;
-    public static final double kV = 1.7888;
+    public static final double kS = 0.24;
+    public static final double kG = 0.70067;
+    public static final double kV = 2.0342;
 
-    public static final double kA = 0.2431;
+    public static final double kA = 0.23029;
 
     public static final double kPSlot1 = 0;
     public static final double kISlot1 = 0;
