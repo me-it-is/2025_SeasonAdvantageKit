@@ -17,6 +17,7 @@ import static edu.wpi.first.units.Units.*;
 import static frc.robot.util.Elastic.Notification.NotificationLevel.ERROR;
 import static frc.robot.util.Elastic.Notification.NotificationLevel.WARNING;
 
+import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.Slot1Configs;
@@ -327,7 +328,11 @@ public final class Constants {
                     .withStatorCurrentLimitEnable(true));
 
     public static final SysIdRoutine.Config sysIdConfig =
-        new SysIdRoutine.Config(Volts.per(Second).of(0.5), Volts.of(4), Seconds.of(25));
+        new SysIdRoutine.Config(
+            Volts.per(Second).of(0.5),
+            Volts.of(4),
+            Seconds.of(25),
+            (state) -> SignalLogger.writeString("state", state.toString()));
   }
 
   public static class FaultConstants {

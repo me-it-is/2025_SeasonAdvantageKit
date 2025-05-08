@@ -101,7 +101,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
         followerSetpointError);
 
     BaseStatusSignal.setUpdateFrequencyForAll(
-        250, leaderAppliedVolts, leaderPosition, leaderVelocity);
+        500, leaderAppliedVolts, leaderPosition, leaderVelocity);
 
     ParentDevice.optimizeBusUtilizationForAll(talonLeader, talonFollower);
 

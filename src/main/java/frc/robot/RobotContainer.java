@@ -16,6 +16,7 @@ package frc.robot;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 import static frc.robot.util.GetAliance.getAllianceBoolean;
 
+import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -88,6 +89,8 @@ public class RobotContainer {
   public RobotContainer() {
     DogLog.setOptions(new DogLogOptions().withCaptureDs(true));
     DogLog.setPdh(new PowerDistribution());
+
+    SignalLogger.setPath("/home/lvuser/logs");
 
     switch (Constants.currentMode) {
       case REAL:
@@ -353,7 +356,7 @@ public class RobotContainer {
     SysIdRoutine routine =
         new SysIdRoutine(
             ElevatorConstants.sysIdConfig,
-            new SysIdRoutine.Mechanism(elevator::voltageDrive, elevator::sysIdLog, elevator));
+            new SysIdRoutine.Mechanism(elevator::voltageDrive, null, elevator));
     return routine.quasistatic(dir);
   }
 
@@ -361,7 +364,7 @@ public class RobotContainer {
     SysIdRoutine routine =
         new SysIdRoutine(
             ElevatorConstants.sysIdConfig,
-            new SysIdRoutine.Mechanism(elevator::voltageDrive, elevator::sysIdLog, elevator));
+            new SysIdRoutine.Mechanism(elevator::voltageDrive, null, elevator));
 
     return routine.dynamic(dir);
   }
