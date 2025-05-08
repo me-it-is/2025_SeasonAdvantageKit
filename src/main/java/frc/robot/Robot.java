@@ -13,6 +13,7 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.SignalLogger;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -107,6 +108,7 @@ public class Robot extends LoggedRobot {
   /** This function is called once when the robot is disabled. */
   @Override
   public void disabledInit() {
+    SignalLogger.stop();
     robotContainer.resetSubsystems();
   }
 
@@ -137,6 +139,7 @@ public class Robot extends LoggedRobot {
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
+    SignalLogger.start();
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
     }
