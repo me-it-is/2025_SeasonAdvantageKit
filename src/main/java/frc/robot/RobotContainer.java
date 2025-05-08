@@ -161,24 +161,10 @@ public class RobotContainer {
         .povUp()
         .whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kForward))
         .onFalse((runOnce(() -> drive.stop(), drive)));
-    testController
-        .leftTrigger()
-        .whileTrue(
-            characterizeElevatorQuasistatic(Direction.kForward)
-                .finallyDo((bool) -> System.out.println(bool)))
-        .onFalse((runOnce(elevator::stop, elevator)));
-    testController
-        .leftBumper()
-        .whileTrue(characterizeElevatorQuasistatic(Direction.kReverse))
-        .onFalse((runOnce(elevator::stop, elevator)));
-    testController
-        .rightTrigger()
-        .whileTrue(characterizeElevatorDynamic(Direction.kForward))
-        .onFalse((runOnce(elevator::stop, elevator)));
-    testController
-        .rightBumper()
-        .whileTrue(characterizeElevatorDynamic(Direction.kReverse))
-        .onFalse((runOnce(elevator::stop, elevator)));
+    testController.leftTrigger().whileTrue(characterizeElevatorQuasistatic(Direction.kForward));
+    testController.leftBumper().whileTrue(characterizeElevatorQuasistatic(Direction.kReverse));
+    testController.rightTrigger().whileTrue(characterizeElevatorDynamic(Direction.kForward));
+    testController.rightBumper().whileTrue(characterizeElevatorDynamic(Direction.kReverse));
 
     // testController
     //     .povLeft()

@@ -99,6 +99,10 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
         followerCurrent,
         followerSetpoint,
         followerSetpointError);
+
+    BaseStatusSignal.setUpdateFrequencyForAll(
+        250, leaderAppliedVolts, leaderPosition, leaderVelocity);
+
     ParentDevice.optimizeBusUtilizationForAll(talonLeader, talonFollower);
 
     this.leadChecker = new CTREFaultChecker(talonLeader, "Elevator leader");
