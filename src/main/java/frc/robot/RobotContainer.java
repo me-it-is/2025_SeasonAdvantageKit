@@ -142,28 +142,36 @@ public class RobotContainer {
     // Set up SysId routines
     testController
         .y()
-        .whileTrue(DriveCommands.wheelRadiusCharacterization(drive))
-        .onFalse((runOnce(() -> drive.stop(), drive)));
+        .whileTrue(drive.driveSysIdQuasistatic(SysIdRoutine.Direction.kForward))
+        .onFalse((runOnce(drive::stop, drive)));
     testController
         .b()
-        .whileTrue(DriveCommands.feedforwardCharacterization(drive))
-        .onFalse((runOnce(() -> drive.stop(), drive)));
+        .whileTrue(drive.driveSysIdDynamic(SysIdRoutine.Direction.kForward))
+        .onFalse((runOnce(drive::stop, drive)));
     testController
         .a()
-        .whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward))
-        .onFalse((runOnce(() -> drive.stop(), drive)));
+        .whileTrue(drive.driveSysIdQuasistatic(SysIdRoutine.Direction.kReverse))
+        .onFalse((runOnce(drive::stop, drive)));
     testController
         .x()
-        .whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse))
-        .onFalse((runOnce(() -> drive.stop(), drive)));
-    testController
-        .povDownRight()
-        .whileTrue(DriveCommands.wheelRadiusCharacterization(drive))
-        .onFalse((runOnce(() -> drive.stop(), drive)));
+        .whileTrue(drive.driveSysIdDynamic(SysIdRoutine.Direction.kReverse))
+        .onFalse((runOnce(drive::stop, drive)));
     testController
         .povUp()
-        .whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kForward))
-        .onFalse((runOnce(() -> drive.stop(), drive)));
+        .whileTrue(drive.turnSysIdQuasistatic(Direction.kForward))
+        .onFalse((runOnce(drive::stop, drive)));
+    testController
+        .povRight()
+        .whileTrue(drive.turnSysIdDynamic(Direction.kForward))
+        .onFalse((runOnce(drive::stop, drive)));
+    testController
+        .povDown()
+        .whileTrue(drive.turnSysIdQuasistatic(Direction.kReverse))
+        .onFalse((runOnce(drive::stop, drive)));
+    testController
+        .povLeft()
+        .whileTrue(drive.turnSysIdDynamic(Direction.kReverse))
+        .onFalse((runOnce(drive::stop, drive)));
     testController.leftTrigger().whileTrue(characterizeElevatorQuasistatic(Direction.kForward));
     testController.leftBumper().whileTrue(characterizeElevatorQuasistatic(Direction.kReverse));
     testController.rightTrigger().whileTrue(characterizeElevatorDynamic(Direction.kForward));
@@ -179,14 +187,14 @@ public class RobotContainer {
         "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
     autoChooser.addOption(
         "Drive SysId (Quasistatic Forward)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+        drive.driveSysIdQuasistatic(SysIdRoutine.Direction.kForward));
     autoChooser.addOption(
         "Drive SysId (Quasistatic Reverse)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+        drive.driveSysIdQuasistatic(SysIdRoutine.Direction.kReverse));
     autoChooser.addOption(
-        "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+        "Drive SysId (Dynamic Forward)", drive.driveSysIdDynamic(SysIdRoutine.Direction.kForward));
     autoChooser.addOption(
-        "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+        "Drive SysId (Dynamic Reverse)", drive.driveSysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     configureAutos();
     // Configure the button bindings

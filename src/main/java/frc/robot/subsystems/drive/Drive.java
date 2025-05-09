@@ -16,6 +16,7 @@ package frc.robot.subsystems.drive;
 import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
@@ -89,7 +90,8 @@ public class Drive extends SubsystemBase {
   private final GyroIO gyroIO;
   private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
   private final Module[] modules = new Module[4]; // FL, FR, BL, BR
-  private final SysIdRoutine sysId;
+  private final SysIdRoutine driveSysId;
+  private final SysIdRoutine turnSysId;
   private final Alert gyroDisconnectedAlert =
       new Alert("Disconnected gyro, using kinematics as fallback.", AlertType.kError);
 
@@ -146,15 +148,24 @@ public class Drive extends SubsystemBase {
         });
 
     // Configure SysId
-    sysId =
+    driveSysId =
         new SysIdRoutine(
             new SysIdRoutine.Config(
                 null,
                 null,
                 null,
-                (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
+                (state) -> SignalLogger.writeString("drive sysid state", state.toString())),
             new SysIdRoutine.Mechanism(
-                (voltage) -> runCharacterization(voltage.in(Volts)), null, this));
+                (voltage) -> runDriveCharacterization(voltage.in(Volts)), null, this));
+    turnSysId =
+        new SysIdRoutine(
+            new SysIdRoutine.Config(
+                null,
+                null,
+                null,
+                (state) -> SignalLogger.writeString("turn sysid state", state.toString())),
+            new SysIdRoutine.Mechanism(
+                (voltage) -> runTurnCharacterization(voltage.in(Volts)), null, this));
   }
 
   @Override
@@ -244,9 +255,15 @@ public class Drive extends SubsystemBase {
   }
 
   /** Runs the drive in a straight line with the specified drive output. */
-  public void runCharacterization(double output) {
+  public void runDriveCharacterization(double output) {
     for (int i = 0; i < 4; i++) {
-      modules[i].runCharacterization(output);
+      modules[i].runDriveCharacterization(output);
+    }
+  }
+
+  public void runTurnCharacterization(double output) {
+    for (int i = 0; i < 4; i++) {
+      modules[i].runTurnCharacterization(output);
     }
   }
 
@@ -269,15 +286,29 @@ public class Drive extends SubsystemBase {
   }
 
   /** Returns a command to run a quasistatic test in the specified direction. */
-  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-    return run(() -> runCharacterization(0.0))
+  public Command driveSysIdQuasistatic(SysIdRoutine.Direction direction) {
+    return run(() -> runDriveCharacterization(0.0))
         .withTimeout(1.0)
-        .andThen(sysId.quasistatic(direction));
+        .andThen(driveSysId.quasistatic(direction));
+  }
+
+  public Command turnSysIdQuasistatic(SysIdRoutine.Direction direction) {
+    return run(() -> runTurnCharacterization(0.0))
+        .withTimeout(1.0)
+        .andThen(turnSysId.quasistatic(direction));
   }
 
   /** Returns a command to run a dynamic test in the specified direction. */
-  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-    return run(() -> runCharacterization(0.0)).withTimeout(1.0).andThen(sysId.dynamic(direction));
+  public Command driveSysIdDynamic(SysIdRoutine.Direction direction) {
+    return run(() -> runDriveCharacterization(0.0))
+        .withTimeout(1.0)
+        .andThen(driveSysId.dynamic(direction));
+  }
+
+  public Command turnSysIdDynamic(SysIdRoutine.Direction direction) {
+    return run(() -> runTurnCharacterization(0.0))
+        .withTimeout(1.0)
+        .andThen(turnSysId.dynamic(direction));
   }
 
   /** Returns the module states (turn angles and drive velocities) for all of the modules. */
