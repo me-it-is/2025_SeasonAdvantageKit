@@ -64,9 +64,9 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
     elevatorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     elevatorConfig.Slot0 = ElevatorConstants.elevatorGains;
 
-    elevatorConfig.MotionMagic.MotionMagicCruiseVelocity = 80;
-    elevatorConfig.MotionMagic.MotionMagicAcceleration = 400;
-    elevatorConfig.MotionMagic.MotionMagicJerk = 0;
+    elevatorConfig.MotionMagic.MotionMagicCruiseVelocity = 12;
+    elevatorConfig.MotionMagic.MotionMagicAcceleration = 200;
+    elevatorConfig.MotionMagic.MotionMagicJerk = 400;
 
     tryUntilOk(10, () -> talonLeader.getConfigurator().apply(elevatorConfig, 0.25));
 

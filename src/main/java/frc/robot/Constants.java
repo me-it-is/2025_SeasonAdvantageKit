@@ -109,9 +109,9 @@ public final class Constants {
   public static Map<GameState, AngleAndDistance> reefMap =
       Map.of(
           GameState.L1_SCORE, new AngleAndDistance(Rotations.of(0.45), Inches.of(7.3)),
-          GameState.L2_SCORE, new AngleAndDistance(Rotations.of(0.11), Inches.of(20.3)),
-          GameState.L3_SCORE, new AngleAndDistance(Rotations.of(0.11), Inches.of(32)),
-          GameState.L4_SCORE, new AngleAndDistance(Rotations.of(0.15), Inches.of(57.9)),
+          GameState.L2_SCORE, new AngleAndDistance(Rotations.of(0.05), Inches.of(21.3)),
+          GameState.L3_SCORE, new AngleAndDistance(Rotations.of(0.05), Inches.of(35)),
+          GameState.L4_SCORE, new AngleAndDistance(Rotations.of(0.1), Inches.of(64.9)),
           GameState.L2_ALGAE, new AngleAndDistance(Degrees.of(58), Inches.of(7)),
           GameState.L3_ALGAE, new AngleAndDistance(Degrees.of(58), Inches.of(15)),
           GameState.HUMAN_PLAYER_STATION, new AngleAndDistance(Rotations.of(0.34), Inches.of(10)),
@@ -260,7 +260,8 @@ public final class Constants {
 
     public static final FeedbackSensor feedbackSensor = FeedbackSensor.kAbsoluteEncoder;
     public static final double kP = 0.16037;
-    public static final double kI = 0;
+    public static final double kI = 0.1;
+
     public static final double kD = 0;
     public static final double kFF = 0;
     public static final int currentLimit = 60;
@@ -269,7 +270,7 @@ public final class Constants {
     public static final double kG = 0.68798;
     public static final double kV = 0.1293;
 
-    public static final double kA = 0.0096343;
+    public static final double kA = 0.025;
 
     public static final double kPSlot1 = 0;
     public static final double kISlot1 = 0;
