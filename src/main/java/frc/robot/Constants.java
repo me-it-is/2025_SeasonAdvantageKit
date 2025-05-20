@@ -19,6 +19,8 @@ import static frc.robot.util.Elastic.Notification.NotificationLevel.WARNING;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.Slot1Configs;
+import com.ctre.phoenix6.configs.Slot2Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.Pigeon2;
@@ -104,6 +106,12 @@ public final class Constants {
     NONE,
   }
 
+  public static enum ElevatorState {
+    STAGE1,
+    STAGE2,
+    STAGE3;
+  }
+
   public static record AngleAndDistance(Angle angle, Distance distance) {}
 
   public static Map<GameState, AngleAndDistance> reefMap =
@@ -117,6 +125,7 @@ public final class Constants {
           GameState.HUMAN_PLAYER_STATION, new AngleAndDistance(Rotations.of(0.34), Inches.of(10)),
           GameState.NONE, new AngleAndDistance(Rotations.of(0.4), Inches.of(0)));
 
+  public static Distance[] elevatorStateMap = {Inches.of(0), Inches.of(0), Inches.of(0)};
   public static class DriveConstants {
     public static final Distance kChassisSize = Inches.of(34.24);
     public static final LinearVelocity kMaxTranslationSpeed = MetersPerSecond.of(60);
@@ -267,7 +276,9 @@ public final class Constants {
     public static final int currentLimit = 60;
 
     public static final double kS = 0.097565;
-    public static final double kG = 0.68798;
+    public static final double kG0 = 0.68798;
+    public static final double kG1 = 0.68798;
+    public static final double kG2 = 0.68798;
     public static final double kV = 0.1293;
 
     public static final double kA = 0.025;
@@ -276,7 +287,7 @@ public final class Constants {
     public static final double kISlot1 = 0;
     public static final double kDSlot1 = 0;
 
-    public static final Slot0Configs elevatorGains =
+    public static final Slot0Configs elevatorGains0 =
         new Slot0Configs()
             .withKP(kP)
             .withKI(kI)
@@ -284,7 +295,27 @@ public final class Constants {
             .withKS(kS)
             .withKV(kV)
             .withGravityType(GravityTypeValue.Elevator_Static)
-            .withKG(kG);
+            .withKG(kG0);
+
+    public static final Slot1Configs elevatorGains1 =
+        new Slot1Configs()
+            .withKP(kP)
+            .withKI(kI)
+            .withKD(kD)
+            .withKS(kS)
+            .withKV(kV)
+            .withGravityType(GravityTypeValue.Elevator_Static)
+            .withKG(kG1);
+
+    public static final Slot2Configs elevatorGains2 =
+        new Slot2Configs()
+            .withKP(kP)
+            .withKI(kI)
+            .withKD(kD)
+            .withKS(kS)
+            .withKV(kV)
+            .withGravityType(GravityTypeValue.Elevator_Static)
+            .withKG(kG2);
 
     public static final TalonFXConfiguration elevatorConfig =
         new TalonFXConfiguration()
