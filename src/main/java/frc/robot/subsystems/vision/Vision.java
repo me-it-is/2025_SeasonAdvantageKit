@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
@@ -23,6 +24,8 @@ import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
+
+import dev.doglog.DogLog;
 
 public class Vision extends SubsystemBase implements AutoCloseable {
 
@@ -84,12 +87,13 @@ public class Vision extends SubsystemBase implements AutoCloseable {
         .map(c -> Vision.updateAngleAndGetEstimate(c, allUnreadResults))
         .filter(Objects::nonNull)
         .flatMap(Optional::stream)
+        .map(this.logPose("unfiltered pose: %s"))
         .filter(Objects::nonNull)
         .filter(Vision::isOnField)
-        /*.filter(Vision::maxDistanceIsInThreshold)
+        .filter(Vision::maxDistanceIsInThreshold)
         .filter(Vision.isAmbiguityLess(VisionConstants.kMaxTagAmbiguity))
         .filter(v -> pitchIsInBounds(v, VisionConstants.kPitchBounds))
-        .filter(v -> rollIsInBounds(v, VisionConstants.kRollBounds))*/
+        .filter(v -> rollIsInBounds(v, VisionConstants.kRollBounds))
         .map(Vision::generatePoseEstimate)
         .forEach(
             (pose) -> {
@@ -174,6 +178,13 @@ public class Vision extends SubsystemBase implements AutoCloseable {
 
     return RobotMath.measureWithinBounds(
         maxDistance, VisionConstants.kMinCamDistToTag, VisionConstants.kMaxCamDistToTag);
+  }
+
+  private Function<EstimateTuple, EstimateTuple> logPose(String key) {
+    return dtUpdateEstimate -> {
+      DogLog.log("vision/dt pose update", dtUpdateEstimate.visionEstimate().estimatedPose);
+      return dtUpdateEstimate;
+    };
   }
 
   /** Is the robot on the field based on its current pose */
