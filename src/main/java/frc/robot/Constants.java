@@ -275,15 +275,13 @@ public final class Constants {
     public static final double kFF = 0;
     public static final int currentLimit = 60;
 
-    public static final double kS = 0.097565;
-    public static final double kG0 = 0.68798;
-    public static final double kG1 = 0.68798;
-    public static final double kG2 = 0.68798;
-    public static final double kV = 0.1293;
+    public static final double kS = 0;
+    public static final double kG = 40;
+    public static final double kV = 8;
 
-    public static final double kA = 0.025;
+    public static final double kA = 0;
 
-    public static final double kPSlot1 = 0;
+    public static final double kPSlot1 = 0; 
     public static final double kISlot1 = 0;
     public static final double kDSlot1 = 0;
 

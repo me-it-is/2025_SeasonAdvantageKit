@@ -7,8 +7,7 @@ import static frc.robot.util.PhoenixUtil.tryUntilOk;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
-import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.controls.MotionMagicExpoTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -33,8 +32,8 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
   private TalonFX talonLeader;
   private TalonFX talonFollower;
   private Distance setpoint = Constants.reefMap.get(GameState.NONE).distance();
-  private MotionMagicExpoVoltage profile =
-      new MotionMagicExpoVoltage(Rotations.of(0)).withEnableFOC(true);
+  private MotionMagicExpoTorqueCurrentFOC profile =
+      new MotionMagicExpoTorqueCurrentFOC(Rotations.of(0));
 
   private final StatusSignal<Angle> leaderPosition;
   private final StatusSignal<AngularVelocity> leaderVelocity;
@@ -179,7 +178,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
   }
 
   public void voltageDrive(Voltage volts) {
-    talonLeader.setControl(new VoltageOut(volts));
+    // talonLeader.setControl(new VoltageOut(volts));
   }
 
   public Distance getElevatorHeight() {
