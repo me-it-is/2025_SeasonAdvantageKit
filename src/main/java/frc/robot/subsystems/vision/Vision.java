@@ -97,9 +97,10 @@ public class Vision extends SubsystemBase implements AutoCloseable {
         .map(Vision::generatePoseEstimate)
         .forEach(
             (pose) -> {
-              System.out.println("new vision pose estimate: " + pose);
+              DogLog.log("vision/filtered pose", pose.estimatedPose.estimatedPose);
+              // updates drivetrain swerve pose estimator with vision measurement
               dtUpdateEstimate.accept(pose);
-            }); // updates drivetrain swerve pose estimator with vision measurement
+            });
 
     bestTags.clear(); // clear to only have latest results
     allUnreadResults.stream()
@@ -109,7 +110,10 @@ public class Vision extends SubsystemBase implements AutoCloseable {
         .map(PhotonTrackedTarget::getFiducialId)
         .filter(Objects::nonNull)
         .map(tagId -> new TagTuple(tagId, VisionConstants.kAprilTagFieldLayout.getTagPose(tagId)))
-        .forEach(bestTags::add);
+        .forEach(tag -> {
+          bestTags.add(tag);
+          DogLog.log("vision/added tag", tag.tagId);
+        });
   }
 
   public List<TagTuple> getBestTags() {
@@ -182,7 +186,7 @@ public class Vision extends SubsystemBase implements AutoCloseable {
 
   private Function<EstimateTuple, EstimateTuple> logPose(String key) {
     return dtUpdateEstimate -> {
-      DogLog.log("vision/dt pose update", dtUpdateEstimate.visionEstimate().estimatedPose);
+      DogLog.log("vision/" + String.format(key, dtUpdateEstimate.cameraName), dtUpdateEstimate.visionEstimate().estimatedPose);
       return dtUpdateEstimate;
     };
   }
