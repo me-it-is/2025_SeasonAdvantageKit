@@ -9,7 +9,7 @@ public final class GetAliance {
     if (DriverStation.getAlliance().isPresent()) {
       return DriverStation.getAlliance().get();
     }
-    return Constants.deafaultAlliance;
+    return Constants.defaultAlliance;
   }
 
   public static boolean getAllianceBoolean() {

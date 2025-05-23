@@ -75,11 +75,11 @@ import java.util.function.Supplier;
 public final class Constants {
   public static final Mode currentMode =
       Mode.REAL; // RobotBase.isReal() ? Mode.REAL : Mode.SIM; robot thinks it's fake wut
-  public static final Alliance deafaultAlliance = Alliance.Blue;
+  public static final Alliance defaultAlliance = Alliance.Blue;
 
-  // Phisical values of the robot
+  // Physical values of the robot
   public static final Mass ROBOT_MASS_KG = Pounds.of(138.308);
-  // Converted form lbs in2 becuse wpi doesnt have a unit
+  // Converted form lbs in2 because wpi doesnt have a unit
   public static final MomentOfInertia ROBOT_MOI = KilogramSquareMeters.of(0.0588);
   public static final double WHEEL_COF = 1.75;
   public static final double kDt = 0.02;
@@ -255,17 +255,17 @@ public final class Constants {
 
     // 3 to 1 ratio on the motor
     public static final int kGearRatio = 3;
-    public static final Angle kFullExtentionAngle = Rotations.of(9.56 * kGearRatio);
+    public static final Angle kFullExtensionAngle = Rotations.of(9.56 * kGearRatio);
 
     // Ratio of height to angle
     public static final Per<DistanceUnit, AngleUnit> kAngularSpan =
-        kMaxHeight.div(kFullExtentionAngle);
+        kMaxHeight.div(kFullExtensionAngle);
 
     // Ratio of angle to height
     public static final Per<AngleUnit, DistanceUnit> kSpanAngle =
-        kFullExtentionAngle.div(kMaxHeight);
+        kFullExtensionAngle.div(kMaxHeight);
 
-    public static final double kPositionConversionFactor = 1 / kFullExtentionAngle.in(Rotations);
+    public static final double kPositionConversionFactor = 1 / kFullExtensionAngle.in(Rotations);
 
     public static final FeedbackSensor feedbackSensor = FeedbackSensor.kAbsoluteEncoder;
     public static final double kP = 0.16037;
@@ -361,17 +361,17 @@ public final class Constants {
               new Fault(
                   () -> (talon.getFault_MissingDifferentialFX().getValue()),
                   ERROR,
-                  "Canot reach remote differential talon"));
+                  "Canont reach remote differential talon"));
           add(
               new Fault(
                   () -> (talon.getFault_MissingHardLimitRemote().getValue()),
                   ERROR,
-                  "Canot reach remote hard stop limit switch"));
+                  "Canont reach remote hard stop limit switch"));
           add(
               new Fault(
                   () -> (talon.getFault_MissingSoftLimitRemote().getValue()),
                   ERROR,
-                  "Canot reach remote soft limit device"));
+                  "Cannot reach remote soft limit device"));
           add(
               new Fault(
                   () -> (talon.getFault_OverSupplyV().getValue()),
@@ -379,7 +379,7 @@ public final class Constants {
                   "Supply voltage to high"));
           add(
               new Fault(
-                  () -> (talon.getFault_ProcTemp().getValue()), ERROR, "Processer over temp"));
+                  () -> (talon.getFault_ProcTemp().getValue()), ERROR, "Processor over temp"));
           add(
               new Fault(
                   () -> (talon.getFault_RemoteSensorDataInvalid().getValue()),
@@ -469,13 +469,13 @@ public final class Constants {
               new Fault(
                   () -> (pigeon.getFault_DataAcquiredLate().getValue()),
                   WARNING,
-                  "Motion data aquired late"));
+                  "Motion data acquired late"));
           add(new Fault(() -> (pigeon.getFault_Hardware().getValue()), ERROR, "Hardware fault"));
           add(
               new Fault(
                   () -> (pigeon.getFault_LoopTimeSlow().getValue()),
                   WARNING,
-                  "Motion data colection slow"));
+                  "Motion data collection slow"));
           add(
               new Fault(
                   () -> (pigeon.getFault_SaturatedAccelerometer().getValue()),
@@ -534,7 +534,7 @@ public final class Constants {
           add(new Fault(() -> (faults.get().escEeprom), ERROR, "escEeprom fault"));
           add(new Fault(() -> (faults.get().firmware), ERROR, "Firmware fault"));
           add(new Fault(() -> (faults.get().gateDriver), ERROR, "Gate driver fault"));
-          add(new Fault(() -> (faults.get().motorType), ERROR, "Incorect motor type"));
+          add(new Fault(() -> (faults.get().motorType), ERROR, "Incorrect motor type"));
           add(new Fault(() -> (faults.get().other), ERROR, "Other Fault"));
           add(new Fault(() -> (faults.get().sensor), ERROR, "Sensor fault"));
           add(new Fault(() -> (faults.get().temperature), ERROR, "Over temp"));

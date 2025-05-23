@@ -55,13 +55,13 @@ public final class RobotMath {
    */
   @SuppressWarnings("unchecked")
   public static <U extends Unit, M extends Measure<U>> M dist(M measure1, M measure2) {
-    // No need for NaN checks as minus with retrun NaN if eather are NaN
+    // No need for NaN checks as minus with return NaN if either are NaN
     return abs((M) measure1.minus(measure2));
   }
 
   /**
    * @param measure measure to get the absolute value of.
-   * @return the absulute value of measure with the zero point of the unit for that type.
+   * @return the absolute value of measure with the zero point of the unit for that type.
    */
   @SuppressWarnings("unchecked")
   public static <U extends Unit, M extends Measure<U>> M abs(M measure) {
@@ -145,16 +145,16 @@ public final class RobotMath {
    * @param returnUnit a Measure or a type that extends in the form Measure<SpecificUnit> where
    *     SpecificUnit extends PerUnit<U,T> and has the same base unit. The measure can have any
    *     value;
-   * @return Value of the measure passed while wraped in returnUnit.
+   * @return Value of the measure passed while wrapped in returnUnit.
    */
   @SuppressWarnings("unchecked")
   public static <
-          SpecificUnint extends SupplyedUnit,
-          SupplyedUnit extends PerUnit<U, I>,
+          SpecificUnint extends SuppliedUnit,
+          SuppliedUnit extends PerUnit<U, I>,
           U extends Unit,
           I extends Unit,
           M extends Measure<SpecificUnint>,
-          T extends Measure<SupplyedUnit>>
+          T extends Measure<SuppliedUnit>>
       M castToMoreSpecificUnits(T measure, M returnUnit) {
 
     return (M) returnUnit.unit().ofBaseUnits(measure.baseUnitMagnitude());

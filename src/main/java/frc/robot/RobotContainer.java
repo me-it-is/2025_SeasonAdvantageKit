@@ -386,6 +386,23 @@ public class RobotContainer {
     return routine.dynamic(dir);
   }
 
+  private Command characterizeElevatorFull() {
+    return sequence(
+        characterizeElevatorQuasistatic(Direction.kForward)
+            .until(
+                () -> elevator.getElevatorHeight().gte(ElevatorConstants.kMaxHeight.times(0.85))),
+        characterizeElevatorQuasistatic(Direction.kReverse)
+            .until(
+                () -> elevator.getElevatorHeight().lte(ElevatorConstants.kMaxHeight.times(0.15))),
+        waitSeconds(5),
+        characterizeElevatorDynamic(Direction.kForward)
+            .until(
+                () -> elevator.getElevatorHeight().gte(ElevatorConstants.kMaxHeight.times(0.85))),
+        characterizeElevatorQuasistatic(Direction.kReverse)
+            .until(
+                () -> elevator.getElevatorHeight().lte(ElevatorConstants.kMaxHeight.times(0.15))));
+  }
+
   public void resetSubsystems() {
     elevator.zeroElevator();
   }
