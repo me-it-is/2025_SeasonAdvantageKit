@@ -2,6 +2,7 @@ package frc.robot.subsystems.vision;
 
 import static edu.wpi.first.units.Units.*;
 
+import dev.doglog.DogLog;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.numbers.N1;
@@ -24,8 +25,6 @@ import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
-
-import dev.doglog.DogLog;
 
 public class Vision extends SubsystemBase implements AutoCloseable {
 
@@ -110,10 +109,11 @@ public class Vision extends SubsystemBase implements AutoCloseable {
         .map(PhotonTrackedTarget::getFiducialId)
         .filter(Objects::nonNull)
         .map(tagId -> new TagTuple(tagId, VisionConstants.kAprilTagFieldLayout.getTagPose(tagId)))
-        .forEach(tag -> {
-          bestTags.add(tag);
-          DogLog.log("vision/added tag", tag.tagId);
-        });
+        .forEach(
+            tag -> {
+              bestTags.add(tag);
+              DogLog.log("vision/added tag", tag.tagId);
+            });
   }
 
   public List<TagTuple> getBestTags() {
@@ -186,7 +186,9 @@ public class Vision extends SubsystemBase implements AutoCloseable {
 
   private Function<EstimateTuple, EstimateTuple> logPose(String key) {
     return dtUpdateEstimate -> {
-      DogLog.log("vision/" + String.format(key, dtUpdateEstimate.cameraName), dtUpdateEstimate.visionEstimate().estimatedPose);
+      DogLog.log(
+          "vision/" + String.format(key, dtUpdateEstimate.cameraName),
+          dtUpdateEstimate.visionEstimate().estimatedPose);
       return dtUpdateEstimate;
     };
   }
