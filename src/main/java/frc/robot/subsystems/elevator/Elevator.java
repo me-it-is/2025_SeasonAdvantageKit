@@ -23,7 +23,6 @@ import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
-import frc.robot.Constants.ElevatorState;
 import frc.robot.Constants.GameState;
 import frc.robot.util.RobotMath;
 import frc.robot.util.faultChecker.CTREFaultChecker;
@@ -132,9 +131,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
             leaderSetpointError);
 
     for (int i = 0; i < Constants.elevatorStateMap.length; ++i) {
-      if (getElevatorHeight().lt(Constants.elevatorStateMap[i])) {
-
-      }
+      if (getElevatorHeight().lt(Constants.elevatorStateMap[i])) {}
     }
 
     DogLog.log("elevator/leader connected", leaderConnectedDebounce.calculate(leaderStatus.isOK()));

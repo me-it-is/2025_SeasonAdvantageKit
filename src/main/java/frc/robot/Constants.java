@@ -126,6 +126,7 @@ public final class Constants {
           GameState.NONE, new AngleAndDistance(Rotations.of(0.4), Inches.of(0)));
 
   public static Distance[] elevatorStateMap = {Inches.of(0), Inches.of(0), Inches.of(0)};
+
   public static class DriveConstants {
     public static final Distance kChassisSize = Inches.of(34.24);
     public static final LinearVelocity kMaxTranslationSpeed = MetersPerSecond.of(60);
@@ -276,12 +277,15 @@ public final class Constants {
     public static final int currentLimit = 60;
 
     public static final double kS = 0;
-    public static final double kG = 40;
+    public static final double kG0 = 40;
     public static final double kV = 8;
+
+    public static final double kG1 = 40;
+    public static final double kG2 = 40;
 
     public static final double kA = 0;
 
-    public static final double kPSlot1 = 0; 
+    public static final double kPSlot1 = 0;
     public static final double kISlot1 = 0;
     public static final double kDSlot1 = 0;
 
