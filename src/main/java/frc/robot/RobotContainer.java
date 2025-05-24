@@ -125,10 +125,10 @@ public class RobotContainer {
     }
     vision = new Vision(drive::updateEstimates);
     climber = new Climber(new SparkMax(ClimberConstants.kClimberMotorID, MotorType.kBrushless));
-    // elevator =
-    //     new Elevator(
-    //         new TalonFX(ElevatorConstants.kTalonLeaderCANId, ElevatorConstants.canBus),
-    //         new TalonFX(ElevatorConstants.kTalonFollowerCANId, ElevatorConstants.canBus));
+    elevator =
+        new Elevator(
+            new TalonFX(ElevatorConstants.kTalonLeaderCANId, ElevatorConstants.canBus),
+            new TalonFX(ElevatorConstants.kTalonFollowerCANId, ElevatorConstants.canBus));
     manipulator =
         new Manipulator(
             new SparkMax(ManipulatorConstants.kPivotId, MotorType.kBrushless),

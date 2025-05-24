@@ -6,7 +6,6 @@ import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicExpoTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -57,7 +56,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
   public Elevator(TalonFX talonLeader, TalonFX talonFollower) {
     this.talonLeader = talonLeader;
     this.talonFollower = talonFollower;
-    talonFollower.setControl(new Follower(ElevatorConstants.kTalonLeaderCANId, true));
+    // talonFollower.setControl(new Follower(ElevatorConstants.kTalonLeaderCANId, true));
 
     var elevatorConfig = ElevatorConstants.elevatorConfig;
     elevatorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -159,7 +158,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
 
   public void setSetpoint(GameState stage) {
     this.setpoint = Constants.reefMap.get(stage).distance();
-    talonLeader.setControl(profile.withPosition(heightToAngle(setpoint)));
+    // talonLeader.setControl(profile.withPosition(heightToAngle(setpoint)));
   }
 
   public boolean atSetpoint() {
