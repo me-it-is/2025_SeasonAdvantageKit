@@ -71,7 +71,7 @@ public class Manipulator extends SubsystemBase implements AutoCloseable {
     DogLog.log("manipulator/error", error.in(Rotations));
     DogLog.log("manipulator/at setpoint", atSetpoint);
 
-    this.beamBroken = !beamBreak.get();
+    this.beamBroken = beamBreak.get();
     DogLog.log("manipulator/has coral", beamBroken);
 
     // zeroed at 180 degrees

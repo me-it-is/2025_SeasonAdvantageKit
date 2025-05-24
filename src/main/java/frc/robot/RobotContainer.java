@@ -125,10 +125,10 @@ public class RobotContainer {
     }
     vision = new Vision(drive::updateEstimates);
     climber = new Climber(new SparkMax(ClimberConstants.kClimberMotorID, MotorType.kBrushless));
-    elevator =
-        new Elevator(
-            new TalonFX(ElevatorConstants.kTalonLeaderCANId, ElevatorConstants.canBus),
-            new TalonFX(ElevatorConstants.kTalonFollowerCANId, ElevatorConstants.canBus));
+    // elevator =
+    //     new Elevator(
+    //         new TalonFX(ElevatorConstants.kTalonLeaderCANId, ElevatorConstants.canBus),
+    //         new TalonFX(ElevatorConstants.kTalonFollowerCANId, ElevatorConstants.canBus));
     manipulator =
         new Manipulator(
             new SparkMax(ManipulatorConstants.kPivotId, MotorType.kBrushless),
@@ -302,16 +302,10 @@ public class RobotContainer {
                 .ignoringDisable(true));
 
     // intake coral
-    opController
-        .rightBumper()
-        .whileTrue(runOnce(() -> manipulator.spinRollers(true), manipulator))
-        .onFalse(runOnce(() -> manipulator.stopRollers(), manipulator));
+    opController.rightBumper().onTrue(rollerAction(true));
 
     // outtake coral
-    opController
-        .leftBumper()
-        .whileTrue(runOnce(() -> manipulator.spinRollers(false), manipulator))
-        .onFalse(runOnce(() -> manipulator.stopRollers(), manipulator));
+    opController.leftBumper().onTrue(rollerAction(false));
 
     /*new Trigger(() -> (Math.abs(opController.getLeftY())) > 0.5)
     .whileTrue(
@@ -386,7 +380,7 @@ public class RobotContainer {
     return routine.dynamic(dir);
   }
 
-  private Command characterizeElevatorFull() {
+  private Command charactarizeElevatorFull() {
     return sequence(
         characterizeElevatorQuasistatic(Direction.kForward)
             .until(
