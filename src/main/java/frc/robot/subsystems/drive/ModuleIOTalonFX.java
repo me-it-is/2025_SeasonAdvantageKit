@@ -277,8 +277,8 @@ public class ModuleIOTalonFX implements ModuleIO {
 
   @Override
   public void updateFaults() {
-    turnTalonFaultChecker.updateFaults();
-    driveTalonFaultChecker.updateFaults();
-    CANcoderFaultChecker.updateFaults();
+    // turnTalonFaultChecker.updateFaults();
+    // driveTalonFaultChecker.updateFaults();
+    // CANcoderFaultChecker.updateFaults();
   }
 }

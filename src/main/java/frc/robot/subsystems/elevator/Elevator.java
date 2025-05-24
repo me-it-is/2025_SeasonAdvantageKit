@@ -153,8 +153,8 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
     DogLog.log("elevator/folower setpoint position", followerSetpoint.getValueAsDouble());
     DogLog.log("elevator/folower setpoint error", followerSetpointError.getValueAsDouble());
 
-    this.leadChecker.updateFaults();
-    this.followerChecker.updateFaults();
+    // this.leadChecker.updateFaults();
+    // this.followerChecker.updateFaults();
   }
 
   public void setSetpoint(GameState stage) {

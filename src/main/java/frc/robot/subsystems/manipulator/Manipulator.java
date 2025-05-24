@@ -83,8 +83,8 @@ public class Manipulator extends SubsystemBase implements AutoCloseable {
         ClosedLoopSlot.kSlot0,
         ff,
         ArbFFUnits.kPercentOut);
-    pivotChecker.updateFaults();
-    rollersChecker.updateFaults();
+    // pivotChecker.updateFaults();
+    // rollersChecker.updateFaults();
   }
 
   public void move(boolean reverse) {
