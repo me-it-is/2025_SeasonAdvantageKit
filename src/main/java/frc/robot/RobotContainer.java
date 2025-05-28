@@ -140,6 +140,8 @@ public class RobotContainer {
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
     // Set up SysId routines
+
+    Command drive1m = AutoBuilder.buildAuto("drive 1m");
     testController
         .y()
         .whileTrue(drive.driveSysIdQuasistatic(SysIdRoutine.Direction.kForward))
@@ -172,7 +174,8 @@ public class RobotContainer {
         .povLeft()
         .whileTrue(drive.turnSysIdDynamic(Direction.kReverse))
         .onFalse((runOnce(drive::stop, drive)));
-    testController.leftTrigger().whileTrue(characterizeElevatorQuasistatic(Direction.kForward));
+    // testController.leftTrigger().whileTrue(characterizeElevatorQuasistatic(Direction.kForward));
+    testController.leftTrigger().whileTrue(drive1m);
     testController.leftBumper().whileTrue(characterizeElevatorQuasistatic(Direction.kReverse));
     testController.rightTrigger().whileTrue(characterizeElevatorDynamic(Direction.kForward));
     testController.rightBumper().whileTrue(characterizeElevatorDynamic(Direction.kReverse));
@@ -250,6 +253,7 @@ public class RobotContainer {
         "bottom leave double score", AutoBuilder.buildAuto("bottom reef double score"));
     autoChooser.addOption("top remove algae", AutoBuilder.buildAuto("top remove algae"));
     autoChooser.addOption("bottom remove algae", AutoBuilder.buildAuto("bottom remove algae"));
+    autoChooser.addOption("drive 1m", AutoBuilder.buildAuto("drive 1m"));
   }
 
   public void resetPose() {

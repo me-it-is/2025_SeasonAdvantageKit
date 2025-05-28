@@ -160,8 +160,8 @@ public class Drive extends SubsystemBase {
     turnSysId =
         new SysIdRoutine(
             new SysIdRoutine.Config(
-                null,
-                null,
+                Volts.per(Second).of(0.5),
+                Volts.of(2),
                 null,
                 (state) -> SignalLogger.writeString("turn sysid state", state.toString())),
             new SysIdRoutine.Mechanism(
