@@ -12,17 +12,19 @@ public abstract class AbstractFaultChecker {
   public List<Fault> warningFaults = new ArrayList<>();
   public List<Fault> errorFaults = new ArrayList<>();
 
-  public String commponentName;
+  public String componentName;
 
-  private DataLog log = DataLogManager.getLog();
-  private StringLogEntry stringLog = new StringLogEntry(log, commponentName);
+  private DataLog log;
+  private StringLogEntry stringLog;
 
   /**
-   * @param commponentName Name of the commponent that the fault checkers atatched to. creates a
-   *     fault checker with commponentName.
+   * @param componentName Name of the component that the fault checkers attached to. creates a fault
+   *     checker with componentName.
    */
-  public AbstractFaultChecker(String commponentName) {
-    this.commponentName = commponentName;
+  public AbstractFaultChecker(String componentName) {
+    this.componentName = componentName;
+    log = DataLogManager.getLog();
+    stringLog = new StringLogEntry(log, componentName);
     DataLogManager.start();
   }
 
@@ -34,14 +36,14 @@ public abstract class AbstractFaultChecker {
     for (Fault f : warningFaults) {
       f.updateFault();
       if (f.hasFault != f.hadFault) {
-        f.logFault(commponentName, stringLog);
+        f.logFault(componentName, stringLog);
       }
     }
     for (Fault f : errorFaults) {
       f.updateFault();
       if (f.hasFault != f.hadFault) {
-        f.logFault(commponentName, stringLog);
-        f.sendNotification(commponentName);
+        f.logFault(componentName, stringLog);
+        f.sendNotification(componentName);
       }
     }
   }
@@ -122,7 +124,7 @@ public abstract class AbstractFaultChecker {
   }
 
   /**
-   * @return true if no warrnings
+   * @return true if no warnings
    */
   public boolean isClean() {
     return !hasWarningFault();

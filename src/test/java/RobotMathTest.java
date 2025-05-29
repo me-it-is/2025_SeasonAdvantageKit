@@ -5,6 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.units.AngleUnit;
+import edu.wpi.first.units.DistanceUnit;
+import edu.wpi.first.units.measure.Per;
 import org.junit.jupiter.api.Test;
 
 class RobotMathTest {
@@ -279,6 +282,124 @@ class RobotMathTest {
         Double.isNaN(
             distanceBetweenTranslations(new Translation3d(), new Translation3d(0, 0, Double.NaN))
                 .in(Meters)));
+  }
+
+  @Test
+  void testUseConvertionFactorFromLowerOrderUnitForHigherOrderConversion() {
+    Per<DistanceUnit, AngleUnit> conversionFactor1 = Meters.one().div(Radians.one());
+
+    assertTrue(
+        castToMoreSpecificUnits(
+                useConversionFactorFromLowerOrderUnitForHigherOrderConversion(
+                    conversionFactor1, RadiansPerSecond.zero()),
+                MetersPerSecond.zero())
+            .isEquivalent(MetersPerSecond.zero()));
+    assertTrue(
+        castToMoreSpecificUnits(
+                useConversionFactorFromLowerOrderUnitForHigherOrderConversion(
+                    conversionFactor1, RadiansPerSecond.one()),
+                MetersPerSecond.zero())
+            .isEquivalent(MetersPerSecond.one()));
+    assertTrue(
+        castToMoreSpecificUnits(
+                useConversionFactorFromLowerOrderUnitForHigherOrderConversion(
+                    conversionFactor1, RadiansPerSecond.of(2)),
+                MetersPerSecond.zero())
+            .isEquivalent(MetersPerSecond.of(2)));
+    assertTrue(
+        castToMoreSpecificUnits(
+                useConversionFactorFromLowerOrderUnitForHigherOrderConversion(
+                    conversionFactor1, RadiansPerSecond.of(3)),
+                MetersPerSecond.zero())
+            .isEquivalent(MetersPerSecond.of(3)));
+    System.out.println(
+        castToMoreSpecificUnits(
+            useConversionFactorFromLowerOrderUnitForHigherOrderConversion(
+                conversionFactor1, RadiansPerSecond.of(Double.POSITIVE_INFINITY)),
+            MetersPerSecond.zero()));
+    System.out.println(MetersPerSecond.of(Double.POSITIVE_INFINITY));
+    assertTrue(
+        Double.isInfinite(
+            castToMoreSpecificUnits(
+                    useConversionFactorFromLowerOrderUnitForHigherOrderConversion(
+                        conversionFactor1, RadiansPerSecond.of(Double.POSITIVE_INFINITY)),
+                    MetersPerSecond.zero())
+                .in(FeetPerSecond)));
+    assertTrue(
+        Double.isInfinite(
+            castToMoreSpecificUnits(
+                    useConversionFactorFromLowerOrderUnitForHigherOrderConversion(
+                        conversionFactor1, RadiansPerSecond.of(Double.NEGATIVE_INFINITY)),
+                    MetersPerSecond.zero())
+                .in(FeetPerSecond)));
+    assertTrue(
+        isMeasureNaN(
+            castToMoreSpecificUnits(
+                useConversionFactorFromLowerOrderUnitForHigherOrderConversion(
+                    conversionFactor1, RadiansPerSecond.of(Double.NaN)),
+                MetersPerSecond.zero())));
+    assertTrue(
+        castToMoreSpecificUnits(
+                useConversionFactorFromLowerOrderUnitForHigherOrderConversion(
+                    conversionFactor1, RadiansPerSecond.of(-1)),
+                MetersPerSecond.zero())
+            .isEquivalent(MetersPerSecond.of(-1)));
+    assertTrue(
+        castToMoreSpecificUnits(
+                useConversionFactorFromLowerOrderUnitForHigherOrderConversion(
+                    conversionFactor1, RadiansPerSecond.of(-2)),
+                MetersPerSecond.zero())
+            .isEquivalent(MetersPerSecond.of(-2)));
+    assertTrue(
+        isMeasureNaN(
+            castToMoreSpecificUnits(
+                useConversionFactorFromLowerOrderUnitForHigherOrderConversion(
+                    conversionFactor1, RadiansPerSecond.of(-Double.NaN)),
+                MetersPerSecond.zero())));
+  }
+
+  @Test
+  void testCastToMoreSpecificUnits() {
+    for (int i = -0xFF; i <= 0xFF; i++) {
+      for (int j = Integer.MIN_VALUE / 0xFFFF; j <= Integer.MAX_VALUE / 0xFFFF; j++) {
+        assertTrue(
+            castToMoreSpecificUnits(MetersPerSecond.of(j), MetersPerSecond.of(i))
+                .isEquivalent(MetersPerSecond.of(j)));
+      }
+      assertTrue(
+          Double.isInfinite(
+              castToMoreSpecificUnits(
+                      MetersPerSecond.of(Double.POSITIVE_INFINITY), MetersPerSecond.of(i))
+                  .in(MetersPerSecond)));
+      assertTrue(
+          Double.isInfinite(
+              castToMoreSpecificUnits(
+                      MetersPerSecond.of(Double.NEGATIVE_INFINITY), MetersPerSecond.of(i))
+                  .in(MetersPerSecond)));
+      assertTrue(
+          Double.isNaN(
+              castToMoreSpecificUnits(MetersPerSecond.of(Double.NaN), MetersPerSecond.of(i))
+                  .in(MetersPerSecond)));
+    }
+    for (int j = Integer.MIN_VALUE / 0xFFFF; j <= Integer.MAX_VALUE / 0xFFFF; j++) {
+      assertTrue(
+          castToMoreSpecificUnits(MetersPerSecond.of(j), MetersPerSecond.of(Double.NaN))
+              .isEquivalent(MetersPerSecond.of(j)));
+    }
+    assertTrue(
+        Double.isInfinite(
+            castToMoreSpecificUnits(
+                    MetersPerSecond.of(Double.POSITIVE_INFINITY), MetersPerSecond.of(Double.NaN))
+                .in(MetersPerSecond)));
+    assertTrue(
+        Double.isInfinite(
+            castToMoreSpecificUnits(
+                    MetersPerSecond.of(Double.NEGATIVE_INFINITY), MetersPerSecond.of(Double.NaN))
+                .in(MetersPerSecond)));
+    assertTrue(
+        Double.isNaN(
+            castToMoreSpecificUnits(MetersPerSecond.of(Double.NaN), MetersPerSecond.of(Double.NaN))
+                .in(MetersPerSecond)));
   }
 
   @Test

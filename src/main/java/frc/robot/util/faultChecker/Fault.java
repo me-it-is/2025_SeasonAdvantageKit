@@ -8,7 +8,7 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
- * Encodes the status of a fault as well as the required resorces to update and notify the driver
+ * Encodes the status of a fault as well as the required resources to update and notify the driver
  */
 public class Fault {
   String faultName;
@@ -65,7 +65,7 @@ public class Fault {
   /**
    * Sends a elastic notification to alert the drivers to the fault
    *
-   * @param componentName the name of the commponent that has the fault
+   * @param componentName the name of the component that has the fault
    */
   public void sendNotification(String componentName) {
     FaultInfo faultInfo = getFaultString(componentName);
@@ -75,7 +75,7 @@ public class Fault {
    * Adds a entry of the fault to a log.
    *
    * @param logEntry the log to add the fault to
-   * @param componentName the name of the commponent that has the fault
+   * @param componentName the name of the component that has the fault
    */
   public void logFault(String componentName, StringLogEntry logEntry) {
     FaultInfo faultString = getFaultString(componentName);

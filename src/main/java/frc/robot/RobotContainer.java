@@ -16,24 +16,28 @@ package frc.robot;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 import static frc.robot.util.GetAliance.getAllianceBoolean;
 
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+import dev.doglog.DogLog;
+import dev.doglog.DogLogOptions;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.ClimberConstants.State;
 import frc.robot.Constants.DriveConstants;
@@ -41,6 +45,7 @@ import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.GameState;
 import frc.robot.Constants.ManipulatorConstants;
 import frc.robot.Constants.VisionConstants;
+import frc.robot.commands.AutoAim;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.SnapToTarget;
 import frc.robot.generated.TunerConstants;
@@ -53,9 +58,7 @@ import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.manipulator.Manipulator;
-import frc.robot.util.BrownoutMonitor;
-import monologue.Logged;
-import monologue.Monologue;
+import frc.robot.subsystems.vision.Vision;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -64,18 +67,18 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
  * subsystems, commands, and button mappings) should be declared here.
  */
-public class RobotContainer implements Logged {
+public class RobotContainer {
   // Subsystems
   private final Drive drive;
-  // private final Vision vision;
+  private final Vision vision;
   private final Manipulator manipulator;
   private final Climber climber;
   private final Elevator elevator;
-  private final BrownoutMonitor brownoutMonitor;
 
   // Controllers
   private final CommandXboxController controller = new CommandXboxController(0);
   private final CommandXboxController opController = new CommandXboxController(1);
+  private final CommandXboxController testController = new CommandXboxController(2);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -83,7 +86,9 @@ public class RobotContainer implements Logged {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    Monologue.setupMonologue(this, "Robot", false, false);
+    DogLog.setOptions(new DogLogOptions().withCaptureDs(true));
+    DogLog.setPdh(new PowerDistribution());
+
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
@@ -118,21 +123,69 @@ public class RobotContainer implements Logged {
                 new ModuleIO() {});
         break;
     }
-    // vision = new Vision(drive::updateEstimates);
+    vision = new Vision(drive::updateEstimates);
     climber = new Climber(new SparkMax(ClimberConstants.kClimberMotorID, MotorType.kBrushless));
     elevator =
         new Elevator(
-            new SparkMax(ElevatorConstants.kSparkMaxCANId, MotorType.kBrushless),
-            new SparkMax(ElevatorConstants.kSparkMaxFollowerCANId, MotorType.kBrushless));
+            new TalonFX(ElevatorConstants.kTalonLeaderCANId, ElevatorConstants.canBus),
+            new TalonFX(ElevatorConstants.kTalonFollowerCANId, ElevatorConstants.canBus));
     manipulator =
         new Manipulator(
             new SparkMax(ManipulatorConstants.kPivotId, MotorType.kBrushless),
             new SparkMax(ManipulatorConstants.kRollerId, MotorType.kBrushless));
-    brownoutMonitor = new BrownoutMonitor(drive, climber, elevator, manipulator);
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
     // Set up SysId routines
+
+    Command drive1m = AutoBuilder.buildAuto("drive 1m");
+    testController
+        .y()
+        .whileTrue(DriveCommands.wheelRadiusCharacterization(drive))
+        .onFalse((runOnce(() -> drive.stop(), drive)));
+    testController
+        .b()
+        .whileTrue(DriveCommands.feedforwardCharacterization(drive))
+        .onFalse((runOnce(() -> drive.stop(), drive)));
+    testController
+        .a()
+        .whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward))
+        .onFalse((runOnce(() -> drive.stop(), drive)));
+    testController
+        .x()
+        .whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse))
+        .onFalse((runOnce(() -> drive.stop(), drive)));
+    testController
+        .povDownRight()
+        .whileTrue(DriveCommands.wheelRadiusCharacterization(drive))
+        .onFalse((runOnce(() -> drive.stop(), drive)));
+    testController
+        .povUp()
+        .whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kForward))
+        .onFalse((runOnce(() -> drive.stop(), drive)));
+    testController
+        .leftTrigger()
+        .whileTrue(
+            characterizeElevatorQuasistatic(Direction.kForward)
+                .finallyDo((bool) -> System.out.println(bool)))
+        .onFalse((runOnce(elevator::stop, elevator)));
+    testController
+        .leftBumper()
+        .whileTrue(characterizeElevatorQuasistatic(Direction.kReverse))
+        .onFalse((runOnce(elevator::stop, elevator)));
+    testController
+        .rightTrigger()
+        .whileTrue(characterizeElevatorDynamic(Direction.kForward))
+        .onFalse((runOnce(elevator::stop, elevator)));
+    testController
+        .rightBumper()
+        .whileTrue(characterizeElevatorDynamic(Direction.kReverse))
+        .onFalse((runOnce(elevator::stop, elevator)));
+
+    // testController
+    //     .povLeft()
+    //     .whileTrue(characterizeElevator(Direction.kForward))
+    //     .onFalse((runOnce(() -> drive.stop(), drive)));
     autoChooser.addOption(
         "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
     autoChooser.addOption(
@@ -181,24 +234,28 @@ public class RobotContainer implements Logged {
   }
 
   private void configureAutos() {
-    NamedCommands.registerCommand("score", pickupAction(GameState.L4_SCORE, true));
     NamedCommands.registerCommand(
-        "hps pickup", pickupAction(GameState.HUMAN_PLAYER_STATION, false));
-    NamedCommands.registerCommand("remove algae", pickupAction(GameState.L2_ALGAE, false));
+        "score", moveToState(GameState.L4_SCORE, true).andThen(rollerAction(false)));
+    NamedCommands.registerCommand(
+        "hps pickup",
+        moveToState(GameState.HUMAN_PLAYER_STATION, true).andThen(rollerAction(true)));
+    NamedCommands.registerCommand(
+        "remove algae", moveToState(GameState.L2_ALGAE, true).andThen(rollerAction(true)));
 
     autoChooser.addDefaultOption("top leave", AutoBuilder.buildAuto("top leave"));
+    autoChooser.addOption(
+        "middle leave single score", AutoBuilder.buildAuto("middle leave single score"));
     autoChooser.addOption("middle leave", AutoBuilder.buildAuto("middle leave"));
     autoChooser.addOption("bottom leave", AutoBuilder.buildAuto("bottom leave"));
+    autoChooser.addOption("top leave single score", AutoBuilder.buildAuto("top reef single score"));
+    autoChooser.addOption("top leave double score", AutoBuilder.buildAuto("top reef double score"));
     autoChooser.addOption(
-        "top leave single score", AutoBuilder.buildAuto("top leave single score"));
+        "bottom leave single score", AutoBuilder.buildAuto("bottom reef single score"));
     autoChooser.addOption(
-        "top leave double score", AutoBuilder.buildAuto("top leave double score"));
-    autoChooser.addOption(
-        "bottom leave single score", AutoBuilder.buildAuto("bottom leave single score"));
-    autoChooser.addOption(
-        "bottom leave double score", AutoBuilder.buildAuto("bottom leave double score"));
+        "bottom leave double score", AutoBuilder.buildAuto("bottom reef double score"));
     autoChooser.addOption("top remove algae", AutoBuilder.buildAuto("top remove algae"));
     autoChooser.addOption("bottom remove algae", AutoBuilder.buildAuto("bottom remove algae"));
+    autoChooser.addOption("drive 1m", AutoBuilder.buildAuto("drive 1m"));
   }
 
   public void resetPose() {
@@ -223,13 +280,12 @@ public class RobotContainer implements Logged {
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive,
-            () -> MathUtil.applyDeadband(controller.getLeftY(), DriveConstants.kDriveDeadband),
-            () -> MathUtil.applyDeadband(controller.getLeftX(), DriveConstants.kDriveDeadband),
+            () -> -MathUtil.applyDeadband(controller.getLeftY(), DriveConstants.kDriveDeadband),
+            () -> -MathUtil.applyDeadband(controller.getLeftX(), DriveConstants.kDriveDeadband),
             () -> MathUtil.applyDeadband(-controller.getRightX(), DriveConstants.kDriveDeadband),
             controller.leftTrigger()));
-
     // Rotate and translate to closest April Tag based on tag odometry
-    // controller.b().whileTrue(new AutoAim(drive, vision, controller));
+    controller.b().whileTrue(new AutoAim(drive, vision, controller));
 
     // Automatically align to April Tag based on pose data
     controller.y().onTrue(new SnapToTarget(drive));
@@ -249,44 +305,39 @@ public class RobotContainer implements Logged {
                 .ignoringDisable(true));
 
     // intake coral
-    opController
-        .rightBumper()
-        .whileTrue(manipulator.spinRollers(true))
-        .onFalse(manipulator.stopRollers());
+    opController.rightBumper().onTrue(rollerAction(true));
 
     // outtake coral
-    opController
-        .leftBumper()
-        .whileTrue(manipulator.spinRollers(false))
-        .onFalse(manipulator.stopRollers());
+    opController.leftBumper().onTrue(rollerAction(false));
 
-    // intake and release algae
-    new Trigger(() -> (Math.abs(opController.getLeftY())) > 0.5)
-        .onTrue(pickupAction(GameState.L2_ALGAE, Math.signum(opController.getLeftY()) == 1.0));
+    /*new Trigger(() -> (Math.abs(opController.getLeftY())) > 0.5)
+    .whileTrue(
+        runOnce(
+            () -> elevator.voltageDrive(Volts.of(2 * Math.signum(opController.getLeftY()))),
+            elevator))
+    .onFalse(runOnce(() -> elevator.setUseVoltageControl(false), elevator));*/
+    /*new Trigger(() -> (opController.getLeftY()) > 0.5 && elevator.isWithinUpperBounds())
+        .whileTrue(runOnce(() -> characterizeElevatorQuasistatic(Direction.kForward), elevator))
+        .onFalse(runOnce(elevator::stop, elevator));
+    new Trigger(() -> (opController.getLeftY()) < -0.5 && elevator.isWithinLowerBounds())
+        .whileTrue(runOnce(() -> characterizeElevatorQuasistatic(Direction.kReverse), elevator))
+        .onFalse(runOnce(elevator::stop, elevator));*/
 
-    opController.a().onTrue(pickupAction(GameState.L1_SCORE, true));
-    opController.b().onTrue(pickupAction(GameState.L2_SCORE, true));
-    opController.y().onTrue(pickupAction(GameState.L3_SCORE, true));
-    opController.x().onTrue(pickupAction(GameState.L4_SCORE, true));
+    opController.povLeft().onTrue(moveToState(GameState.L2_ALGAE, false));
+    opController.povRight().onTrue(moveToState(GameState.L3_ALGAE, false));
+
+    opController.a().onTrue(moveToState(GameState.L1_SCORE, false));
+    opController.b().onTrue(moveToState(GameState.L2_SCORE, false));
+    opController.y().onTrue(moveToState(GameState.L3_SCORE, false));
+    opController.x().onTrue(moveToState(GameState.L4_SCORE, false));
 
     // human player station intake
-    opController.povUp().onTrue(pickupAction(GameState.HUMAN_PLAYER_STATION, false));
-    // climber setpoints
-    opController
-        .povLeft()
-        .onTrue(
-            runOnce(() -> climber.moveToSetpoint(State.BOTTOM), climber).until(climber::atSetpoint))
-        .onFalse(runOnce(climber::stop));
+    opController.povUp().onTrue(moveToState(GameState.HUMAN_PLAYER_STATION, false));
+
     opController
         .povDown()
         .onTrue(
-            runOnce(() -> climber.moveToSetpoint(State.MID), climber).until(climber::atSetpoint))
-        .onFalse(runOnce(climber::stop));
-    opController
-        .povRight()
-        .onTrue(
-            runOnce(() -> climber.moveToSetpoint(State.TOP), climber).until(climber::atSetpoint))
-        .onFalse(runOnce(climber::stop));
+            runOnce(() -> climber.moveToSetpoint(State.MID), climber).until(climber::atSetpoint));
 
     opController
         .leftTrigger()
@@ -299,15 +350,58 @@ public class RobotContainer implements Logged {
         .onFalse(runOnce(climber::stop));
   }
 
-  /* Move to correct elevator height, pivot angle, and spin manipulator rollers */
-  private Command pickupAction(GameState state, boolean eject) {
+  /* Move to correct elevator height, pivot angle, and spin manipulator rollers to counteract the force applyd on the coral by spinning the manipulator */
+  private Command moveToState(GameState state, boolean auto) {
     return sequence(
         runOnce(() -> elevator.setSetpoint(state), elevator),
-        waitUntil(() -> elevator.atSetpoint()),
+        waitSeconds(auto ? 2 : 0.5),
         runOnce(() -> manipulator.setAngle(state), manipulator),
-        waitUntil(() -> manipulator.atAngle(state)),
-        manipulator.spinRollers(eject).withTimeout(ManipulatorConstants.kDefaultPickupTime),
-        manipulator.stopRollers());
+        waitUntil(() -> manipulator.atAngle()).andThen(manipulator::stopRollers));
+  }
+
+  private Command rollerAction(boolean forward) {
+    return sequence(
+        runOnce(() -> manipulator.spinRollers(forward), manipulator),
+        waitUntil(() -> (forward ? !manipulator.hasCoral() : manipulator.hasCoral())),
+        runOnce(manipulator::stopRollers, manipulator));
+  }
+
+  private Command characterizeElevatorQuasistatic(Direction dir) {
+    SysIdRoutine routine =
+        new SysIdRoutine(
+            ElevatorConstants.sysIdConfig,
+            new SysIdRoutine.Mechanism(elevator::voltageDrive, elevator::sysIdLog, elevator));
+    return routine.quasistatic(dir);
+  }
+
+  private Command characterizeElevatorDynamic(Direction dir) {
+    SysIdRoutine routine =
+        new SysIdRoutine(
+            ElevatorConstants.sysIdConfig,
+            new SysIdRoutine.Mechanism(elevator::voltageDrive, elevator::sysIdLog, elevator));
+
+    return routine.dynamic(dir);
+  }
+
+  private Command charactarizeElevatorFull() {
+    return sequence(
+        characterizeElevatorQuasistatic(Direction.kForward)
+            .until(
+                () -> elevator.getElevatorHeight().gte(ElevatorConstants.kMaxHeight.times(0.85))),
+        characterizeElevatorQuasistatic(Direction.kReverse)
+            .until(
+                () -> elevator.getElevatorHeight().lte(ElevatorConstants.kMaxHeight.times(0.15))),
+        waitSeconds(5),
+        characterizeElevatorDynamic(Direction.kForward)
+            .until(
+                () -> elevator.getElevatorHeight().gte(ElevatorConstants.kMaxHeight.times(0.85))),
+        characterizeElevatorQuasistatic(Direction.kReverse)
+            .until(
+                () -> elevator.getElevatorHeight().lte(ElevatorConstants.kMaxHeight.times(0.15))));
+  }
+
+  public void resetSubsystems() {
+    elevator.zeroElevator();
   }
 
   /**

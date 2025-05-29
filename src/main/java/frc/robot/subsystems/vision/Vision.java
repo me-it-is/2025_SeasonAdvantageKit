@@ -86,10 +86,10 @@ public class Vision extends SubsystemBase implements AutoCloseable {
         .flatMap(Optional::stream)
         .filter(Objects::nonNull)
         .filter(Vision::isOnField)
-        .filter(Vision::maxDistanceIsInThreshold)
+        /*.filter(Vision::maxDistanceIsInThreshold)
         .filter(Vision.isAmbiguityLess(VisionConstants.kMaxTagAmbiguity))
         .filter(v -> pitchIsInBounds(v, VisionConstants.kPitchBounds))
-        .filter(v -> rollIsInBounds(v, VisionConstants.kRollBounds))
+        .filter(v -> rollIsInBounds(v, VisionConstants.kRollBounds))*/
         .map(Vision::generatePoseEstimate)
         .forEach(
             (pose) -> {
@@ -158,10 +158,6 @@ public class Vision extends SubsystemBase implements AutoCloseable {
     return estimateAndInfo ->
         estimateAndInfo.visionEstimate.targetsUsed.stream()
             .allMatch(trackedTarget -> trackedTarget.getPoseAmbiguity() < maxAmbiguity);
-  }
-
-  private static boolean isUsingTwoTags(EstimateTuple estimateAndInfo) {
-    return estimateAndInfo.visionEstimate.targetsUsed.size() >= 2;
   }
 
   /**

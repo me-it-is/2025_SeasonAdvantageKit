@@ -74,13 +74,11 @@ public class GyroIOPigeon2 implements GyroIO {
             .toArray(Rotation2d[]::new);
     yawTimestampQueue.clear();
     yawPositionQueue.clear();
-
-    pigeonFaults.updateFaults();
   }
 
   @Override
   public void updateFault() {
-    pigeonFaults.updateFaults();
+    // pigeonFaults.updateFaults();
   }
 
   @Override

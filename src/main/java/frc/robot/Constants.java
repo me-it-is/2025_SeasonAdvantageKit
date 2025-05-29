@@ -17,13 +17,18 @@ import static edu.wpi.first.units.Units.*;
 import static frc.robot.util.Elastic.Notification.NotificationLevel.ERROR;
 import static frc.robot.util.Elastic.Notification.NotificationLevel.WARNING;
 
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.Slot1Configs;
+import com.ctre.phoenix6.configs.Slot2Configs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.revrobotics.spark.SparkBase.Faults;
 import com.revrobotics.spark.SparkBase.Warnings;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
-import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.hal.PowerDistributionFaults;
@@ -35,8 +40,8 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.units.AngleUnit;
+import edu.wpi.first.units.DistanceUnit;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularAcceleration;
@@ -49,11 +54,13 @@ import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.units.measure.MomentOfInertia;
+import edu.wpi.first.units.measure.Per;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.util.faultChecker.Fault;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,15 +75,13 @@ import java.util.function.Supplier;
 public final class Constants {
   public static final Mode currentMode =
       Mode.REAL; // RobotBase.isReal() ? Mode.REAL : Mode.SIM; robot thinks it's fake wut
-  public static final Alliance deafaultAlliance = Alliance.Blue;
+  public static final Alliance defaultAlliance = Alliance.Blue;
 
-  // Phisical values of the robot
+  // Physical values of the robot
   public static final Mass ROBOT_MASS_KG = Pounds.of(138.308);
-  // Converted form lbs in2 becuse wpi doesnt have a unit
+  // Converted form lbs in2 because wpi doesnt have a unit
   public static final MomentOfInertia ROBOT_MOI = KilogramSquareMeters.of(0.0588);
-  // esemate based of of this
-  // https://www.researchgate.net/figure/Coefficient-of-friction-of-neoprene-rubber-with-different-part-materials_tbl1_223593062
-  public static final double WHEEL_COF = 0.8;
+  public static final double WHEEL_COF = 1.75;
   public static final double kDt = 0.02;
 
   public static enum Mode {
@@ -101,22 +106,30 @@ public final class Constants {
     NONE,
   }
 
+  public static enum ElevatorState {
+    STAGE1,
+    STAGE2,
+    STAGE3;
+  }
+
   public static record AngleAndDistance(Angle angle, Distance distance) {}
 
   public static Map<GameState, AngleAndDistance> reefMap =
       Map.of(
-          GameState.L1_SCORE, new AngleAndDistance(Degrees.of(50), Inches.of(3.5)),
-          GameState.L2_SCORE, new AngleAndDistance(Degrees.of(130), Inches.of(16.5)),
-          GameState.L3_SCORE, new AngleAndDistance(Degrees.of(130), Inches.of(31)),
-          GameState.L4_SCORE, new AngleAndDistance(Degrees.of(100), Inches.of(67.3)),
-          GameState.L2_ALGAE, new AngleAndDistance(Degrees.of(58), Inches.of(3.5)),
-          GameState.L3_ALGAE, new AngleAndDistance(Degrees.of(58), Inches.of(31)),
-          GameState.HUMAN_PLAYER_STATION, new AngleAndDistance(Degrees.of(10), Inches.of(23)),
-          GameState.NONE, new AngleAndDistance(Degrees.of(0), Inches.of(0)));
+          GameState.L1_SCORE, new AngleAndDistance(Rotations.of(0.45), Inches.of(7.3)),
+          GameState.L2_SCORE, new AngleAndDistance(Rotations.of(0.05), Inches.of(21.3)),
+          GameState.L3_SCORE, new AngleAndDistance(Rotations.of(0.05), Inches.of(35)),
+          GameState.L4_SCORE, new AngleAndDistance(Rotations.of(0.1), Inches.of(64.9)),
+          GameState.L2_ALGAE, new AngleAndDistance(Degrees.of(58), Inches.of(7)),
+          GameState.L3_ALGAE, new AngleAndDistance(Degrees.of(58), Inches.of(15)),
+          GameState.HUMAN_PLAYER_STATION, new AngleAndDistance(Rotations.of(0.34), Inches.of(10)),
+          GameState.NONE, new AngleAndDistance(Rotations.of(0.4), Inches.of(0)));
+
+  public static Distance[] elevatorStateMap = {Inches.of(0), Inches.of(0), Inches.of(0)};
 
   public static class DriveConstants {
     public static final Distance kChassisSize = Inches.of(34.24);
-    public static final LinearVelocity kMaxTranslationSpeed = MetersPerSecond.of(30);
+    public static final LinearVelocity kMaxTranslationSpeed = MetersPerSecond.of(60);
     public static final LinearAcceleration kMaxTranslationAcceleration =
         MetersPerSecondPerSecond.of(6);
     public static final AngularVelocity kMaxRotVelocity = RadiansPerSecond.of(4 * Math.PI);
@@ -135,16 +148,19 @@ public final class Constants {
   public static class ManipulatorConstants {
     public static final int kPivotId = 5;
     public static final int kRollerId = 6;
-    public static final int kLineBreakPort = 3;
+    public static final int kBeamBreakPort = 9;
 
-    public static final Angle kFullRoll = Degrees.of(130);
-    public static final Angle kRotTolerance = Rotations.of(0.1);
-    public static final double kDefaultRollerSpeed = 1.0;
+    public static final Angle kRotTolerance = Rotations.of(0.05);
+    public static final double kDefaultRollerSpeed = 0.2;
+    public static final double kHumanPlayerStationSpeed = 0.5;
+    public static final double kWhilePivotingSpeed = 0.05;
+    public static final double kManualPivotSpeed = 0.3;
     public static final Time kDefaultPickupTime = Seconds.of(1);
-    public static final double kP = 0.7;
+    public static final double kP = 2;
     public static final double kI = 0;
-    public static final double kD = 0.01;
-    public static final double kFF = 0.4;
+    public static final double kD = 0;
+    public static final double kFF = 0;
+    public static final int currentLimit = 40;
   }
 
   public static class VisionConstants {
@@ -198,7 +214,7 @@ public final class Constants {
     public static final int kMidBeamBreakId = 2;
     public static final double kClimberMotorMult = 0.9;
 
-    public static final double kP = 0.5;
+    public static final double kP = 1;
     public static final double kI = 0.0;
     public static final double kD = 0.0;
 
@@ -213,22 +229,23 @@ public final class Constants {
             State.TOP,
             Rotations.of(0),
             State.MID,
-            Rotations.of(0.2),
+            Rotations.of(0.255),
             State.BOTTOM,
-            Rotations.of(0.25));
+            Rotations.of(0.285));
     public static final Angle setpointTolerance = Rotations.of(0.05);
   }
 
   public static class ElevatorConstants {
-    public static final int kSparkMaxCANId = 4;
-    public static final int kSparkMaxFollowerCANId = 3;
+    public static final String canBus = "blinky";
+    public static final int kTalonLeaderCANId = 14;
+    public static final int kTalonFollowerCANId = 15;
     public static final Distance kMaxHeight = Meters.of(1.72);
     public static final double kDeadReckoningSpeed = 0.1;
     public static final double kDeadRecogningDeadZone = 0.05;
     public static final double kRestInput = 0.02;
-    public static final Distance kSetpointTolerance = Meters.of(0.1);
-    public static final AngularVelocity kMaxVelocity = RotationsPerSecond.of(40);
-    public static final AngularAcceleration kMaxAcceleration = RotationsPerSecondPerSecond.of(20);
+    public static final Angle kSetpointTolerance = Rotations.of(0.5);
+    public static final AngularVelocity kMaxVelocity = RotationsPerSecond.of(15);
+    public static final AngularAcceleration kMaxAcceleration = RotationsPerSecondPerSecond.of(10);
     public static final Angle rotVelTolerance = Rotations.of(0.05);
 
     public static double totalExtensionTime = kMaxHeight.in(Units.Meters) / kDeadReckoningSpeed;
@@ -237,42 +254,80 @@ public final class Constants {
 
     public static final boolean kIsInverted = true;
 
-    // factor to make full extension 1 (1 / num rotations per full extension)
-    public static final double kRotsPerFullExtension = 17.893;
-    public static final double kPositionConversionFactor = 1 / kRotsPerFullExtension;
+    // 3 to 1 ratio on the motor
+    public static final int kGearRatio = 3;
+    public static final Angle kFullExtensionAngle = Rotations.of(9.56 * kGearRatio);
+
+    // Ratio of height to angle
+    public static final Per<DistanceUnit, AngleUnit> kAngularSpan =
+        kMaxHeight.div(kFullExtensionAngle);
+
+    // Ratio of angle to height
+    public static final Per<AngleUnit, DistanceUnit> kSpanAngle =
+        kFullExtensionAngle.div(kMaxHeight);
+
+    public static final double kPositionConversionFactor = 1 / kFullExtensionAngle.in(Rotations);
 
     public static final FeedbackSensor feedbackSensor = FeedbackSensor.kAbsoluteEncoder;
-    public static final double kP = 0.5;
-    public static final double kI = 0;
-    public static final double kD = 0.1;
-    public static final double kFF = 20;
-    public static final int currentLimit = 40;
+    public static final double kP = 0.16037;
+    public static final double kI = 0.1;
 
-    public static SparkMaxConfig getSharedConfig() {
-      SparkMaxConfig config = new SparkMaxConfig();
-      config.smartCurrentLimit(currentLimit);
-      config.closedLoop.pid(kP, kI, kD);
-      return config;
-    }
+    public static final double kD = 0;
+    public static final double kFF = 0;
+    public static final int currentLimit = 60;
 
-    public static SparkMaxConfig getLeaderConfig() {
-      SparkMaxConfig config = getSharedConfig();
-      config.inverted(kIsInverted);
-      return config;
-    }
+    public static final double kS = 0;
+    public static final double kG0 = 40;
+    public static final double kV = 8;
 
-    public static SparkMaxConfig getFollowerConfig() {
-      SparkMaxConfig config = getSharedConfig();
-      config.follow(kSparkMaxCANId);
-      return config;
-    }
+    public static final double kG1 = 40;
+    public static final double kG2 = 40;
 
-    public static TrapezoidProfile getProfile() {
-      return new TrapezoidProfile(
-          new Constraints(
-              ElevatorConstants.kMaxVelocity.in(Units.RotationsPerSecond),
-              ElevatorConstants.kMaxAcceleration.in(Units.RotationsPerSecondPerSecond)));
-    }
+    public static final double kA = 0;
+
+    public static final double kPSlot1 = 0;
+    public static final double kISlot1 = 0;
+    public static final double kDSlot1 = 0;
+
+    public static final Slot0Configs elevatorGains0 =
+        new Slot0Configs()
+            .withKP(kP)
+            .withKI(kI)
+            .withKD(kD)
+            .withKS(kS)
+            .withKV(kV)
+            .withGravityType(GravityTypeValue.Elevator_Static)
+            .withKG(kG0);
+
+    public static final Slot1Configs elevatorGains1 =
+        new Slot1Configs()
+            .withKP(kP)
+            .withKI(kI)
+            .withKD(kD)
+            .withKS(kS)
+            .withKV(kV)
+            .withGravityType(GravityTypeValue.Elevator_Static)
+            .withKG(kG1);
+
+    public static final Slot2Configs elevatorGains2 =
+        new Slot2Configs()
+            .withKP(kP)
+            .withKI(kI)
+            .withKD(kD)
+            .withKS(kS)
+            .withKV(kV)
+            .withGravityType(GravityTypeValue.Elevator_Static)
+            .withKG(kG2);
+
+    public static final TalonFXConfiguration elevatorConfig =
+        new TalonFXConfiguration()
+            .withCurrentLimits(
+                new CurrentLimitsConfigs()
+                    .withStatorCurrentLimit(Amps.of(currentLimit))
+                    .withStatorCurrentLimitEnable(true));
+
+    public static final SysIdRoutine.Config sysIdConfig =
+        new SysIdRoutine.Config(Volts.per(Second).of(0.5), Volts.of(4), Seconds.of(25));
   }
 
   public static class FaultConstants {
@@ -310,17 +365,17 @@ public final class Constants {
               new Fault(
                   () -> (talon.getFault_MissingDifferentialFX().getValue()),
                   ERROR,
-                  "Canot reach remote differential talon"));
+                  "Canont reach remote differential talon"));
           add(
               new Fault(
                   () -> (talon.getFault_MissingHardLimitRemote().getValue()),
                   ERROR,
-                  "Canot reach remote hard stop limit switch"));
+                  "Canont reach remote hard stop limit switch"));
           add(
               new Fault(
                   () -> (talon.getFault_MissingSoftLimitRemote().getValue()),
                   ERROR,
-                  "Canot reach remote soft limit device"));
+                  "Cannot reach remote soft limit device"));
           add(
               new Fault(
                   () -> (talon.getFault_OverSupplyV().getValue()),
@@ -328,7 +383,7 @@ public final class Constants {
                   "Supply voltage to high"));
           add(
               new Fault(
-                  () -> (talon.getFault_ProcTemp().getValue()), ERROR, "Processer over temp"));
+                  () -> (talon.getFault_ProcTemp().getValue()), ERROR, "Processor over temp"));
           add(
               new Fault(
                   () -> (talon.getFault_RemoteSensorDataInvalid().getValue()),
@@ -418,13 +473,13 @@ public final class Constants {
               new Fault(
                   () -> (pigeon.getFault_DataAcquiredLate().getValue()),
                   WARNING,
-                  "Motion data aquired late"));
+                  "Motion data acquired late"));
           add(new Fault(() -> (pigeon.getFault_Hardware().getValue()), ERROR, "Hardware fault"));
           add(
               new Fault(
                   () -> (pigeon.getFault_LoopTimeSlow().getValue()),
                   WARNING,
-                  "Motion data colection slow"));
+                  "Motion data collection slow"));
           add(
               new Fault(
                   () -> (pigeon.getFault_SaturatedAccelerometer().getValue()),
@@ -483,7 +538,7 @@ public final class Constants {
           add(new Fault(() -> (faults.get().escEeprom), ERROR, "escEeprom fault"));
           add(new Fault(() -> (faults.get().firmware), ERROR, "Firmware fault"));
           add(new Fault(() -> (faults.get().gateDriver), ERROR, "Gate driver fault"));
-          add(new Fault(() -> (faults.get().motorType), ERROR, "Incorect motor type"));
+          add(new Fault(() -> (faults.get().motorType), ERROR, "Incorrect motor type"));
           add(new Fault(() -> (faults.get().other), ERROR, "Other Fault"));
           add(new Fault(() -> (faults.get().sensor), ERROR, "Sensor fault"));
           add(new Fault(() -> (faults.get().temperature), ERROR, "Over temp"));
