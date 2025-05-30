@@ -85,7 +85,7 @@ public class DriveCommands {
           // Square rotation value for more precise control
           omega = Math.copySign(omega * omega, omega);
 
-          double multiplier = slowMode.getAsBoolean() ? 0.2 : 1;
+          double multiplier = slowMode.getAsBoolean() ? 0.1 : 1;
           // Convert to field relative speeds & send command
           ChassisSpeeds speeds =
               new ChassisSpeeds(
