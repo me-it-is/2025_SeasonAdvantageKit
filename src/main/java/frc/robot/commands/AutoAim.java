@@ -48,8 +48,8 @@ public class AutoAim extends Command {
 
   @Override
   public void execute() {
-    LinearVelocity forward = DriveConstants.kMaxTranslationSpeed.times(-controller.getLeftY());
-    LinearVelocity strafe = DriveConstants.kMaxTranslationSpeed.times(-controller.getLeftX());
+    LinearVelocity forward = DriveConstants.kMaxPathSpeed.times(-controller.getLeftY());
+    LinearVelocity strafe = DriveConstants.kMaxPathSpeed.times(-controller.getLeftX());
     AngularVelocity turn = DriveConstants.kMaxRotVelocity.times(-controller.getRightX());
 
     Pose3d targetPose = null;
@@ -86,7 +86,7 @@ public class AutoAim extends Command {
         MetersPerSecond.of(
             DriveConstants.kTranslationController.calculate(
                     targetRange.in(Meters), VisionConstants.tagDistSetpoint.in(Meters))
-                * DriveConstants.kMaxTranslationSpeed.in(Units.MetersPerSecond));
+                * DriveConstants.kMaxPathSpeed.in(Units.MetersPerSecond));
     // Command drivetrain motors based on target speeds
     drive.runVelocity(new ChassisSpeeds(forward, strafe, turn));
   }

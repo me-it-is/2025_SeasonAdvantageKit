@@ -43,7 +43,7 @@ public class SnapToTarget extends Command {
     // make path between start and end pose on the fly
     PathConstraints constraints =
         new PathConstraints(
-            DriveConstants.kMaxTranslationSpeed,
+            DriveConstants.kMaxPathSpeed,
             DriveConstants.kMaxTranslationAcceleration,
             DriveConstants.kMaxRotVelocity,
             DriveConstants.kMaxRotAcceleration);
