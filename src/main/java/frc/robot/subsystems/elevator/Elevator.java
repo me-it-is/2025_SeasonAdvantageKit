@@ -183,7 +183,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
 
   private LinearVelocity getElevatorVelocity() {
     return RobotMath.castToMoreSpecificUnits(
-        RobotMath.useConversionFactorFromLowerOrderUnitForHigherOrderConversion(
+        RobotMath.applyDimesionalAnalysis(
             ElevatorConstants.kAngularSpan, leaderVelocity.getValue()),
         MetersPerSecond.zero());
   }

@@ -132,8 +132,7 @@ public final class RobotMath {
           MUnit extends PerUnit<U, MDivisor>,
           MDivisor extends Unit,
           Out extends Measure<PerUnit<PDividend, MDivisor>>>
-      Out useConversionFactorFromLowerOrderUnitForHigherOrderConversion(
-          P conversionFactor, M measure) {
+      Out applyDimesionalAnalysis(P conversionFactor, M measure) {
     return (Out)
         conversionFactor
             .timesDivisor((Measure<U>) measure.times(measure.unit().denominator().one()))

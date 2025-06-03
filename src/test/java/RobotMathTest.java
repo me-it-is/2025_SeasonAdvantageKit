@@ -290,71 +290,63 @@ class RobotMathTest {
 
     assertTrue(
         castToMoreSpecificUnits(
-                useConversionFactorFromLowerOrderUnitForHigherOrderConversion(
-                    conversionFactor1, RadiansPerSecond.zero()),
+                applyDimesionalAnalysis(conversionFactor1, RadiansPerSecond.zero()),
                 MetersPerSecond.zero())
             .isEquivalent(MetersPerSecond.zero()));
     assertTrue(
         castToMoreSpecificUnits(
-                useConversionFactorFromLowerOrderUnitForHigherOrderConversion(
-                    conversionFactor1, RadiansPerSecond.one()),
+                applyDimesionalAnalysis(conversionFactor1, RadiansPerSecond.one()),
                 MetersPerSecond.zero())
             .isEquivalent(MetersPerSecond.one()));
     assertTrue(
         castToMoreSpecificUnits(
-                useConversionFactorFromLowerOrderUnitForHigherOrderConversion(
-                    conversionFactor1, RadiansPerSecond.of(2)),
+                applyDimesionalAnalysis(conversionFactor1, RadiansPerSecond.of(2)),
                 MetersPerSecond.zero())
             .isEquivalent(MetersPerSecond.of(2)));
     assertTrue(
         castToMoreSpecificUnits(
-                useConversionFactorFromLowerOrderUnitForHigherOrderConversion(
-                    conversionFactor1, RadiansPerSecond.of(3)),
+                applyDimesionalAnalysis(conversionFactor1, RadiansPerSecond.of(3)),
                 MetersPerSecond.zero())
             .isEquivalent(MetersPerSecond.of(3)));
     System.out.println(
         castToMoreSpecificUnits(
-            useConversionFactorFromLowerOrderUnitForHigherOrderConversion(
+            applyDimesionalAnalysis(
                 conversionFactor1, RadiansPerSecond.of(Double.POSITIVE_INFINITY)),
             MetersPerSecond.zero()));
     System.out.println(MetersPerSecond.of(Double.POSITIVE_INFINITY));
     assertTrue(
         Double.isInfinite(
             castToMoreSpecificUnits(
-                    useConversionFactorFromLowerOrderUnitForHigherOrderConversion(
+                    applyDimesionalAnalysis(
                         conversionFactor1, RadiansPerSecond.of(Double.POSITIVE_INFINITY)),
                     MetersPerSecond.zero())
                 .in(FeetPerSecond)));
     assertTrue(
         Double.isInfinite(
             castToMoreSpecificUnits(
-                    useConversionFactorFromLowerOrderUnitForHigherOrderConversion(
+                    applyDimesionalAnalysis(
                         conversionFactor1, RadiansPerSecond.of(Double.NEGATIVE_INFINITY)),
                     MetersPerSecond.zero())
                 .in(FeetPerSecond)));
     assertTrue(
         isMeasureNaN(
             castToMoreSpecificUnits(
-                useConversionFactorFromLowerOrderUnitForHigherOrderConversion(
-                    conversionFactor1, RadiansPerSecond.of(Double.NaN)),
+                applyDimesionalAnalysis(conversionFactor1, RadiansPerSecond.of(Double.NaN)),
                 MetersPerSecond.zero())));
     assertTrue(
         castToMoreSpecificUnits(
-                useConversionFactorFromLowerOrderUnitForHigherOrderConversion(
-                    conversionFactor1, RadiansPerSecond.of(-1)),
+                applyDimesionalAnalysis(conversionFactor1, RadiansPerSecond.of(-1)),
                 MetersPerSecond.zero())
             .isEquivalent(MetersPerSecond.of(-1)));
     assertTrue(
         castToMoreSpecificUnits(
-                useConversionFactorFromLowerOrderUnitForHigherOrderConversion(
-                    conversionFactor1, RadiansPerSecond.of(-2)),
+                applyDimesionalAnalysis(conversionFactor1, RadiansPerSecond.of(-2)),
                 MetersPerSecond.zero())
             .isEquivalent(MetersPerSecond.of(-2)));
     assertTrue(
         isMeasureNaN(
             castToMoreSpecificUnits(
-                useConversionFactorFromLowerOrderUnitForHigherOrderConversion(
-                    conversionFactor1, RadiansPerSecond.of(-Double.NaN)),
+                applyDimesionalAnalysis(conversionFactor1, RadiansPerSecond.of(-Double.NaN)),
                 MetersPerSecond.zero())));
   }
 
