@@ -267,6 +267,12 @@ public final class Constants {
         kFullExtensionAngle.div(kMaxHeight);
 
     public static final double kPositionConversionFactor = 1 / kFullExtensionAngle.in(Rotations);
+    public static final double kS = 0.097565;
+    public static final double kG0 = 0.68798;
+    public static final double kG1 = 0.68798;
+    public static final double kG2 = 0.68798;
+    public static final double kV = 0.1293;
+    public static final double kA = 0.025;
 
     public static final FeedbackSensor feedbackSensor = FeedbackSensor.kAbsoluteEncoder;
     public static final double kP = 0.16037;
@@ -276,14 +282,12 @@ public final class Constants {
     public static final double kFF = 0;
     public static final int currentLimit = 60;
 
-    public static final double kS = 0;
-    public static final double kG0 = 40;
-    public static final double kV = 8;
+    // public static final double kS = 0;
+    // public static final double kG0 = 40;
+    // public static final double kV = 8;
 
-    public static final double kG1 = 40;
-    public static final double kG2 = 40;
-
-    public static final double kA = 0;
+    // public static final double kG1 = 40;
+    // public static final double kG2 = 40;
 
     public static final double kPSlot1 = 0;
     public static final double kISlot1 = 0;
@@ -296,6 +300,7 @@ public final class Constants {
             .withKD(kD)
             .withKS(kS)
             .withKV(kV)
+            .withKA(kA)
             .withGravityType(GravityTypeValue.Elevator_Static)
             .withKG(kG0);
 
@@ -306,6 +311,7 @@ public final class Constants {
             .withKD(kD)
             .withKS(kS)
             .withKV(kV)
+            .withKA(kA)
             .withGravityType(GravityTypeValue.Elevator_Static)
             .withKG(kG1);
 
@@ -316,6 +322,7 @@ public final class Constants {
             .withKD(kD)
             .withKS(kS)
             .withKV(kV)
+            .withKA(kA)
             .withGravityType(GravityTypeValue.Elevator_Static)
             .withKG(kG2);
 
