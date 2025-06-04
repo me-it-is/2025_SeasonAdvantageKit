@@ -332,7 +332,14 @@ public class RobotContainer {
     opController.x().onTrue(moveToState(GameState.L4_SCORE, false));
 
     // human player station intake
-    opController.povUp().onTrue(moveToState(GameState.HUMAN_PLAYER_STATION, false));
+    // opController.povUp().onTrue(moveToState(GameState.HUMAN_PLAYER_STATION, false));
+    // opController.povUp().whileTrue(run(() -> manipulator.move(true), manipulator));
+    opController
+        .povUp()
+        .onTrue(
+            run(() -> manipulator.setAngle(GameState.L2_SCORE), manipulator)
+                .withTimeout(0.5)
+                .andThen(runOnce(() -> manipulator.stopRollers())));
 
     opController
         .povDown()

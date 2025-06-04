@@ -14,7 +14,6 @@
 package frc.robot;
 
 import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import org.littletonrobotics.junction.LogFileUtil;
@@ -86,7 +85,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void robotInit() {
     CameraServer.startAutomaticCapture();
-    Threads.setCurrentThreadPriority(true, 99);
+    // Threads.setCurrentThreadPriority(true, 99);
   }
 
   /** This function is called periodically during all modes. */
