@@ -9,14 +9,14 @@ public interface ManipulatorIO {
     public static class ManipulatorIOInputs {
         public Angle manipulatorAngle;
         public double rollerOutput;
-        public double pivorOutput;
+        public double pivotOutput;
 
         public boolean beamBroken;
     }
 
-    public default void setAngle(Angle angle) {}
+    public default void updateInputs (ManipulatorIOInputs inputs) {}
 
-    public default boolean atAngle() { return false; }
+    public default void setAngle(Angle angle) {}
 
     public default void setRollers() {}
 
