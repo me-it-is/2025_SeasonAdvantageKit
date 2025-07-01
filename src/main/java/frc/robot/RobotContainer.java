@@ -59,6 +59,7 @@ import frc.robot.subsystems.drive.ModuleIOTalonFXReal;
 import frc.robot.subsystems.drive.ModuleIOTalonFXSim;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.manipulator.Manipulator;
+import frc.robot.subsystems.manipulator.ManipulatorIOSparkMax;
 import frc.robot.subsystems.vision.Vision;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
@@ -142,8 +143,9 @@ public class RobotContainer {
             new TalonFX(ElevatorConstants.kTalonFollowerCANId, ElevatorConstants.canBus));
     manipulator =
         new Manipulator(
-            new SparkMax(ManipulatorConstants.kPivotId, MotorType.kBrushless),
-            new SparkMax(ManipulatorConstants.kRollerId, MotorType.kBrushless));
+            new ManipulatorIOSparkMax(
+                new SparkMax(ManipulatorConstants.kPivotId, MotorType.kBrushless),
+                new SparkMax(ManipulatorConstants.kRollerId, MotorType.kBrushless)));
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());

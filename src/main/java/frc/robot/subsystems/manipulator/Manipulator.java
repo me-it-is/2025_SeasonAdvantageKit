@@ -3,7 +3,6 @@ package frc.robot.subsystems.manipulator;
 import static edu.wpi.first.units.Units.Rotations;
 import static frc.robot.Constants.ManipulatorConstants.*;
 
-import com.revrobotics.spark.SparkMax;
 import dev.doglog.DogLog;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -19,8 +18,8 @@ public class Manipulator extends SubsystemBase implements AutoCloseable {
   private Angle error = Rotations.zero();
   private boolean atSetpoint = false;
 
-  public Manipulator(SparkMax pivot, SparkMax rollers) {
-    manipulatorIO = new ManipulatorIOSparkMax(pivot, rollers);
+  public Manipulator(ManipulatorIO io) {
+    manipulatorIO = io;
   }
 
   @Override
