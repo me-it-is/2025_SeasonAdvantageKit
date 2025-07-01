@@ -16,7 +16,6 @@ public class Manipulator extends SubsystemBase implements AutoCloseable {
   private GameState curState = GameState.NONE;
   private Angle setpoint = Constants.reefMap.get(GameState.NONE).angle();
   private Angle error = Rotations.zero();
-  private boolean atSetpoint = false;
 
   public Manipulator(ManipulatorIO io) {
     manipulatorIO = io;
@@ -29,7 +28,7 @@ public class Manipulator extends SubsystemBase implements AutoCloseable {
 
     this.error = RobotMath.dist(setpoint, inputs.manipulatorAngle);
     Logger.recordOutput("manipulator/error", error.in(Rotations));
-    Logger.recordOutput("manipulator/at setpoint", atSetpoint);
+    Logger.recordOutput("manipulator/at setpoint", atSetpoint());
     Logger.recordOutput("manipulator/setpoint", setpoint.in(Rotations));
   }
 
@@ -44,13 +43,11 @@ public class Manipulator extends SubsystemBase implements AutoCloseable {
     manipulatorIO.setRollers(kWhilePivotingSpeed * (reverse ? -1 : 1));
     this.setpoint = getAngle(state);
     manipulatorIO.setAngle(setpoint);
-    this.atSetpoint = false;
   }
 
   /** Check if pivot is at angle setpoint to some degree of error */
-  public boolean atAngle() {
-    this.atSetpoint = error.lt(kRotTolerance);
-    return atSetpoint;
+  public boolean atSetpoint() {
+    return error.lt(kRotTolerance);
   }
 
   /** Spin rollers forward or backward at default speed */

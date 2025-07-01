@@ -59,6 +59,7 @@ import frc.robot.subsystems.drive.ModuleIOTalonFXReal;
 import frc.robot.subsystems.drive.ModuleIOTalonFXSim;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.manipulator.Manipulator;
+import frc.robot.subsystems.manipulator.ManipulatorIO;
 import frc.robot.subsystems.manipulator.ManipulatorIOSparkMax;
 import frc.robot.subsystems.vision.Vision;
 import org.ironmaple.simulation.SimulatedArena;
@@ -107,6 +108,13 @@ public class RobotContainer {
                 new ModuleIOTalonFXReal(TunerConstants.FrontRight),
                 new ModuleIOTalonFXReal(TunerConstants.BackLeft),
                 new ModuleIOTalonFXReal(TunerConstants.BackRight));
+
+        manipulator =
+            new Manipulator(
+                new ManipulatorIOSparkMax(
+                    new SparkMax(ManipulatorConstants.kPivotId, MotorType.kBrushless),
+                    new SparkMax(ManipulatorConstants.kRollerId, MotorType.kBrushless)));
+
         break;
 
       case SIM:
@@ -121,6 +129,8 @@ public class RobotContainer {
                 new ModuleIOTalonFXSim(TunerConstants.FrontRight, driveSimulation.getModules()[1]),
                 new ModuleIOTalonFXSim(TunerConstants.BackLeft, driveSimulation.getModules()[2]),
                 new ModuleIOTalonFXSim(TunerConstants.BackRight, driveSimulation.getModules()[3]));
+        manipulator = new Manipulator(new ManipulatorIO() {});
+
         break;
 
       default:
@@ -133,6 +143,8 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {});
+        manipulator = new Manipulator(new ManipulatorIO() {});
+
         break;
     }
     vision = new Vision(drive::updateEstimates);
@@ -141,11 +153,6 @@ public class RobotContainer {
         new Elevator(
             new TalonFX(ElevatorConstants.kTalonLeaderCANId, ElevatorConstants.canBus),
             new TalonFX(ElevatorConstants.kTalonFollowerCANId, ElevatorConstants.canBus));
-    manipulator =
-        new Manipulator(
-            new ManipulatorIOSparkMax(
-                new SparkMax(ManipulatorConstants.kPivotId, MotorType.kBrushless),
-                new SparkMax(ManipulatorConstants.kRollerId, MotorType.kBrushless)));
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -390,7 +397,7 @@ public class RobotContainer {
         runOnce(() -> elevator.setSetpoint(state), elevator),
         waitSeconds(auto ? 2 : 0.5),
         runOnce(() -> manipulator.setAngle(state), manipulator),
-        waitUntil(() -> manipulator.atAngle()).andThen(manipulator::stopRollers));
+        waitUntil(() -> manipulator.atSetpoint()).andThen(manipulator::stopRollers));
   }
 
   private Command rollerAction(boolean forward) {
