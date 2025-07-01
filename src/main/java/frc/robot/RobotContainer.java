@@ -62,6 +62,7 @@ import frc.robot.subsystems.manipulator.Manipulator;
 import frc.robot.subsystems.vision.Vision;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -242,6 +243,19 @@ public class RobotContainer {
                 DriveConstants.kChassisSize.in(Units.Meters) / 2),
             new Rotation2d()));
     drive.setPose(startPoseLoc.getSelected());
+  }
+
+  public void updateSimulation() {
+    if (Constants.currentMode != Constants.Mode.SIM) return;
+
+    // SimulatedArena.getInstance().physicsWorld.setGravity(PhysicsWorld.EARTH_GRAVITY);
+    SimulatedArena.getInstance().simulationPeriodic();
+    Logger.recordOutput(
+        "FieldSimulation/RobotPosition", driveSimulation.getSimulatedDriveTrainPose());
+    Logger.recordOutput(
+        "FieldSimulation/Coral", SimulatedArena.getInstance().getGamePiecesArrayByType("Coral"));
+    Logger.recordOutput(
+        "FieldSimulation/Algae", SimulatedArena.getInstance().getGamePiecesArrayByType("Algae"));
   }
 
   private void configureAutos() {
