@@ -87,10 +87,6 @@ public class Manipulator extends SubsystemBase implements AutoCloseable {
     // rollersChecker.updateFaults();
   }
 
-  public void move(boolean reverse) {
-    pivot.set(kManualPivotSpeed * (reverse ? -1 : 1));
-  }
-
   private Angle getAngle(GameState state) {
     return Constants.reefMap.get(state).angle();
   }
