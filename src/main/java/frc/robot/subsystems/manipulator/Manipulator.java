@@ -3,12 +3,12 @@ package frc.robot.subsystems.manipulator;
 import static edu.wpi.first.units.Units.Rotations;
 import static frc.robot.Constants.ManipulatorConstants.*;
 
-import dev.doglog.DogLog;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.GameState;
 import frc.robot.util.RobotMath;
+import org.littletonrobotics.junction.Logger;
 
 public class Manipulator extends SubsystemBase implements AutoCloseable {
   private final ManipulatorIO manipulatorIO;
@@ -25,11 +25,12 @@ public class Manipulator extends SubsystemBase implements AutoCloseable {
   @Override
   public void periodic() {
     manipulatorIO.updateInputs(inputs);
-    DogLog.log("manipulator/setpoint", setpoint.in(Rotations));
+    Logger.processInputs("manipulator", inputs);
 
     this.error = RobotMath.dist(setpoint, inputs.manipulatorAngle);
-    DogLog.log("manipulator/error", error.in(Rotations));
-    DogLog.log("manipulator/at setpoint", atSetpoint);
+    Logger.recordOutput("manipulator/error", error.in(Rotations));
+    Logger.recordOutput("manipulator/at setpoint", atSetpoint);
+    Logger.recordOutput("manipulator/setpoint", setpoint.in(Rotations));
   }
 
   private Angle getAngle(GameState state) {
