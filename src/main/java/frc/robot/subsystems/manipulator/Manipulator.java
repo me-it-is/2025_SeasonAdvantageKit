@@ -43,6 +43,7 @@ public class Manipulator extends SubsystemBase implements AutoCloseable {
     // Speed to counteract inertial of the coral that may be in the manipulator
     manipulatorIO.setRollers(kWhilePivotingSpeed * (reverse ? -1 : 1));
     this.setpoint = getAngle(state);
+    manipulatorIO.setAngle(setpoint);
     this.atSetpoint = false;
   }
 
