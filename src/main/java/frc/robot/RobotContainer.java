@@ -110,8 +110,7 @@ public class RobotContainer {
 
       case SIM:
         driveSimulation =
-            new SwerveDriveSimulation(
-                Constants.DriveConstants.mapleSimConfig, new Pose2d(3, 3, new Rotation2d()));
+            new SwerveDriveSimulation(Constants.DriveConstants.mapleSimConfig, Constants.startPose);
         SimulatedArena.getInstance().addDriveTrainSimulation(driveSimulation);
         // Sim robot, instantiate physics sim IO implementations
         drive =
@@ -242,6 +241,7 @@ public class RobotContainer {
                 getAllianceBoolean() ? 0 : VisionConstants.kFieldHeight.in(Units.Meters),
                 DriveConstants.kChassisSize.in(Units.Meters) / 2),
             new Rotation2d()));
+    startPoseLoc.setDefaultOption("constant start", Constants.startPose);
     drive.setPose(startPoseLoc.getSelected());
   }
 

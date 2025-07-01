@@ -35,8 +35,11 @@ import edu.wpi.first.hal.PowerDistributionFaults;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -89,6 +92,8 @@ public final class Constants {
   public static final MomentOfInertia ROBOT_MOI = KilogramSquareMeters.of(0.0588);
   public static final double WHEEL_COF = 1.75;
   public static final double kDt = 0.02;
+
+  public static final Pose2d startPose = new Pose2d(new Translation2d(3, 3), new Rotation2d());
 
   public static enum Mode {
     /** Running on a real robot. */
