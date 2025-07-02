@@ -67,6 +67,7 @@ import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.vision.VisionIO.PhotonPoseEstimatorTuple;
 import frc.robot.util.faultChecker.Fault;
 import java.util.ArrayList;
 import java.util.List;
@@ -75,6 +76,9 @@ import java.util.function.Supplier;
 import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
+import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
 /**
  * This class defines the runtime mode used by AdvantageKit. The mode is always "real" when running
@@ -233,6 +237,24 @@ public final class Constants {
 
     public static final AprilTagFieldLayout kAprilTagFieldLayout =
         AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+
+    public static final PhotonPoseEstimator poseEstimatorOne =
+        new PhotonPoseEstimator(
+            VisionConstants.kAprilTagFieldLayout,
+            PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+            VisionConstants.kRobotToCamOne);
+    public static final PhotonPoseEstimator poseEstimatorTwo =
+        new PhotonPoseEstimator(
+            VisionConstants.kAprilTagFieldLayout,
+            PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+            VisionConstants.kRobotToCamTwo);
+
+    public static final PhotonCamera aprilCamOne = new PhotonCamera("aprilOne");
+    public static final PhotonCamera aprilCamTwo = new PhotonCamera("aprilTwo");
+    public static final List<PhotonPoseEstimatorTuple> estimAndCam =
+        List.of(
+            new PhotonPoseEstimatorTuple(aprilCamOne, poseEstimatorOne),
+            new PhotonPoseEstimatorTuple(aprilCamTwo, poseEstimatorTwo));
   }
 
   public static class ClimberConstants {
