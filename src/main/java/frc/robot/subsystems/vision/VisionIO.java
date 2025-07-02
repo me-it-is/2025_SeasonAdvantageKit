@@ -10,6 +10,10 @@ public interface VisionIO {
   /** A PhotonCamera and its corresponding PhotonPoseEstimator */
   public static record PhotonPoseEstimatorTuple(
       PhotonCamera photonCamera, PhotonPoseEstimator estimator) {}
+
+  public static record PhotonPoseEstimatorNameTuple(
+      String camName, PhotonPoseEstimator estimator) {}
+
   /** A Estemator and its results */
   public static record PhotonEstimatorAndResults(
       PhotonPoseEstimator estimator, List<PhotonPipelineResult> results) {}

@@ -1,14 +1,18 @@
 package frc.robot.subsystems.vision;
 
 import java.util.List;
+import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
 public class VisionIOReal implements VisionIO {
 
-  private final List<PhotonPoseEstimatorTuple> cameras;
+  protected final List<PhotonPoseEstimatorTuple> cameras;
 
-  public VisionIOReal(List<PhotonPoseEstimatorTuple> cameras) {
-    this.cameras = cameras;
+  public VisionIOReal(List<PhotonPoseEstimatorNameTuple> cameras) {
+    this.cameras =
+        cameras.stream()
+            .map(c -> new PhotonPoseEstimatorTuple(new PhotonCamera(c.camName()), c.estimator()))
+            .toList();
     for (var cam : cameras) {
       cam.estimator().setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
     }
