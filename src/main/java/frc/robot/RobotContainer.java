@@ -282,8 +282,8 @@ public class RobotContainer {
         "remove algae", moveToState(GameState.L2_ALGAE, true).andThen(rollerAction(true)));
 
     autoChooser.addDefaultOption("top leave", AutoBuilder.buildAuto("top leave"));
-    autoChooser.addOption(
-        "middle leave single score", AutoBuilder.buildAuto("middle leave single score"));
+    // autoChooser.addOption(
+    //    "middle leave single score", AutoBuilder.buildAuto("middle leave single score"));
     autoChooser.addOption("middle leave", AutoBuilder.buildAuto("middle leave"));
     autoChooser.addOption("bottom leave", AutoBuilder.buildAuto("bottom leave"));
     autoChooser.addOption("top leave single score", AutoBuilder.buildAuto("top reef single score"));
