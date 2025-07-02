@@ -69,6 +69,7 @@ import frc.robot.subsystems.manipulator.ManipulatorIOSparkMaxSim;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOReal;
+import frc.robot.subsystems.vision.VisionIOSim;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.littletonrobotics.junction.Logger;
@@ -151,7 +152,11 @@ public class RobotContainer {
 
         climber = new Climber(new ClimberIOSparkSim());
         
-        vision = new Vision(drive::updateEstimates, new VisionIOReal(VisionConstants.estimAndCam));
+        vision =
+            new Vision(
+                drive::updateEstimates,
+                new VisionIOSim(
+                    VisionConstants.estimAndCam, driveSimulation::getSimulatedDriveTrainPose));
         break;
 
       default:
