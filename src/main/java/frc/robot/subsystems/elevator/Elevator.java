@@ -17,9 +17,11 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
   private Distance setpoint = Constants.reefMap.get(GameState.NONE).distance();
 
   ElevatorIO elevatorIO;
-  ElevatorIOInputsAutoLogged inputs;
+  ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
 
-  public Elevator(ElevatorIO io) {}
+  public Elevator(ElevatorIO io) {
+    elevatorIO = io;
+  }
 
   @Override
   public void periodic() {
