@@ -12,7 +12,6 @@ public class VisionIOReal implements VisionIO {
     for (var cam : cameras) {
       cam.estimator().setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
     }
-    ;
   }
 
   @Override
