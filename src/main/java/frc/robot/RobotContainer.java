@@ -65,6 +65,7 @@ import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 import frc.robot.subsystems.manipulator.Manipulator;
 import frc.robot.subsystems.manipulator.ManipulatorIO;
 import frc.robot.subsystems.manipulator.ManipulatorIOSparkMax;
+import frc.robot.subsystems.manipulator.ManipulatorIOSparkMaxSim;
 import frc.robot.subsystems.vision.Vision;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
@@ -145,7 +146,7 @@ public class RobotContainer {
                 new ModuleIOTalonFXSim(TunerConstants.BackLeft, driveSimulation.getModules()[2]),
                 new ModuleIOTalonFXSim(TunerConstants.BackRight, driveSimulation.getModules()[3]));
 
-        manipulator = new Manipulator(new ManipulatorIO() {});
+        manipulator = new Manipulator(new ManipulatorIOSparkMaxSim());
 
         elevator = new Elevator(new ElevatorIO() {});
 
