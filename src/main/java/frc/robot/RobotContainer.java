@@ -50,6 +50,8 @@ import frc.robot.commands.DriveCommands;
 import frc.robot.commands.SnapToTarget;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.climber.Climber;
+import frc.robot.subsystems.climber.ClimberIO;
+import frc.robot.subsystems.climber.ClimberIOSpark;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -122,6 +124,12 @@ public class RobotContainer {
                 new ElevatorIOTalonFX(
                     new TalonFX(ElevatorConstants.kTalonLeaderCANId, ElevatorConstants.canBus),
                     new TalonFX(ElevatorConstants.kTalonFollowerCANId, ElevatorConstants.canBus)));
+
+        climber =
+            new Climber(
+                new ClimberIOSpark(
+                    new SparkMax(ClimberConstants.kClimberMotorID, MotorType.kBrushless)));
+
         break;
 
       case SIM:
@@ -140,6 +148,8 @@ public class RobotContainer {
         manipulator = new Manipulator(new ManipulatorIO() {});
 
         elevator = new Elevator(new ElevatorIO() {});
+
+        climber = new Climber(new ClimberIO() {});
         break;
 
       default:
@@ -155,10 +165,11 @@ public class RobotContainer {
         manipulator = new Manipulator(new ManipulatorIO() {});
 
         elevator = new Elevator(new ElevatorIO() {});
+
+        climber = new Climber(new ClimberIO() {});
         break;
     }
     vision = new Vision(drive::updateEstimates);
-    climber = new Climber(new SparkMax(ClimberConstants.kClimberMotorID, MotorType.kBrushless));
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());

@@ -29,7 +29,7 @@ public class ClimberTest {
     // talonfx.sim sim = new TalonFXSimState(new TalonFX(0));
 
     SparkMax climberMotor = new SparkMax(ClimberConstants.kClimberMotorID, MotorType.kBrushless);
-    this.climber = new Climber(climberMotor);
+    this.climber = new Climber(new ClimberIOSpark(climberMotor));
     this.motorSim = new SparkMaxSim(climberMotor, DCMotor.getNEO(1));
   }
 
