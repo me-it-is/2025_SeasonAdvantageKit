@@ -151,7 +151,7 @@ public class RobotContainer {
         elevator = new Elevator(new ElevatorIOTalonFXSim());
 
         climber = new Climber(new ClimberIOSparkSim());
-        
+
         vision =
             new Vision(
                 drive::updateEstimates,
