@@ -220,7 +220,7 @@ public final class Constants {
     public static final Distance kTagYOffset = Meters.of(0.2);
 
     public static final Distance tagDistSetpoint = Meters.of(0.1);
-    public static final Angle kCameraPitch = Radians.of(Math.PI / 3);
+    public static final Angle kCameraPitch = Degree.of(-30);
     public static final Transform3d kRobotToCamOne =
         new Transform3d(
             new Translation3d(kCamOneChassisXOffset, kCamOneChassisYOffset, KCamChassisZOffset),
