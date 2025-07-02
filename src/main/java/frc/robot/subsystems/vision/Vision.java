@@ -10,78 +10,45 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.VisionConstants;
+import frc.robot.subsystems.vision.VisionIO.PhotonEstimatorAndResults;
 import frc.robot.util.RobotMath;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import org.photonvision.EstimatedRobotPose;
-import org.photonvision.PhotonCamera;
-import org.photonvision.PhotonPoseEstimator;
-import org.photonvision.PhotonPoseEstimator.PoseStrategy;
-import org.photonvision.targeting.PhotonPipelineResult;
-import org.photonvision.targeting.PhotonTrackedTarget;
 
 public class Vision extends SubsystemBase implements AutoCloseable {
 
   /** static class wrapping a pose estimate with standard derivations for position and rotation */
   public static record PoseEstimate(EstimatedRobotPose estimatedPose, Matrix<N3, N1> standardDev) {}
   /** A PoseEstimate and the associated PhotonCamera name and pose ambiguity */
-  public static record EstimateTuple(
-      EstimatedRobotPose visionEstimate, String cameraName, double ambiguity) {}
-
-  /** A PhotonCamera and its corresponding PhotonPoseEstimator */
-  public static record PhotonPoseEstimatorTuple(
-      PhotonCamera photonCamera, PhotonPoseEstimator estimator) {}
+  public static record EstimateTuple(EstimatedRobotPose visionEstimate, double ambiguity) {}
 
   /** Tag id and tag Optional<Pose3d> on field */
   public static record TagTuple(Integer tagId, Optional<Pose3d> tagPose) {}
 
-  private List<PhotonPoseEstimatorTuple> cameras;
+  private VisionIO visionIO;
+  private VisionIOInputsAutoLogged inputs = new VisionIOInputsAutoLogged();
+
   private final Consumer<PoseEstimate> dtUpdateEstimate;
-
-  public static final PhotonCamera aprilCamOne = new PhotonCamera("aprilOne");
-  public static final PhotonCamera aprilCamTwo = new PhotonCamera("aprilTwo");
-
-  public static final PhotonPoseEstimator poseEstimatorOne =
-      new PhotonPoseEstimator(
-          VisionConstants.kAprilTagFieldLayout,
-          PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-          VisionConstants.kRobotToCamOne);
-  public static final PhotonPoseEstimator poseEstimatorTwo =
-      new PhotonPoseEstimator(
-          VisionConstants.kAprilTagFieldLayout,
-          PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-          VisionConstants.kRobotToCamTwo);
-  private List<TagTuple> bestTags = new ArrayList<>();
 
   /**
    * @param drivetrainUpdatePose Consumes vision PoseEstimates to update the Drivetrain's
    *     PoseEstimator
    */
-  public Vision(Consumer<PoseEstimate> drivetrainUpdatePose) {
-    this.cameras =
-        List.of(
-            new PhotonPoseEstimatorTuple(aprilCamOne, poseEstimatorOne),
-            new PhotonPoseEstimatorTuple(aprilCamTwo, poseEstimatorTwo));
+  public Vision(Consumer<PoseEstimate> drivetrainUpdatePose, VisionIO visionIO) {
+    this.visionIO = visionIO;
     this.dtUpdateEstimate = drivetrainUpdatePose;
-    for (final var camToEstimator : this.cameras) {
-      camToEstimator.estimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
-    }
   }
 
   @Override
   public void periodic() {
-    var allUnreadResults =
-        this.cameras.stream()
-            .flatMap(c -> c.photonCamera().getAllUnreadResults().stream())
-            .toList();
-
+    visionIO.updateInputs(inputs);
     // Updates the Drivetrain PoesEstimator with both camera streams
-    this.cameras.stream()
-        .map(c -> Vision.updateAngleAndGetEstimate(c, allUnreadResults))
+    inputs
+        .visionResults
+        .map(this::updateAngleAndGetEstimate)
         .filter(Objects::nonNull)
         .flatMap(Optional::stream)
         .filter(Objects::nonNull)
@@ -96,20 +63,6 @@ public class Vision extends SubsystemBase implements AutoCloseable {
               System.out.println("new vision pose estimate: " + pose);
               dtUpdateEstimate.accept(pose);
             }); // updates drivetrain swerve pose estimator with vision measurement
-
-    bestTags.clear(); // clear to only have latest results
-    allUnreadResults.stream()
-        .filter(result -> result.hasTargets())
-        .map(res -> res.getBestTarget())
-        .filter(Objects::nonNull)
-        .map(PhotonTrackedTarget::getFiducialId)
-        .filter(Objects::nonNull)
-        .map(tagId -> new TagTuple(tagId, VisionConstants.kAprilTagFieldLayout.getTagPose(tagId)))
-        .forEach(bestTags::add);
-  }
-
-  public List<TagTuple> getBestTags() {
-    return this.bestTags;
   }
 
   private static PoseEstimate generatePoseEstimate(EstimateTuple estimateAndInfo) {
@@ -132,9 +85,9 @@ public class Vision extends SubsystemBase implements AutoCloseable {
    * @param results
    * @return
    */
-  private static Optional<EstimateTuple> updateAngleAndGetEstimate(
-      PhotonPoseEstimatorTuple camToEstimator, List<PhotonPipelineResult> results) {
-
+  private Optional<EstimateTuple> updateAngleAndGetEstimate(
+      PhotonEstimatorAndResults estimatorAndResults) {
+    var results = estimatorAndResults.results();
     if (results.isEmpty()) {
       return Optional.empty();
     }
@@ -144,14 +97,13 @@ public class Vision extends SubsystemBase implements AutoCloseable {
       return Optional.empty();
     }
 
-    final var estimatedPose = camToEstimator.estimator.update(latestResult);
+    final var estimatedPose = estimatorAndResults.estimator().update(latestResult);
     if (estimatedPose.isEmpty()) {
       return Optional.empty();
     }
 
     final var ambiguity = latestResult.getBestTarget().getPoseAmbiguity();
-    return Optional.of(
-        new EstimateTuple(estimatedPose.get(), camToEstimator.photonCamera().getName(), ambiguity));
+    return Optional.of(new EstimateTuple(estimatedPose.get(), ambiguity));
   }
 
   private static Predicate<EstimateTuple> isAmbiguityLess(double maxAmbiguity) {
@@ -214,17 +166,8 @@ public class Vision extends SubsystemBase implements AutoCloseable {
     return RobotMath.measureWithinBounds(estPoseX, rollBounds);
   }
 
-  public PhotonCamera getCameraOne() {
-    return aprilCamOne;
-  }
-
-  public PhotonCamera getCameraTwo() {
-    return aprilCamTwo;
-  }
-
   @Override
   public void close() {
-    aprilCamOne.close();
-    aprilCamTwo.close();
+    visionIO.close();
   }
 }

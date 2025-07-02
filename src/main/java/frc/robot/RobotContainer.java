@@ -67,6 +67,8 @@ import frc.robot.subsystems.manipulator.ManipulatorIO;
 import frc.robot.subsystems.manipulator.ManipulatorIOSparkMax;
 import frc.robot.subsystems.manipulator.ManipulatorIOSparkMaxSim;
 import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionIO;
+import frc.robot.subsystems.vision.VisionIOReal;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.littletonrobotics.junction.Logger;
@@ -95,13 +97,12 @@ public class RobotContainer {
   private final LoggedDashboardChooser<Command> autoChooser;
   private final SendableChooser<Pose2d> startPoseLoc = new SendableChooser<>();
 
-  private final SwerveDriveSimulation driveSimulation;
+  private SwerveDriveSimulation driveSimulation = null;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     switch (Constants.currentMode) {
       case REAL:
-        driveSimulation = null;
         // Real robot, instantiate hardware IO implementations
         drive =
             new Drive(
@@ -128,6 +129,7 @@ public class RobotContainer {
                 new ClimberIOSpark(
                     new SparkMax(ClimberConstants.kClimberMotorID, MotorType.kBrushless)));
 
+        vision = new Vision(drive::updateEstimates, new VisionIOReal(VisionConstants.estimAndCam));
         break;
 
       case SIM:
@@ -148,10 +150,11 @@ public class RobotContainer {
         elevator = new Elevator(new ElevatorIOTalonFXSim());
 
         climber = new Climber(new ClimberIOSparkSim());
+        
+        vision = new Vision(drive::updateEstimates, new VisionIOReal(VisionConstants.estimAndCam));
         break;
 
       default:
-        driveSimulation = null;
         // Replayed robot, disable IO implementations
         drive =
             new Drive(
@@ -165,9 +168,9 @@ public class RobotContainer {
         elevator = new Elevator(new ElevatorIO() {});
 
         climber = new Climber(new ClimberIO() {});
+        vision = new Vision(drive::updateEstimates, new VisionIO() {});
         break;
     }
-    vision = new Vision(drive::updateEstimates);
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
