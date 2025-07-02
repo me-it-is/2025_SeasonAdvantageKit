@@ -67,7 +67,7 @@ import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
-import frc.robot.subsystems.vision.VisionIO.PhotonPoseEstimatorTuple;
+import frc.robot.subsystems.vision.VisionIO.PhotonPoseEstimatorNameTuple;
 import frc.robot.util.faultChecker.Fault;
 import java.util.ArrayList;
 import java.util.List;
@@ -76,7 +76,6 @@ import java.util.function.Supplier;
 import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
-import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
@@ -248,13 +247,10 @@ public final class Constants {
             VisionConstants.kAprilTagFieldLayout,
             PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
             VisionConstants.kRobotToCamTwo);
-
-    public static final PhotonCamera aprilCamOne = new PhotonCamera("aprilOne");
-    public static final PhotonCamera aprilCamTwo = new PhotonCamera("aprilTwo");
-    public static final List<PhotonPoseEstimatorTuple> estimAndCam =
+    public static final List<PhotonPoseEstimatorNameTuple> estimAndCam =
         List.of(
-            new PhotonPoseEstimatorTuple(aprilCamOne, poseEstimatorOne),
-            new PhotonPoseEstimatorTuple(aprilCamTwo, poseEstimatorTwo));
+            new PhotonPoseEstimatorNameTuple("aprilOne", poseEstimatorOne),
+            new PhotonPoseEstimatorNameTuple("aprilTwo", poseEstimatorTwo));
   }
 
   public static class ClimberConstants {

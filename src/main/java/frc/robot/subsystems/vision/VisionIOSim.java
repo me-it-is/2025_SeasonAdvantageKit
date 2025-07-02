@@ -16,7 +16,8 @@ public class VisionIOSim extends VisionIOReal {
   private final Supplier<Pose2d> poseSupplier;
   private final List<PhotonCameraSim> simCameras;
 
-  public VisionIOSim(List<PhotonPoseEstimatorTuple> cameras, Supplier<Pose2d> robotPoseSupplier) {
+  public VisionIOSim(
+      List<PhotonPoseEstimatorNameTuple> cameras, Supplier<Pose2d> robotPoseSupplier) {
     super(cameras);
 
     this.poseSupplier = robotPoseSupplier;
@@ -29,9 +30,10 @@ public class VisionIOSim extends VisionIOReal {
 
     simCameras = new ArrayList<>();
     var cameraProperties = new SimCameraProperties();
-    for (var cam : cameras) {
+    for (var cam : super.cameras) {
       var simCam = new PhotonCameraSim(cam.photonCamera(), cameraProperties);
       simCameras.add(simCam);
+      System.out.println(cam.estimator().getRobotToCameraTransform());
       sim.addCamera(simCam, cam.estimator().getRobotToCameraTransform());
     }
   }
@@ -39,6 +41,7 @@ public class VisionIOSim extends VisionIOReal {
   @Override
   public void updateInputs(VisionIOInputs inputs) {
     sim.update(poseSupplier.get());
+    // Logger.recordOutput("Vision/debugField", sim.getDebugField());
     super.updateInputs(inputs);
   }
 }
