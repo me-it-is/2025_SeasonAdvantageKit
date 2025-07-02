@@ -1,7 +1,6 @@
 package frc.robot.subsystems.vision;
 
 import java.util.List;
-import java.util.stream.Stream;
 import org.littletonrobotics.junction.AutoLog;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -17,7 +16,7 @@ public interface VisionIO {
 
   @AutoLog
   public class VisionIOInputs {
-    Stream<PhotonEstimatorAndResults> visionResults;
+    PhotonEstimatorAndResults[] visionResults;
   }
 
   default void updateInputs(VisionIOInputs inputs) {}

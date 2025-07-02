@@ -17,7 +17,10 @@ public class VisionIOReal implements VisionIO {
 
   @Override
   public void updateInputs(VisionIOInputs inputs) {
-    inputs.visionResults = cameras.stream().map(this::getResultsWithEstimator);
+    inputs.visionResults =
+        cameras.stream()
+            .map(this::getResultsWithEstimator)
+            .toArray(size -> new PhotonEstimatorAndResults[size]);
   }
 
   private PhotonEstimatorAndResults getResultsWithEstimator(PhotonPoseEstimatorTuple camAndEstim) {
