@@ -70,6 +70,7 @@ import frc.robot.subsystems.manipulator.ManipulatorIOSparkMaxSim;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOReal;
+import frc.robot.subsystems.vision.VisionIOSim;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.ironmaple.simulation.motorsims.SimulatedBattery;
@@ -161,7 +162,11 @@ public class RobotContainer {
         SimulatedBattery.addElectricalAppliances(drive::getTotalCurrent);
         SimulatedBattery.addElectricalAppliances(elevator::getTotalCurrent);
         
-        vision = new Vision(drive::updateEstimates, new VisionIOReal(VisionConstants.estimAndCam));
+        vision =
+            new Vision(
+                drive::updateEstimates,
+                new VisionIOSim(
+                    VisionConstants.estimAndCam, driveSimulation::getSimulatedDriveTrainPose));
         break;
 
       default:
