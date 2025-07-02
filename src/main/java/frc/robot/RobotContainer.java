@@ -58,6 +58,8 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOTalonFXReal;
 import frc.robot.subsystems.drive.ModuleIOTalonFXSim;
 import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorIO;
+import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 import frc.robot.subsystems.manipulator.Manipulator;
 import frc.robot.subsystems.manipulator.ManipulatorIO;
 import frc.robot.subsystems.manipulator.ManipulatorIOSparkMax;
@@ -115,6 +117,11 @@ public class RobotContainer {
                     new SparkMax(ManipulatorConstants.kPivotId, MotorType.kBrushless),
                     new SparkMax(ManipulatorConstants.kRollerId, MotorType.kBrushless)));
 
+        elevator =
+            new Elevator(
+                new ElevatorIOTalonFX(
+                    new TalonFX(ElevatorConstants.kTalonLeaderCANId, ElevatorConstants.canBus),
+                    new TalonFX(ElevatorConstants.kTalonFollowerCANId, ElevatorConstants.canBus)));
         break;
 
       case SIM:
@@ -129,8 +136,10 @@ public class RobotContainer {
                 new ModuleIOTalonFXSim(TunerConstants.FrontRight, driveSimulation.getModules()[1]),
                 new ModuleIOTalonFXSim(TunerConstants.BackLeft, driveSimulation.getModules()[2]),
                 new ModuleIOTalonFXSim(TunerConstants.BackRight, driveSimulation.getModules()[3]));
+
         manipulator = new Manipulator(new ManipulatorIO() {});
 
+        elevator = new Elevator(new ElevatorIO() {});
         break;
 
       default:
@@ -145,14 +154,11 @@ public class RobotContainer {
                 new ModuleIO() {});
         manipulator = new Manipulator(new ManipulatorIO() {});
 
+        elevator = new Elevator(new ElevatorIO() {});
         break;
     }
     vision = new Vision(drive::updateEstimates);
     climber = new Climber(new SparkMax(ClimberConstants.kClimberMotorID, MotorType.kBrushless));
-    elevator =
-        new Elevator(
-            new TalonFX(ElevatorConstants.kTalonLeaderCANId, ElevatorConstants.canBus),
-            new TalonFX(ElevatorConstants.kTalonFollowerCANId, ElevatorConstants.canBus));
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
