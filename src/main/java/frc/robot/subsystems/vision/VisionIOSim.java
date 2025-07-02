@@ -32,6 +32,7 @@ public class VisionIOSim extends VisionIOReal {
     var cameraProperties = new SimCameraProperties();
     for (var cam : super.cameras) {
       var simCam = new PhotonCameraSim(cam.photonCamera(), cameraProperties);
+      simCam.enableDrawWireframe(true);
       simCameras.add(simCam);
       System.out.println(cam.estimator().getRobotToCameraTransform());
       sim.addCamera(simCam, cam.estimator().getRobotToCameraTransform());
