@@ -12,11 +12,13 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.vision.VisionIO.PhotonEstimatorAndResults;
 import frc.robot.util.RobotMath;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import org.photonvision.EstimatedRobotPose;
+import org.photonvision.targeting.PhotonTrackedTarget;
 
 public class Vision extends SubsystemBase implements AutoCloseable {
 
@@ -46,23 +48,32 @@ public class Vision extends SubsystemBase implements AutoCloseable {
   public void periodic() {
     visionIO.updateInputs(inputs);
     // Updates the Drivetrain PoesEstimator with both camera streams
-    inputs
-        .visionResults
+    List.of(inputs.visionResults).stream()
         .map(this::updateAngleAndGetEstimate)
         .filter(Objects::nonNull)
         .flatMap(Optional::stream)
         .filter(Objects::nonNull)
         .filter(Vision::isOnField)
-        /*.filter(Vision::maxDistanceIsInThreshold)
+        .filter(Vision::maxDistanceIsInThreshold)
         .filter(Vision.isAmbiguityLess(VisionConstants.kMaxTagAmbiguity))
         .filter(v -> pitchIsInBounds(v, VisionConstants.kPitchBounds))
-        .filter(v -> rollIsInBounds(v, VisionConstants.kRollBounds))*/
+        .filter(v -> rollIsInBounds(v, VisionConstants.kRollBounds))
         .map(Vision::generatePoseEstimate)
         .forEach(
             (pose) -> {
               System.out.println("new vision pose estimate: " + pose);
               dtUpdateEstimate.accept(pose);
             }); // updates drivetrain swerve pose estimator with vision measurement
+  }
+
+  public List<TagTuple> getBestTags() {
+    return List.of(inputs.visionResults).stream()
+        .map(r -> r.results())
+        .flatMap(rlist -> rlist.stream())
+        .map(r -> r.getBestTarget())
+        .map(PhotonTrackedTarget::getFiducialId)
+        .map(tagId -> new TagTuple(tagId, VisionConstants.kAprilTagFieldLayout.getTagPose(tagId)))
+        .toList();
   }
 
   private static PoseEstimate generatePoseEstimate(EstimateTuple estimateAndInfo) {
