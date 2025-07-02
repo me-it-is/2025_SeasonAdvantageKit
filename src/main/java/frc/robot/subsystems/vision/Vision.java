@@ -48,6 +48,7 @@ public class Vision extends SubsystemBase implements AutoCloseable {
   public void periodic() {
     visionIO.updateInputs(inputs);
     // Updates the Drivetrain PoesEstimator with both camera streams
+    if (inputs.visionResults == null) return;
     List.of(inputs.visionResults).stream()
         .map(this::updateAngleAndGetEstimate)
         .filter(Objects::nonNull)
