@@ -20,6 +20,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import org.photonvision.EstimatedRobotPose;
+import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 public class Vision extends SubsystemBase implements AutoCloseable {
@@ -78,6 +79,7 @@ public class Vision extends SubsystemBase implements AutoCloseable {
     return List.of(inputs.visionResults).stream()
         .map(r -> r.results())
         .flatMap(rlist -> rlist.stream())
+        .filter(PhotonPipelineResult::hasTargets)
         .map(r -> r.getBestTarget())
         .map(PhotonTrackedTarget::getFiducialId)
         .map(tagId -> new TagTuple(tagId, kAprilTagFieldLayout.getTagPose(tagId)))
@@ -101,7 +103,7 @@ public class Vision extends SubsystemBase implements AutoCloseable {
         kMultiTagStdDevs
             .times(Math.pow(averageDistance(estimateAndInfo, currentPose).in(Meters), 1.5))
             .times(1 / Math.pow(estimateAndInfo.visionEstimate.targetsUsed.size(), 2))
-            .times(Math.pow(estimateAndInfo.ambiguity * 5, 1.5));
+            .times(Math.pow(estimateAndInfo.ambiguity * 5, 4));
     return new PoseEstimate(estimateAndInfo.visionEstimate, stdDevs);
   }
 
