@@ -132,7 +132,11 @@ public class RobotContainer {
                 new ClimberIOSpark(
                     new SparkMax(ClimberConstants.kClimberMotorID, MotorType.kBrushless)));
 
-        vision = new Vision(drive::updateEstimates, new VisionIOReal(VisionConstants.estimAndCam));
+        vision =
+            new Vision(
+                drive::updateEstimates,
+                new VisionIOReal(VisionConstants.estimAndCam),
+                drive::getPose);
         break;
 
       case SIM:
@@ -166,7 +170,8 @@ public class RobotContainer {
             new Vision(
                 drive::updateEstimates,
                 new VisionIOSim(
-                    VisionConstants.estimAndCam, driveSimulation::getSimulatedDriveTrainPose));
+                    VisionConstants.estimAndCam, driveSimulation::getSimulatedDriveTrainPose),
+                drive::getPose);
         break;
 
       default:
@@ -183,7 +188,7 @@ public class RobotContainer {
         elevator = new Elevator(new ElevatorIO() {});
 
         climber = new Climber(new ClimberIO() {});
-        vision = new Vision(drive::updateEstimates, new VisionIO() {});
+        vision = new Vision(drive::updateEstimates, new VisionIO() {}, drive::getPose);
         break;
     }
 

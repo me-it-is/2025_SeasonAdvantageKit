@@ -395,7 +395,6 @@ public class Drive extends SubsystemBase {
     final var stddevs =
         visionConverge ? poseEstimate.standardDev().times(0.01) : poseEstimate.standardDev();
 
-    System.out.println("stddevs for vision measurement: " + stddevs);
     addVisionMeasurement(visionEstimated, poseEstimate.estimatedPose().timestampSeconds, stddevs);
   }
 
