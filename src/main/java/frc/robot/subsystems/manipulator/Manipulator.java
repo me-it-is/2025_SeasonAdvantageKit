@@ -27,9 +27,9 @@ public class Manipulator extends SubsystemBase implements AutoCloseable {
     Logger.processInputs("manipulator", inputs);
 
     this.error = RobotMath.dist(setpoint, inputs.manipulatorAngle);
-    Logger.recordOutput("manipulator/error", error.in(Rotations));
+    Logger.recordOutput("manipulator/error", error);
     Logger.recordOutput("manipulator/at setpoint", atSetpoint());
-    Logger.recordOutput("manipulator/setpoint", setpoint.in(Rotations));
+    Logger.recordOutput("manipulator/setpoint", setpoint);
   }
 
   private Angle getAngle(GameState state) {
