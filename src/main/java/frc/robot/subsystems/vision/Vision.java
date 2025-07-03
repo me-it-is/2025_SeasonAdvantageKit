@@ -18,6 +18,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
@@ -53,16 +54,20 @@ public class Vision extends SubsystemBase implements AutoCloseable {
     visionIO.updateInputs(inputs);
     // Updates the Drivetrain PoesEstimator with both camera streams
     if (inputs.visionResults == null) return;
-    List.of(inputs.visionResults).stream()
-        .map(this::updateAngleAndGetEstimate)
-        .flatMap(Optional::stream)
-        .filter(Vision::isOnField)
-        .filter(v -> Vision.maxDistanceIsInThreshold(v, robotPose.get()))
-        .filter(Vision.isAmbiguityLess(kMaxTagAmbiguity))
-        .filter(v -> pitchIsInBounds(v, kPitchBounds))
-        .filter(v -> rollIsInBounds(v, kRollBounds))
-        .map(Vision::clampToFloor)
-        .map(Vision::generatePoseEstimate)
+    var a = List.of(inputs.visionResults);
+    var b = a.stream().map(this::updateAngleAndGetEstimate).toList();
+    Stream<EstimateTuple> cc = b.stream().flatMap(Optional::stream);
+    var c = cc.toList();
+    var d = c.stream().filter(Vision::isOnField).toList();
+    List<EstimateTuple> e =
+        d.stream().filter(v -> Vision.maxDistanceIsInThreshold(v, robotPose.get())).toList();
+    var f = e.stream().filter(Vision.isAmbiguityLess(kMaxTagAmbiguity)).toList();
+    var g = f.stream().filter(v -> pitchIsInBounds(v, kPitchBounds)).toList();
+    var h = g.stream().filter(v -> rollIsInBounds(v, kRollBounds)).toList();
+    var i = h.stream().map(Vision::clampToFloor).toList();
+    var j = i.stream().toList();
+    j.stream()
+        .map(v -> generatePoseEstimate(v, robotPose.get()))
         .forEach(
             (pose) -> {
               dtUpdateEstimate.accept(pose);
@@ -90,19 +95,44 @@ public class Vision extends SubsystemBase implements AutoCloseable {
     return estim;
   }
 
-  private static PoseEstimate generatePoseEstimate(EstimateTuple estimateAndInfo) {
-    Distance maxDistance =
-        Meters.of(
-            estimateAndInfo.visionEstimate.targetsUsed.stream()
-                .mapToDouble(target -> target.getBestCameraToTarget().getTranslation().getNorm())
-                .max()
-                .orElse(0.0));
-
+  private static PoseEstimate generatePoseEstimate(
+      EstimateTuple estimateAndInfo, Pose2d currentPose) {
     final var stdDevs =
         kMultiTagStdDevs
-            .times(maxDistance.in(Meters))
-            .times(4 / Math.pow(estimateAndInfo.visionEstimate.targetsUsed.size(), 2));
+            .times(Math.pow(averageDistance(estimateAndInfo, currentPose).in(Meters), 1.5))
+            .times(1 / Math.pow(estimateAndInfo.visionEstimate.targetsUsed.size(), 2))
+            .times(Math.pow(estimateAndInfo.ambiguity * 5, 1.5));
     return new PoseEstimate(estimateAndInfo.visionEstimate, stdDevs);
+  }
+
+  private static List<Distance> getDistances(EstimateTuple estimate, Pose2d currentPose) {
+    return estimate.visionEstimate.targetsUsed.stream()
+        .map(
+            target ->
+                RobotMath.distanceBetweenTranslations(
+                    target.getBestCameraToTarget().getTranslation().toTranslation2d(),
+                    currentPose.getTranslation()))
+        .toList();
+  }
+
+  private static Distance averageDistance(EstimateTuple estimate, Pose2d currentPose) {
+    List<Distance> distances = getDistances(estimate, currentPose);
+
+    Distance averageDistance = Meters.zero();
+    for (Distance dist : distances) {
+      averageDistance = averageDistance.plus(dist);
+    }
+    return averageDistance.div(distances.size());
+  }
+
+  private static Distance maxDistance(EstimateTuple estimate, Pose2d currentPose) {
+    List<Distance> distances = getDistances(estimate, currentPose);
+
+    Distance maxDist = Meters.of(Double.POSITIVE_INFINITY);
+    for (Distance dist : distances) {
+      if (dist.lt(maxDist)) maxDist = dist;
+    }
+    return maxDist;
   }
 
   /**
@@ -143,20 +173,8 @@ public class Vision extends SubsystemBase implements AutoCloseable {
    */
   private static boolean maxDistanceIsInThreshold(
       EstimateTuple estimateAndInfo, Pose2d currentPose) {
-    List<Distance> distances =
-        estimateAndInfo.visionEstimate.targetsUsed.stream()
-            .map(
-                target ->
-                    RobotMath.distanceBetweenTranslations(
-                        target.getBestCameraToTarget().getTranslation().toTranslation2d(),
-                        currentPose.getTranslation()))
-            .toList();
-
-    Distance maxDist = Meters.of(Double.POSITIVE_INFINITY);
-    for (Distance dist : distances) {
-      if (dist.lt(maxDist)) maxDist = dist;
-    }
-    return RobotMath.measureWithinBounds(maxDist, kMinCamDistToTag, kMaxCamDistToTag);
+    return RobotMath.measureWithinBounds(
+        maxDistance(estimateAndInfo, currentPose), kMinCamDistToTag, kMaxCamDistToTag);
   }
 
   /** Is the robot on the field based on its current pose */
