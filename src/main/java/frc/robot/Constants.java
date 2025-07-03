@@ -205,11 +205,11 @@ public final class Constants {
     public static final Angle kRollBounds = Radians.of(0.2);
     public static final Angle kPitchBounds = Radians.of(0.2);
 
-    private static final double halfOffset = DriveConstants.kChassisSize.in(Units.Inches) / 2;
-    public static final Distance kCamOneChassisXOffset = Inches.of(halfOffset);
-    public static final Distance kCamOneChassisYOffset = Inches.of(halfOffset);
-    public static final Distance kCamTwoChassisXOffset = Inches.of(-halfOffset);
-    public static final Distance kCamTwoChassisYOffset = Inches.of(-halfOffset);
+    private static final Distance halfOffset = DriveConstants.kChassisSize.div(2);
+    public static final Distance kCamOneChassisXOffset = halfOffset;
+    public static final Distance kCamOneChassisYOffset = halfOffset;
+    public static final Distance kCamTwoChassisXOffset = halfOffset.unaryMinus();
+    public static final Distance kCamTwoChassisYOffset = halfOffset.unaryMinus();
     public static final Distance KCamChassisZOffset = Inches.of(4.5);
 
     public static final Angle kMinAngError = Degrees.of(5);
@@ -224,12 +224,21 @@ public final class Constants {
     public static final Transform3d kRobotToCamOne =
         new Transform3d(
             new Translation3d(kCamOneChassisXOffset, kCamOneChassisYOffset, KCamChassisZOffset),
-            new Rotation3d(0, kCameraPitch.in(Radians), 0));
+            new Rotation3d(
+                0,
+                kCameraPitch.in(Radians),
+                new Translation2d(kCamOneChassisXOffset, kCamOneChassisYOffset)
+                    .getAngle()
+                    .getRadians()));
     public static final Transform3d kRobotToCamTwo =
         new Transform3d(
-            new Translation3d(
-                kCamTwoChassisXOffset, kCamTwoChassisYOffset.unaryMinus(), KCamChassisZOffset),
-            new Rotation3d(0, kCameraPitch.in(Radians), 0));
+            new Translation3d(kCamTwoChassisXOffset, kCamTwoChassisYOffset, KCamChassisZOffset),
+            new Rotation3d(
+                0,
+                kCameraPitch.in(Radians),
+                new Translation2d(kCamTwoChassisXOffset, kCamTwoChassisYOffset)
+                    .getAngle()
+                    .getRadians()));
 
     public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(0.025, 0.025, 0.05);
 
