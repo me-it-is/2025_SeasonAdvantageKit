@@ -1,14 +1,13 @@
 package frc.robot.subsystems.climber;
 
-import static edu.wpi.first.units.Units.Rotations;
 import static frc.robot.Constants.ClimberConstants.*;
 
-import dev.doglog.DogLog;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.ClimberConstants.State;
 import frc.robot.util.RobotMath;
+import org.littletonrobotics.junction.Logger;
 
 public class Climber extends SubsystemBase implements AutoCloseable {
   private Angle error;
@@ -30,11 +29,10 @@ public class Climber extends SubsystemBase implements AutoCloseable {
 
     this.error = this.setpoint.minus(inputs.climberAngle);
 
-    DogLog.log("climber/appl out", inputs.motorOutput);
-    DogLog.log("climber/at setpoint", atSetpoint());
-    DogLog.log("climber/setpoint error", error.in(Rotations));
-    DogLog.log("climber/setpoint", setpoint.in(Rotations));
-    DogLog.log("climber/encoder pos", inputs.climberAngle.in(Rotations));
+    Logger.recordOutput("climber/at setpoint", atSetpoint());
+    Logger.recordOutput("climber/setpoint error", error);
+    Logger.recordOutput("climber/setpoint", setpoint);
+    ;
   }
 
   @Override
