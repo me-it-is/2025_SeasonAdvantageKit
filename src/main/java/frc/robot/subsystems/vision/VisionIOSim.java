@@ -30,6 +30,10 @@ public class VisionIOSim extends VisionIOReal {
 
     simCameras = new ArrayList<>();
     var cameraProperties = new SimCameraProperties();
+    cameraProperties.setFPS(70);
+    cameraProperties.setAvgLatencyMs(25);
+    cameraProperties.setLatencyStdDevMs(5);
+    cameraProperties.setCalibError(2.5, 1);
     for (var cam : super.cameras) {
       var simCam = new PhotonCameraSim(cam.photonCamera(), cameraProperties);
       simCam.enableDrawWireframe(true);
