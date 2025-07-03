@@ -1,21 +1,23 @@
 package frc.robot.subsystems.vision;
 
 import static edu.wpi.first.units.Units.*;
+import static frc.robot.Constants.VisionConstants.*;
 
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.vision.VisionIO.PhotonEstimatorAndResults;
 import frc.robot.util.RobotMath;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
@@ -33,14 +35,17 @@ public class Vision extends SubsystemBase implements AutoCloseable {
   private VisionIOInputsAutoLogged inputs = new VisionIOInputsAutoLogged();
 
   private final Consumer<PoseEstimate> dtUpdateEstimate;
+  private final Supplier<Pose2d> robotPose;
 
   /**
    * @param drivetrainUpdatePose Consumes vision PoseEstimates to update the Drivetrain's
    *     PoseEstimator
    */
-  public Vision(Consumer<PoseEstimate> drivetrainUpdatePose, VisionIO visionIO) {
+  public Vision(
+      Consumer<PoseEstimate> drivetrainUpdatePose, VisionIO visionIO, Supplier<Pose2d> robotPose) {
     this.visionIO = visionIO;
     this.dtUpdateEstimate = drivetrainUpdatePose;
+    this.robotPose = robotPose;
   }
 
   @Override
@@ -52,14 +57,14 @@ public class Vision extends SubsystemBase implements AutoCloseable {
         .map(this::updateAngleAndGetEstimate)
         .flatMap(Optional::stream)
         .filter(Vision::isOnField)
-        .filter(Vision::maxDistanceIsInThreshold)
-        .filter(Vision.isAmbiguityLess(VisionConstants.kMaxTagAmbiguity))
-        .filter(v -> pitchIsInBounds(v, VisionConstants.kPitchBounds))
-        .filter(v -> rollIsInBounds(v, VisionConstants.kRollBounds))
+        .filter(v -> Vision.maxDistanceIsInThreshold(v, robotPose.get()))
+        .filter(Vision.isAmbiguityLess(kMaxTagAmbiguity))
+        .filter(v -> pitchIsInBounds(v, kPitchBounds))
+        .filter(v -> rollIsInBounds(v, kRollBounds))
+        .map(Vision::clampToFloor)
         .map(Vision::generatePoseEstimate)
         .forEach(
             (pose) -> {
-              System.out.println("new vision pose estimate: " + pose);
               dtUpdateEstimate.accept(pose);
             }); // updates drivetrain swerve pose estimator with vision measurement
   }
@@ -70,8 +75,19 @@ public class Vision extends SubsystemBase implements AutoCloseable {
         .flatMap(rlist -> rlist.stream())
         .map(r -> r.getBestTarget())
         .map(PhotonTrackedTarget::getFiducialId)
-        .map(tagId -> new TagTuple(tagId, VisionConstants.kAprilTagFieldLayout.getTagPose(tagId)))
+        .map(tagId -> new TagTuple(tagId, kAprilTagFieldLayout.getTagPose(tagId)))
         .toList();
+  }
+
+  private static final EstimateTuple clampToFloor(EstimateTuple estim) {
+    var visEst = estim.visionEstimate;
+    visEst =
+        new EstimatedRobotPose(
+            new Pose3d(visEst.estimatedPose.toPose2d()),
+            visEst.timestampSeconds,
+            visEst.targetsUsed,
+            visEst.strategy);
+    return estim;
   }
 
   private static PoseEstimate generatePoseEstimate(EstimateTuple estimateAndInfo) {
@@ -83,7 +99,7 @@ public class Vision extends SubsystemBase implements AutoCloseable {
                 .orElse(0.0));
 
     final var stdDevs =
-        VisionConstants.kMultiTagStdDevs
+        kMultiTagStdDevs
             .times(maxDistance.in(Meters))
             .times(4 / Math.pow(estimateAndInfo.visionEstimate.targetsUsed.size(), 2));
     return new PoseEstimate(estimateAndInfo.visionEstimate, stdDevs);
@@ -125,16 +141,22 @@ public class Vision extends SubsystemBase implements AutoCloseable {
    * Whether max distance to target from current pose falls in range, measured in meters, for
    * accurate readings
    */
-  private static boolean maxDistanceIsInThreshold(EstimateTuple estimateAndInfo) {
-    Distance maxDistance =
-        Meters.of(
-            estimateAndInfo.visionEstimate.targetsUsed.stream()
-                .mapToDouble(target -> target.getBestCameraToTarget().getTranslation().getNorm())
-                .max()
-                .orElse(0.0));
+  private static boolean maxDistanceIsInThreshold(
+      EstimateTuple estimateAndInfo, Pose2d currentPose) {
+    List<Distance> distances =
+        estimateAndInfo.visionEstimate.targetsUsed.stream()
+            .map(
+                target ->
+                    RobotMath.distanceBetweenTranslations(
+                        target.getBestCameraToTarget().getTranslation().toTranslation2d(),
+                        currentPose.getTranslation()))
+            .toList();
 
-    return RobotMath.measureWithinBounds(
-        maxDistance, VisionConstants.kMinCamDistToTag, VisionConstants.kMaxCamDistToTag);
+    Distance maxDist = Meters.of(Double.POSITIVE_INFINITY);
+    for (Distance dist : distances) {
+      if (dist.lt(maxDist)) maxDist = dist;
+    }
+    return RobotMath.measureWithinBounds(maxDist, kMinCamDistToTag, kMaxCamDistToTag);
   }
 
   /** Is the robot on the field based on its current pose */
@@ -143,9 +165,9 @@ public class Vision extends SubsystemBase implements AutoCloseable {
     final var poseY = pose.getMeasureY();
     final var poseZ = pose.getMeasureZ();
 
-    return RobotMath.measureWithinBounds(poseX, Meters.zero(), VisionConstants.kFieldWidth)
-        && RobotMath.measureWithinBounds(poseY, Meters.zero(), VisionConstants.kFieldHeight)
-        && RobotMath.measureWithinBounds(poseZ, Meters.zero(), VisionConstants.kMaxVertDisp);
+    return RobotMath.measureWithinBounds(poseX, Meters.zero(), kFieldWidth)
+        && RobotMath.measureWithinBounds(poseY, Meters.zero(), kFieldHeight)
+        && RobotMath.measureWithinBounds(poseZ, kMaxVertDisp.unaryMinus(), kMaxVertDisp);
   }
 
   /**
