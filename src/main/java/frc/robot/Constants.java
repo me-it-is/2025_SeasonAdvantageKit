@@ -198,10 +198,10 @@ public final class Constants {
     public static final Distance kFieldWidth = Meters.of(16.54);
     public static final Distance kFieldHeight = Meters.of(8.229);
 
-    public static final Distance kMinCamDistToTag = Meters.of(0.1);
+    public static final Distance kMinCamDistToTag = Meters.of(0);
     public static final Distance kMaxCamDistToTag = Meters.of(10.0);
-    public static final Distance kMaxVertDisp = Meters.of(0.5);
-    public static final double kMaxTagAmbiguity = 0.25;
+    public static final Distance kMaxVertDisp = Meters.of(3);
+    public static final double kMaxTagAmbiguity = 1;
     public static final Angle kRollBounds = Radians.of(0.2);
     public static final Angle kPitchBounds = Radians.of(0.2);
 
@@ -231,8 +231,7 @@ public final class Constants {
                 kCamTwoChassisXOffset, kCamTwoChassisYOffset.unaryMinus(), KCamChassisZOffset),
             new Rotation3d(0, kCameraPitch.in(Radians), 0));
 
-    public static final Matrix<N3, N1> kMultiTagStdDevs =
-        VecBuilder.fill(0.5, 0.5, Double.POSITIVE_INFINITY);
+    public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(0.025, 0.025, 0.05);
 
     public static final AprilTagFieldLayout kAprilTagFieldLayout =
         AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
