@@ -13,7 +13,6 @@ import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.vision.VisionIO.PhotonEstimatorAndResults;
 import frc.robot.util.RobotMath;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -51,9 +50,7 @@ public class Vision extends SubsystemBase implements AutoCloseable {
     if (inputs.visionResults == null) return;
     List.of(inputs.visionResults).stream()
         .map(this::updateAngleAndGetEstimate)
-        .filter(Objects::nonNull)
         .flatMap(Optional::stream)
-        .filter(Objects::nonNull)
         .filter(Vision::isOnField)
         .filter(Vision::maxDistanceIsInThreshold)
         .filter(Vision.isAmbiguityLess(VisionConstants.kMaxTagAmbiguity))
