@@ -219,8 +219,8 @@ public final class Constants {
     public static final Distance kMinTransError = Meters.of(0.05);
 
     // TODO placeholder offsets, need tuning
-    public static final Distance kTagXOffset = Meters.of(0);
-    public static final Distance kTagYOffset = Meters.of(1);
+    public static final Distance kTagXOffset = Meters.of(0.15);
+    public static final Distance kTagYOffset = halfOffset;
 
     public static final Distance tagDistSetpoint = Meters.of(0.1);
     public static final Angle kCameraPitch = Degree.of(-30);
