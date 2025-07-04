@@ -27,6 +27,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -237,6 +238,7 @@ public class RobotContainer {
 
     configureAutos();
     // Configure the button bindings
+    DriverStation.silenceJoystickConnectionWarning(true);
     configureButtonBindings();
 
     startPoseLoc.setDefaultOption("default", new Pose2d());
