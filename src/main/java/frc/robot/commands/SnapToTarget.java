@@ -3,11 +3,7 @@ package frc.robot.commands;
 import static frc.robot.util.GetAliance.getAllianceBoolean;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.path.GoalEndState;
-import com.pathplanner.lib.path.IdealStartingState;
 import com.pathplanner.lib.path.PathConstraints;
-import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.path.Waypoint;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -26,6 +22,7 @@ import frc.robot.util.RobotMath;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
+import org.littletonrobotics.junction.Logger;
 
 /** Using current pose, goes to nearest known target based on field layout */
 public class SnapToTarget extends Command {
@@ -54,15 +51,9 @@ public class SnapToTarget extends Command {
                 VisionConstants.kTagXOffset.times(RobotMath.signBool(getAllianceBoolean())),
                 VisionConstants.kTagYOffset,
                 new Rotation2d()));
-    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(drivePose, finalPose);
-    PathPlannerPath path =
-        new PathPlannerPath(
-            waypoints,
-            constraints,
-            new IdealStartingState(0, drivePose.getRotation()),
-            new GoalEndState(0, finalPose.getRotation()));
+    Logger.recordOutput("Vision/snaptoTargetPos", finalPose);
 
-    Command pathFollow = AutoBuilder.followPath(path);
+    Command pathFollow = AutoBuilder.pathfindToPose(finalPose, constraints);
     CommandScheduler.getInstance().schedule(pathFollow);
   }
 
