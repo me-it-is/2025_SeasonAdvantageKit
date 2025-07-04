@@ -1,31 +1,26 @@
 package frc.robot.commands;
 
-import static frc.robot.util.GetAliance.getAllianceBoolean;
+import static frc.robot.Constants.VisionConstants.kTargetPoses;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.DriveConstants;
-import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.RobotMath;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.IntStream;
 import org.littletonrobotics.junction.Logger;
 
 /** Using current pose, goes to nearest known target based on field layout */
 public class SnapToTarget extends Command {
+  public static record TargetPose(Pose2d pose, Alliance alliance, boolean scoring, boolean right) {}
+
   private final Drive drive;
 
   public SnapToTarget(Drive drive) {
@@ -44,56 +39,38 @@ public class SnapToTarget extends Command {
             DriveConstants.kMaxTranslationAcceleration,
             DriveConstants.kMaxRotVelocity,
             DriveConstants.kMaxRotAcceleration);
-    // final pose should be slightly offset from april tag position
-    Pose2d finalPose =
-        scorePose.plus(
-            new Transform2d(
-                VisionConstants.kTagXOffset.times(RobotMath.signBool(getAllianceBoolean())),
-                VisionConstants.kTagYOffset,
-                new Rotation2d()));
-    Logger.recordOutput("Vision/snaptoTargetPos", finalPose);
 
-    Command pathFollow = AutoBuilder.pathfindToPose(finalPose, constraints);
+    Logger.recordOutput("Vision/snaptoTargetPos", scorePose);
+
+    Command pathFollow = AutoBuilder.pathfindToPose(scorePose, constraints);
     CommandScheduler.getInstance().schedule(pathFollow);
   }
 
   public Pose2d getClosestScoringPose(Pose2d drivePose) {
-    AprilTagFieldLayout layout = VisionConstants.kAprilTagFieldLayout;
     Optional<Alliance> alliance = DriverStation.getAlliance();
     if (!alliance.isPresent()) {
       return drivePose;
     }
+    List<Pose2d> allPoses = kTargetPoses.stream().map(t -> t.pose()).toList();
+    Logger.recordOutput("Vision/all target poses", allPoses.toArray(new Pose2d[allPoses.size()]));
 
-    List<Pose2d> scoringPoses;
-    int startTagId = alliance.get() == Alliance.Blue ? 17 : 6;
-    scoringPoses =
-        IntStream.rangeClosed(startTagId, startTagId + 5)
-            .mapToObj(id -> layout.getTagPose(id).orElse(null))
-            .filter(pose3d -> pose3d != null)
-            .map(Pose3d::toPose2d)
+    List<Pose2d> scrorringPoses =
+        kTargetPoses.stream()
+            .filter(t -> (t.alliance() == alliance.get()))
+            .filter(t -> (t.scoring()))
+            .map(t -> t.pose())
             .toList();
-
-    if (scoringPoses.isEmpty()) {
-      return drivePose;
-    }
-
-    Pose2d minPose = scoringPoses.get(0);
-    Distance minDist = RobotMath.distanceBetweenPoses(drivePose, scoringPoses.get(0));
-    for (int i = 1; i < scoringPoses.size(); i++) {
-      Distance dist = RobotMath.distanceBetweenPoses(drivePose, scoringPoses.get(i));
+    Logger.recordOutput(
+        "Vision/filterd target poses", scrorringPoses.toArray(new Pose2d[scrorringPoses.size()]));
+    Pose2d minPose = scrorringPoses.get(0);
+    Distance minDist = RobotMath.distanceBetweenPoses(drivePose, minPose);
+    for (int i = 1; i < scrorringPoses.size(); i++) {
+      Distance dist = RobotMath.distanceBetweenPoses(drivePose, scrorringPoses.get(i));
       if (dist.lt(minDist)) {
-        minPose = scoringPoses.get(i);
+        minDist = dist;
+        minPose = scrorringPoses.get(i);
       }
     }
-    Translation2d scoringTranslation = minPose.getTranslation();
-    // mirror pose if red alliance to account for field to robot coordinate conversion
-    if (alliance.get() == Alliance.Red) {
-      scoringTranslation =
-          new Translation2d(
-              VisionConstants.kFieldWidth.minus(scoringTranslation.getMeasureX()),
-              scoringTranslation.getMeasureY());
-    }
-    Rotation2d directionToScore = minPose.getRotation();
-    return new Pose2d(scoringTranslation, directionToScore);
+    return minPose;
   }
 }
