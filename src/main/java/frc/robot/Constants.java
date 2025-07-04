@@ -201,7 +201,7 @@ public final class Constants {
     public static final Distance kMinCamDistToTag = Meters.of(0);
     public static final Distance kMaxCamDistToTag = Meters.of(4);
     public static final Distance kMaxVertDisp = Meters.of(3);
-    public static final double kMaxTagAmbiguity = 0.4;
+    public static final double kMaxTagAmbiguity = 0.2;
     public static final Angle kRollBounds = Radians.of(0.2);
     public static final Angle kPitchBounds = Radians.of(0.2);
 
@@ -240,7 +240,7 @@ public final class Constants {
                     .getAngle()
                     .getRadians()));
 
-    public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(0.025, 0.025, 0.05);
+    public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(0.25, 0.25, 0.5);
 
     public static final AprilTagFieldLayout kAprilTagFieldLayout =
         AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
