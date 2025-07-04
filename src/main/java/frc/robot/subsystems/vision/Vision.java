@@ -60,10 +60,7 @@ public class Vision extends SubsystemBase implements AutoCloseable {
     Stream<EstimateTuple> cc = b.stream().flatMap(Optional::stream);
     var c = cc.toList();
     var d = c.stream().filter(Vision::isOnField).toList();
-    List<EstimateTuple> e =
-        d.stream().filter(v -> Vision.maxDistanceIsInThreshold(v, robotPose.get())).toList();
-    var f = e.stream().filter(Vision.isAmbiguityLess(kMaxTagAmbiguity)).toList();
-    var g = f.stream().filter(v -> pitchIsInBounds(v, kPitchBounds)).toList();
+    var g = d.stream().filter(v -> pitchIsInBounds(v, kPitchBounds)).toList();
     var h = g.stream().filter(v -> rollIsInBounds(v, kRollBounds)).toList();
     var i = h.stream().map(Vision::clampToFloor).toList();
     var j = i.stream().toList();
@@ -103,7 +100,7 @@ public class Vision extends SubsystemBase implements AutoCloseable {
         kMultiTagStdDevs
             .times(Math.pow(averageDistance(estimateAndInfo, currentPose).in(Meters), 1.5))
             .times(1 / Math.pow(estimateAndInfo.visionEstimate.targetsUsed.size(), 2))
-            .times(Math.pow(estimateAndInfo.ambiguity * 5, 4));
+            .times(Math.pow(estimateAndInfo.ambiguity * 10, 4));
     return new PoseEstimate(estimateAndInfo.visionEstimate, stdDevs);
   }
 
@@ -154,6 +151,13 @@ public class Vision extends SubsystemBase implements AutoCloseable {
       return Optional.empty();
     }
 
+    latestResult.targets =
+        latestResult.targets.stream()
+            .filter(
+                t -> t.bestCameraToTarget.getTranslation().getNorm() <= kMaxCamDistToTag.in(Meters))
+            .filter(t -> t.poseAmbiguity <= kMaxTagAmbiguity)
+            .toList();
+
     final var estimatedPose = estimatorAndResults.estimator().update(latestResult);
     if (estimatedPose.isEmpty()) {
       return Optional.empty();
@@ -173,10 +177,10 @@ public class Vision extends SubsystemBase implements AutoCloseable {
    * Whether max distance to target from current pose falls in range, measured in meters, for
    * accurate readings
    */
-  private static boolean maxDistanceIsInThreshold(
+  private static boolean averageDistanceIsInThreshold(
       EstimateTuple estimateAndInfo, Pose2d currentPose) {
     return RobotMath.measureWithinBounds(
-        maxDistance(estimateAndInfo, currentPose), kMinCamDistToTag, kMaxCamDistToTag);
+        averageDistance(estimateAndInfo, currentPose), kMinCamDistToTag, kMaxCamDistToTag);
   }
 
   /** Is the robot on the field based on its current pose */
