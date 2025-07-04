@@ -36,6 +36,7 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -65,6 +66,7 @@ import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.commands.SnapToTarget.TargetPose;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.vision.VisionIO.PhotonPoseEstimatorNameTuple;
@@ -73,6 +75,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.IntStream;
 import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
@@ -216,8 +219,8 @@ public final class Constants {
     public static final Distance kMinTransError = Meters.of(0.05);
 
     // TODO placeholder offsets, need tuning
-    public static final Distance kTagXOffset = Meters.of(-1);
-    public static final Distance kTagYOffset = halfOffset;
+    public static final Distance kTagXOffset = Meters.of(0);
+    public static final Distance kTagYOffset = Meters.of(1);
 
     public static final Distance tagDistSetpoint = Meters.of(0.1);
     public static final Angle kCameraPitch = Degree.of(-30);
@@ -259,6 +262,71 @@ public final class Constants {
         List.of(
             new PhotonPoseEstimatorNameTuple("aprilOne", poseEstimatorOne),
             new PhotonPoseEstimatorNameTuple("aprilTwo", poseEstimatorTwo));
+
+    public static final List<TargetPose> kTargetPoses = generateTargetPoses();
+
+    private static List<TargetPose> generateTargetPoses() {
+      List<TargetPose> poses = new ArrayList<>();
+      poses.addAll(generateTargetPosesForOneAlliance(Alliance.Blue));
+      poses.addAll(generateTargetPosesForOneAlliance(Alliance.Red));
+      return poses;
+    }
+
+    private static List<TargetPose> generateTargetPosesForOneAlliance(Alliance alliance) {
+      int startTagId = alliance == Alliance.Blue ? 17 : 6;
+      List<Pose2d> apriltagPoses =
+          IntStream.rangeClosed(startTagId, startTagId + 5)
+              .mapToObj(id -> kAprilTagFieldLayout.getTagPose(id).orElse(null))
+              .filter(pose3d -> pose3d != null)
+              .map(Pose3d::toPose2d)
+              .toList();
+
+      List<TargetPose> targetPoses = new ArrayList<>();
+      for (Pose2d pose : apriltagPoses) {
+        targetPoses.add(
+            new TargetPose(
+                convertApriltagPoseToTargetPose(pose, false, kTagXOffset, kTagYOffset),
+                alliance,
+                true,
+                false));
+        targetPoses.add(
+            new TargetPose(
+                convertApriltagPoseToTargetPose(pose, true, kTagXOffset, kTagYOffset),
+                alliance,
+                true,
+                true));
+      }
+      startTagId = alliance == Alliance.Blue ? 12 : 1;
+      apriltagPoses =
+          IntStream.rangeClosed(startTagId, startTagId + 1)
+              .mapToObj(id -> kAprilTagFieldLayout.getTagPose(id).orElse(null))
+              .filter(pose3d -> pose3d != null)
+              .map(Pose3d::toPose2d)
+              .toList();
+      for (Pose2d pose : apriltagPoses) {
+        targetPoses.add(
+            new TargetPose(
+                convertApriltagPoseToTargetPose(pose, false, Meters.zero(), kTagYOffset),
+                alliance,
+                false,
+                false));
+      }
+      return targetPoses;
+    }
+
+    private static Pose2d convertApriltagPoseToTargetPose(
+        Pose2d pose, boolean right, Distance xOffset, Distance yOffset) {
+      var rotatedPose =
+          new Pose2d(
+                  new Translation2d(yOffset, right ? xOffset : xOffset.unaryMinus()),
+                  new Rotation2d())
+              .rotateBy(pose.getRotation());
+      return new Pose2d(
+          new Translation2d(
+              rotatedPose.getMeasureX().plus(pose.getMeasureX()),
+              rotatedPose.getMeasureY().plus(pose.getMeasureY())),
+          pose.getRotation().rotateBy(Rotation2d.k180deg));
+    }
   }
 
   public static class ClimberConstants {
