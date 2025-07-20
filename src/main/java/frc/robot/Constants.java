@@ -276,6 +276,8 @@ public final class Constants {
     public static final AngularAcceleration kMaxAcceleration = RotationsPerSecondPerSecond.of(10);
     public static final Angle rotVelTolerance = Rotations.of(0.05);
 
+    public static final Mass kElevatorMass = Pounds.of(14.552 + 12.759);
+
     public static double totalExtensionTime = kMaxHeight.in(Units.Meters) / kDeadReckoningSpeed;
 
     public static final Distance kEncoderOffset = Meters.of(0);

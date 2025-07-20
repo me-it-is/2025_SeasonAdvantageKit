@@ -3,6 +3,7 @@ package frc.robot.subsystems.elevator;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Voltage;
@@ -47,6 +48,10 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
 
   public void voltageDrive(Voltage volts) {
     // talonLeader.setControl(new VoltageOut(volts));
+  }
+
+  public Current getTotalCurrent() {
+    return inputs.followerCurrent.plus(inputs.leaderCurrent);
   }
 
   public Distance getElevatorHeight() {

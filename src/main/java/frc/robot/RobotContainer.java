@@ -69,6 +69,7 @@ import frc.robot.subsystems.manipulator.ManipulatorIOSparkMaxSim;
 import frc.robot.subsystems.vision.Vision;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
+import org.ironmaple.simulation.motorsims.SimulatedBattery;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -145,9 +146,17 @@ public class RobotContainer {
 
         manipulator = new Manipulator(new ManipulatorIOSparkMaxSim());
 
-        elevator = new Elevator(new ElevatorIOTalonFXSim());
+        elevator =
+            new Elevator(
+                new ElevatorIOTalonFXSim(
+                    new TalonFX(ElevatorConstants.kTalonLeaderCANId, ElevatorConstants.canBus),
+                    new TalonFX(ElevatorConstants.kTalonFollowerCANId, ElevatorConstants.canBus),
+                    SimulatedBattery::getBatteryVoltage));
 
         climber = new Climber(new ClimberIOSparkSim());
+
+        SimulatedBattery.addElectricalAppliances(drive::getTotalCurrent);
+        SimulatedBattery.addElectricalAppliances(elevator::getTotalCurrent);
         break;
 
       default:
