@@ -183,48 +183,20 @@ public class RobotContainer {
     // Set up SysId routines
 
     Command drive1m = AutoBuilder.buildAuto("drive 1m");
-    testController
-        .y()
-        .whileTrue(DriveCommands.wheelRadiusCharacterization(drive))
-        .onFalse((runOnce(() -> drive.stop(), drive)));
-    testController
-        .b()
-        .whileTrue(DriveCommands.feedforwardCharacterization(drive))
-        .onFalse((runOnce(() -> drive.stop(), drive)));
-    testController
-        .a()
-        .whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward))
-        .onFalse((runOnce(() -> drive.stop(), drive)));
-    testController
-        .x()
-        .whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse))
-        .onFalse((runOnce(() -> drive.stop(), drive)));
-    testController
-        .povDownRight()
-        .whileTrue(DriveCommands.wheelRadiusCharacterization(drive))
-        .onFalse((runOnce(() -> drive.stop(), drive)));
-    testController
-        .povUp()
-        .whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kForward))
-        .onFalse((runOnce(() -> drive.stop(), drive)));
+    testController.y().whileTrue(DriveCommands.wheelRadiusCharacterization(drive));
+    testController.b().whileTrue(DriveCommands.feedforwardCharacterization(drive));
+    testController.a().whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    testController.x().whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    testController.povDownRight().whileTrue(DriveCommands.wheelRadiusCharacterization(drive));
+    testController.povUp().whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
     testController
         .leftTrigger()
         .whileTrue(
             characterizeElevatorQuasistatic(Direction.kForward)
-                .finallyDo((bool) -> System.out.println(bool)))
-        .onFalse((runOnce(elevator::stop, elevator)));
-    testController
-        .leftBumper()
-        .whileTrue(characterizeElevatorQuasistatic(Direction.kReverse))
-        .onFalse((runOnce(elevator::stop, elevator)));
-    testController
-        .rightTrigger()
-        .whileTrue(characterizeElevatorDynamic(Direction.kForward))
-        .onFalse((runOnce(elevator::stop, elevator)));
-    testController
-        .rightBumper()
-        .whileTrue(characterizeElevatorDynamic(Direction.kReverse))
-        .onFalse((runOnce(elevator::stop, elevator)));
+                .finallyDo((bool) -> System.out.println(bool)));
+    testController.leftBumper().whileTrue(characterizeElevatorQuasistatic(Direction.kReverse));
+    testController.rightTrigger().whileTrue(characterizeElevatorDynamic(Direction.kForward));
+    testController.rightBumper().whileTrue(characterizeElevatorDynamic(Direction.kReverse));
 
     // testController
     //     .povLeft()
