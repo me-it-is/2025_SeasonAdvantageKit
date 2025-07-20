@@ -165,7 +165,7 @@ public class RobotContainer {
 
         SimulatedBattery.addElectricalAppliances(drive::getTotalCurrent);
         SimulatedBattery.addElectricalAppliances(elevator::getTotalCurrent);
-        
+
         vision =
             new Vision(
                 drive::updateEstimates,
