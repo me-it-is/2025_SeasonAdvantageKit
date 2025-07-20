@@ -14,6 +14,7 @@
 package frc.robot;
 
 import static edu.wpi.first.wpilibj2.command.Commands.*;
+import static edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction.*;
 import static frc.robot.util.GetAliance.getAllianceBoolean;
 
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -183,20 +184,23 @@ public class RobotContainer {
     // Set up SysId routines
 
     Command drive1m = AutoBuilder.buildAuto("drive 1m");
-    testController.y().whileTrue(DriveCommands.wheelRadiusCharacterization(drive));
-    testController.b().whileTrue(DriveCommands.feedforwardCharacterization(drive));
-    testController.a().whileTrue(drive.driveSysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    testController.x().whileTrue(drive.driveSysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    testController.povDownRight().whileTrue(DriveCommands.wheelRadiusCharacterization(drive));
-    testController.povUp().whileTrue(drive.driveSysIdDynamic(SysIdRoutine.Direction.kForward));
+    testController.x().whileTrue(drive.driveSysIdQuasistatic(kForward));
+    testController.b().whileTrue(drive.driveSysIdQuasistatic(kReverse));
+    testController.y().whileTrue(drive.driveSysIdDynamic(kForward));
+    testController.a().whileTrue(drive.driveSysIdDynamic(kReverse));
+    testController.povUp().whileTrue(drive.turnSysIdQuasistatic(kForward));
+    testController.povDown().whileTrue(drive.turnSysIdQuasistatic(kReverse));
+    testController.povLeft().whileTrue(drive.turnSysIdDynamic(kForward));
+    testController.povRight().whileTrue(drive.turnSysIdDynamic(kReverse));
+
     testController
         .leftTrigger()
         .whileTrue(
-            characterizeElevatorQuasistatic(Direction.kForward)
+            characterizeElevatorQuasistatic(kForward)
                 .finallyDo((bool) -> System.out.println(bool)));
-    testController.leftBumper().whileTrue(characterizeElevatorQuasistatic(Direction.kReverse));
-    testController.rightTrigger().whileTrue(characterizeElevatorDynamic(Direction.kForward));
-    testController.rightBumper().whileTrue(characterizeElevatorDynamic(Direction.kReverse));
+    testController.leftBumper().whileTrue(characterizeElevatorQuasistatic(kReverse));
+    testController.rightTrigger().whileTrue(characterizeElevatorDynamic(kForward));
+    testController.rightBumper().whileTrue(characterizeElevatorDynamic(kReverse));
 
     // testController
     //     .povLeft()
@@ -207,15 +211,11 @@ public class RobotContainer {
     autoChooser.addOption(
         "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
     autoChooser.addOption(
-        "Drive SysId (Quasistatic Forward)",
-        drive.driveSysIdQuasistatic(SysIdRoutine.Direction.kForward));
+        "Drive SysId (Quasistatic Forward)", drive.driveSysIdQuasistatic(kForward));
     autoChooser.addOption(
-        "Drive SysId (Quasistatic Reverse)",
-        drive.driveSysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    autoChooser.addOption(
-        "Drive SysId (Dynamic Forward)", drive.driveSysIdDynamic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Drive SysId (Dynamic Reverse)", drive.driveSysIdDynamic(SysIdRoutine.Direction.kReverse));
+        "Drive SysId (Quasistatic Reverse)", drive.driveSysIdQuasistatic(kReverse));
+    autoChooser.addOption("Drive SysId (Dynamic Forward)", drive.driveSysIdDynamic(kForward));
+    autoChooser.addOption("Drive SysId (Dynamic Reverse)", drive.driveSysIdDynamic(kReverse));
 
     configureAutos();
     // Configure the button bindings

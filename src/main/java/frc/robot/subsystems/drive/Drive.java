@@ -309,7 +309,7 @@ public class Drive extends SubsystemBase {
         .withTimeout(1.0)
         .andThen(driveSysId.dynamic(direction));
   }
-  
+
   public Command turnSysIdQuasistatic(SysIdRoutine.Direction direction) {
     return run(() -> runDriveCharacterization(0.0))
         .withTimeout(1.0)
