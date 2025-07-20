@@ -22,7 +22,7 @@ public interface ElevatorIO {
 
   public default void updateInputs(ElevatorIOInputsAutoLogged inputs) {}
 
-  public default void setSetpoint(Distance hight) {}
+  public default void setSetpoint(Distance height) {}
 
   public default void stop() {}
 

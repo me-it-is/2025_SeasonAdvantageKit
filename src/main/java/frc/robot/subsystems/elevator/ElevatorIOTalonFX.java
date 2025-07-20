@@ -93,8 +93,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   }
 
   @Override
-  public void setSetpoint(Distance hight) {
-    talonLeader.setControl(profile.withPosition(heightToAngle(hight)));
+  public void setSetpoint(Distance height) {
+    talonLeader.setControl(profile.withPosition(heightToAngle(height)));
   }
 
   @Override
