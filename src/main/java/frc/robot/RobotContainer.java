@@ -185,10 +185,10 @@ public class RobotContainer {
     Command drive1m = AutoBuilder.buildAuto("drive 1m");
     testController.y().whileTrue(DriveCommands.wheelRadiusCharacterization(drive));
     testController.b().whileTrue(DriveCommands.feedforwardCharacterization(drive));
-    testController.a().whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    testController.x().whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    testController.a().whileTrue(drive.driveSysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    testController.x().whileTrue(drive.driveSysIdQuasistatic(SysIdRoutine.Direction.kReverse));
     testController.povDownRight().whileTrue(DriveCommands.wheelRadiusCharacterization(drive));
-    testController.povUp().whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    testController.povUp().whileTrue(drive.driveSysIdDynamic(SysIdRoutine.Direction.kForward));
     testController
         .leftTrigger()
         .whileTrue(
@@ -208,14 +208,14 @@ public class RobotContainer {
         "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
     autoChooser.addOption(
         "Drive SysId (Quasistatic Forward)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+        drive.driveSysIdQuasistatic(SysIdRoutine.Direction.kForward));
     autoChooser.addOption(
         "Drive SysId (Quasistatic Reverse)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+        drive.driveSysIdQuasistatic(SysIdRoutine.Direction.kReverse));
     autoChooser.addOption(
-        "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+        "Drive SysId (Dynamic Forward)", drive.driveSysIdDynamic(SysIdRoutine.Direction.kForward));
     autoChooser.addOption(
-        "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+        "Drive SysId (Dynamic Reverse)", drive.driveSysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     configureAutos();
     // Configure the button bindings
