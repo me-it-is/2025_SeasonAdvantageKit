@@ -24,12 +24,12 @@ public class Manipulator extends SubsystemBase implements AutoCloseable {
   @Override
   public void periodic() {
     manipulatorIO.updateInputs(inputs);
-    Logger.processInputs("manipulator", inputs);
+    Logger.processInputs("Manipulator", inputs);
 
     this.error = RobotMath.dist(setpoint, inputs.manipulatorAngle);
-    Logger.recordOutput("manipulator/error", error);
-    Logger.recordOutput("manipulator/at setpoint", atSetpoint());
-    Logger.recordOutput("manipulator/setpoint", setpoint);
+    Logger.recordOutput("Manipulator/error", error);
+    Logger.recordOutput("Manipulator/at setpoint", atSetpoint());
+    Logger.recordOutput("Manipulator/setpoint", setpoint);
   }
 
   private Angle getAngle(GameState state) {

@@ -13,6 +13,7 @@ import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.GameState;
 import frc.robot.util.RobotMath;
+import org.littletonrobotics.junction.Logger;
 
 public class Elevator extends SubsystemBase implements AutoCloseable {
   private Distance setpoint = Constants.reefMap.get(GameState.NONE).distance();
@@ -27,6 +28,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
   @Override
   public void periodic() {
     elevatorIO.updateInputs(inputs);
+    Logger.processInputs("Elevator", inputs);
   }
 
   public void setSetpoint(GameState stage) {
