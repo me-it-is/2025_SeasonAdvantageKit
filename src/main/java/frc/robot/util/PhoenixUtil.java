@@ -139,12 +139,12 @@ public class PhoenixUtil {
         // Adjust steer motor PID gains for simulation
         .withSteerMotorGains(
             new Slot0Configs()
-                .withKP(70)
+                .withKP(4.9008)
                 .withKI(0)
-                .withKD(4.5)
-                .withKS(0)
-                .withKV(1.91)
-                .withKA(0)
+                .withKD(0.01221)
+                .withKS(0.041041)
+                .withKV(0.37954)
+                .withKA(0.014001)
                 .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign))
         .withSteerMotorGearRatio(16.0)
         // Adjust friction voltages

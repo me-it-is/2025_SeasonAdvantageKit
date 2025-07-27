@@ -93,7 +93,7 @@ public final class Constants {
   public static final double WHEEL_COF = 1.75;
   public static final double kDt = 0.02;
 
-  public static final Pose2d startPose = new Pose2d(new Translation2d(3, 3), new Rotation2d());
+  public static final Pose2d startPose = new Pose2d(new Translation2d(2, 1), new Rotation2d());
 
   public static enum Mode {
     /** Running on a real robot. */
