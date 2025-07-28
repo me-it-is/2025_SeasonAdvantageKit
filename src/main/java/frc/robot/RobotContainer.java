@@ -171,7 +171,6 @@ public class RobotContainer {
 
         climber = new Climber(new ClimberIOSparkSim());
 
-        SimulatedBattery.addElectricalAppliances(drive::getTotalCurrent);
         SimulatedBattery.addElectricalAppliances(elevator::getTotalCurrent);
 
         vision =
