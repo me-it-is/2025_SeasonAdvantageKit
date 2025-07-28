@@ -48,8 +48,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         elevatorConfig.Slot0 = ElevatorConstants.elevatorSimGains0;
     }
     elevatorConfig.MotionMagic.MotionMagicCruiseVelocity = 25;
-    elevatorConfig.MotionMagic.MotionMagicAcceleration = 50;
-    elevatorConfig.MotionMagic.MotionMagicJerk = 100;
+    elevatorConfig.MotionMagic.MotionMagicAcceleration = 2.5;
+    elevatorConfig.MotionMagic.MotionMagicJerk = 50;
 
     tryUntilOk(10, () -> talonLeader.getConfigurator().apply(elevatorConfig, 0.25));
 
