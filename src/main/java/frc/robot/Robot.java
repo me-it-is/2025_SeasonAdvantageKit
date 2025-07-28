@@ -13,6 +13,8 @@
 
 package frc.robot;
 
+import static frc.robot.Constants.Mode;
+
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -85,7 +87,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void robotInit() {
-    CameraServer.startAutomaticCapture();
+    if (Constants.currentMode == Mode.REAL) CameraServer.startAutomaticCapture();
     // Threads.setCurrentThreadPriority(true, 99);
   }
 
