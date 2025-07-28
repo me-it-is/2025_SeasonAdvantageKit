@@ -30,6 +30,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.*;
 import edu.wpi.first.units.Units;
@@ -496,7 +497,7 @@ public class RobotContainer {
               kStartingPose.getX(),
               kStartingPose.getY(),
               kStartingPose.getZ() + (elevatorCarriageHeight.in(Meters)),
-              kStartingPose.getRotation())
+              kStartingPose.getRotation().rotateBy(new Rotation3d(0, manipulator.getManipulatorAngle().in(Radians), 0)))
         });
   }
 

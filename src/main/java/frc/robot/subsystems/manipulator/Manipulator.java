@@ -50,6 +50,10 @@ public class Manipulator extends SubsystemBase implements AutoCloseable {
     return error.lt(kRotTolerance);
   }
 
+  public Angle getManipulatorAngle() {
+    return inputs.manipulatorAngle;
+  }
+
   /** Spin rollers forward or backward at default speed */
   public void spinRollers(boolean forward) {
     int multiplier = forward == true ? 1 : -1;
