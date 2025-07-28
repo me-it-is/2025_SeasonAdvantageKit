@@ -463,7 +463,7 @@ public class RobotContainer {
   }
 
   public void logMechanismForAScopeDisplay() {
-    Distance height = elevator.getElevatorHeight();
+    Distance height = Meters.zero(); // elevator.getElevatorHeight();
     Distance elevatorStage1Height =
         (Distance) RobotMath.clamp(height, Meters.zero(), kStage1MaxHeight);
     Logger.recordOutput("Elevator/stage1Height", elevatorStage1Height.in(Meters));

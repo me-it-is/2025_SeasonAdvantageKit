@@ -359,10 +359,14 @@ public final class Constants {
   }
 
   public static class ElevatorConstants {
+    public static final Distance kStage1MaxHeight = Millimeters.of(660.4);
+    public static final Distance kStage2MaxHeight = kStage1MaxHeight.plus(Millimeters.of(657.225));
+    public static final Distance kCarriageMaxHeight = kStage2MaxHeight.plus(Millimeters.of(400.05));
+
     public static final String canBus = "blinky";
     public static final int kTalonLeaderCANId = 14;
     public static final int kTalonFollowerCANId = 15;
-    public static final Distance kMaxHeight = Meters.of(1.72);
+    public static final Distance kMaxHeight = kCarriageMaxHeight;
     public static final double kDeadReckoningSpeed = 0.1;
     public static final double kDeadRecogningDeadZone = 0.05;
     public static final double kRestInput = 0.02;
@@ -463,12 +467,9 @@ public final class Constants {
     public static final Pose3d kStage1StartPos =
         new Pose3d(0.1017225, 0, 0.094701406, new Rotation3d());
     public static final Pose3d kStage2StartPos =
-        new Pose3d(0.1017225, 0, 0.082101, new Rotation3d());
+        new Pose3d(0.1017225, 0, 0.120101, new Rotation3d());
     public static final Pose3d kCarriageStartPos =
-        new Pose3d(0.1017225, 0, 0.107501, new Rotation3d());
-    public static final Distance kStage1MaxHeight = Millimeters.of(660.4);
-    public static final Distance kStage2MaxHeight = kStage1MaxHeight.plus(Millimeters.of(657.225));
-    public static final Distance kCarriageMaxHeight = kStage2MaxHeight.plus(Millimeters.of(400.05));
+        new Pose3d(0.1017225, 0, 0.145501, new Rotation3d());
   }
 
   public static class FaultConstants {

@@ -11,6 +11,7 @@ import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import frc.robot.Constants;
 import java.util.function.Supplier;
+import org.littletonrobotics.junction.Logger;
 
 public class ElevatorIOTalonFXSim extends ElevatorIOTalonFX {
   TalonFXSimState leaderSim;
@@ -40,6 +41,9 @@ public class ElevatorIOTalonFXSim extends ElevatorIOTalonFX {
 
   @Override
   public void updateInputs(ElevatorIOInputsAutoLogged inputs) {
+    Logger.recordOutput("Elevator/simHeight", elevatorSim.getPositionMeters());
+    Logger.recordOutput("Elevator/simVelocity", elevatorSim.getVelocityMetersPerSecond());
+
     leaderSim.setSupplyVoltage(batteryVoltage.get());
 
     elevatorSim.setInputVoltage(leaderSim.getMotorVoltage());

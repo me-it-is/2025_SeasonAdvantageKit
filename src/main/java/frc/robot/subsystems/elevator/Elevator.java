@@ -15,6 +15,7 @@ import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.GameState;
 import frc.robot.util.RobotMath;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Elevator extends SubsystemBase implements AutoCloseable {
@@ -58,6 +59,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
     return inputs.followerCurrent.plus(inputs.leaderCurrent);
   }
 
+  @AutoLogOutput(key = "Elevator/Height")
   public Distance getElevatorHeight() {
     if (inputs.leaderPosition == null) return Meters.zero();
     if (inputs.leaderPosition.lte(Rotations.zero())) return Meters.zero();
