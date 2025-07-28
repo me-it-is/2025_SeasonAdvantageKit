@@ -165,4 +165,16 @@ public final class RobotMath {
   public static int signBool(boolean b) {
     return b ? 1 : -1;
   }
+
+  @SuppressWarnings("unchecked")
+  public static <U extends Unit> Measure<U> max(Measure<U> first, Measure<U> second) {
+    return (Measure<U>)
+        first.baseUnit().of(Math.max(first.baseUnitMagnitude(), second.baseUnitMagnitude()));
+  }
+
+  @SuppressWarnings("unchecked")
+  public static <U extends Unit> Measure<U> min(Measure<U> first, Measure<U> second) {
+    return (Measure<U>)
+        first.baseUnit().of(Math.min(first.baseUnitMagnitude(), second.baseUnitMagnitude()));
+  }
 }
