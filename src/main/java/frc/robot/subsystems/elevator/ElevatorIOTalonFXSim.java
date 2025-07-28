@@ -23,12 +23,12 @@ public class ElevatorIOTalonFXSim extends ElevatorIOTalonFX {
           kSimGearBox,
           kGearRatio,
           kElevatorMass.in(Kilograms),
-          Millimeters.of(18).in(Meters),
+          kPullyRadius.in(Meters),
           0,
           kMaxHeight.in(Meters),
           true,
           0,
-          0.1,
+          0,
           0);
 
   public ElevatorIOTalonFXSim(

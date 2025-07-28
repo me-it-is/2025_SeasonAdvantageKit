@@ -147,6 +147,7 @@ public class RobotContainer {
         break;
 
       case SIM:
+        SimulatedArena.getInstance().overrideSimulationTimings(Seconds.of(Constants.kDt), 25);
         driveSimulation =
             new SwerveDriveSimulation(Constants.DriveConstants.mapleSimConfig, Constants.startPose);
         SimulatedArena.getInstance().addDriveTrainSimulation(driveSimulation);
@@ -213,11 +214,7 @@ public class RobotContainer {
     testController.povLeft().whileTrue(drive.turnSysIdDynamic(kForward));
     testController.povRight().whileTrue(drive.turnSysIdDynamic(kReverse));
 
-    testController
-        .leftTrigger()
-        .whileTrue(
-            characterizeElevatorQuasistatic(kForward)
-                .finallyDo((bool) -> System.out.println(bool)));
+    testController.leftTrigger().whileTrue(characterizeElevatorQuasistatic(kForward));
     testController.leftBumper().whileTrue(characterizeElevatorQuasistatic(kReverse));
     testController.rightTrigger().whileTrue(characterizeElevatorDynamic(kForward));
     testController.rightBumper().whileTrue(characterizeElevatorDynamic(kReverse));
@@ -428,7 +425,7 @@ public class RobotContainer {
     SysIdRoutine routine =
         new SysIdRoutine(
             ElevatorConstants.sysIdConfig,
-            new SysIdRoutine.Mechanism(elevator::voltageDrive, elevator::sysIdLog, elevator));
+            new SysIdRoutine.Mechanism(elevator::voltageDrive, null, elevator));
     return routine.quasistatic(dir);
   }
 
@@ -436,7 +433,7 @@ public class RobotContainer {
     SysIdRoutine routine =
         new SysIdRoutine(
             ElevatorConstants.sysIdConfig,
-            new SysIdRoutine.Mechanism(elevator::voltageDrive, elevator::sysIdLog, elevator));
+            new SysIdRoutine.Mechanism(elevator::voltageDrive, null, elevator));
 
     return routine.dynamic(dir);
   }
@@ -463,7 +460,7 @@ public class RobotContainer {
   }
 
   public void logMechanismForAScopeDisplay() {
-    Distance height = Meters.zero(); // elevator.getElevatorHeight();
+    Distance height = elevator.getElevatorHeight();
     Distance elevatorStage1Height =
         (Distance) RobotMath.clamp(height, Meters.zero(), kStage1MaxHeight);
     Logger.recordOutput("Elevator/stage1Height", elevatorStage1Height.in(Meters));

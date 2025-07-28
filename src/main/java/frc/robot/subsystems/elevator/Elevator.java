@@ -9,7 +9,6 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
@@ -44,15 +43,8 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
         .lt(ElevatorConstants.kSetpointTolerance);
   }
 
-  public void sysIdLog(SysIdRoutineLog log) {
-    log.motor("Elevator motors")
-        .voltage(inputs.leaderVoltage)
-        .linearPosition(getElevatorHeight())
-        .linearVelocity(getElevatorVelocity());
-  }
-
   public void voltageDrive(Voltage volts) {
-    // talonLeader.setControl(new VoltageOut(volts));
+    elevatorIO.voltageDrive(volts);
   }
 
   public Current getTotalCurrent() {

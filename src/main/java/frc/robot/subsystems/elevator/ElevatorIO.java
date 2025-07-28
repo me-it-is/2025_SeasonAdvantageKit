@@ -24,6 +24,8 @@ public interface ElevatorIO {
 
   public default void setSetpoint(Distance height) {}
 
+  public default void voltageDrive(Voltage voltage) {}
+
   public default void stop() {}
 
   public default void Close() {}

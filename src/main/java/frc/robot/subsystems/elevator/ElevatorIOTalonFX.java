@@ -8,11 +8,14 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.measure.*;
+import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
+import org.littletonrobotics.junction.Logger;
 
 public class ElevatorIOTalonFX implements ElevatorIO {
   private TalonFX talonLeader;
@@ -38,11 +41,13 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
     var elevatorConfig = ElevatorConstants.elevatorConfig;
     elevatorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    elevatorConfig.Slot0 = ElevatorConstants.elevatorGains0;
-    elevatorConfig.Slot1 = ElevatorConstants.elevatorGains1;
-    elevatorConfig.Slot2 = ElevatorConstants.elevatorGains2;
-
-    elevatorConfig.MotionMagic.MotionMagicCruiseVelocity = 12;
+    switch (Constants.currentMode) {
+      default:
+        elevatorConfig.Slot0 = ElevatorConstants.elevatorGains0;
+      case SIM:
+        elevatorConfig.Slot0 = ElevatorConstants.elevatorSimGains0;
+    }
+    elevatorConfig.MotionMagic.MotionMagicCruiseVelocity = 100;
     elevatorConfig.MotionMagic.MotionMagicAcceleration = 200;
     elevatorConfig.MotionMagic.MotionMagicJerk = 400;
 
@@ -59,7 +64,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     followerCurrent = talonFollower.getStatorCurrent();
 
     BaseStatusSignal.setUpdateFrequencyForAll(
-        50.0,
+        1 / Constants.kDt,
         leaderPosition,
         leaderVelocity,
         leaderAppliedVolts,
@@ -81,6 +86,13 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         BaseStatusSignal.refreshAll(
             followerPosition, followerVelocity, followerAppliedVolts, followerCurrent);
 
+    Logger.recordOutput(
+        "Elevator/ClosedLoopReference", talonLeader.getClosedLoopReference().getValueAsDouble());
+    Logger.recordOutput(
+        "Elevator/ClosedLoopOutput", talonLeader.getClosedLoopOutput().getValueAsDouble());
+    Logger.recordOutput(
+        "Elevator/ClosedLoopFF", talonLeader.getClosedLoopFeedForward().getValueAsDouble());
+
     inputs.leaderPosition = leaderPosition.getValue();
     inputs.leaderVelocity = leaderVelocity.getValue();
     inputs.leaderVoltage = leaderAppliedVolts.getValue();
@@ -95,6 +107,11 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   @Override
   public void setSetpoint(Distance height) {
     talonLeader.setControl(profile.withPosition(heightToAngle(height)));
+  }
+
+  @Override
+  public void voltageDrive(Voltage voltage) {
+    talonLeader.setControl(new VoltageOut(voltage));
   }
 
   @Override

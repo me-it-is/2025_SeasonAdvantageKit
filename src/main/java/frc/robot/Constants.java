@@ -19,8 +19,6 @@ import static frc.robot.util.Elastic.Notification.NotificationLevel.WARNING;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.Slot1Configs;
-import com.ctre.phoenix6.configs.Slot2Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.Pigeon2;
@@ -79,6 +77,7 @@ import java.util.stream.IntStream;
 import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
+import org.littletonrobotics.junction.Logger;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
@@ -97,7 +96,7 @@ public final class Constants {
   // Converted form lbs in2 because wpi doesnt have a unit
   public static final MomentOfInertia ROBOT_MOI = KilogramSquareMeters.of(0.0588);
   public static final double WHEEL_COF = 1.75;
-  public static final double kDt = 0.02;
+  public static final double kDt = 0.005;
 
   public static final Pose2d startPose = new Pose2d(new Translation2d(2, 1), new Rotation2d());
 
@@ -375,7 +374,7 @@ public final class Constants {
     public static final AngularAcceleration kMaxAcceleration = RotationsPerSecondPerSecond.of(10);
     public static final Angle rotVelTolerance = Rotations.of(0.05);
 
-    public static final Mass kElevatorMass = Pounds.of(14.552 + 12.759);
+    public static final Mass kElevatorMass = Pounds.of(14.552);
 
     public static double totalExtensionTime = kMaxHeight.in(Units.Meters) / kDeadReckoningSpeed;
 
@@ -385,6 +384,7 @@ public final class Constants {
 
     // 3 to 1 ratio on the motor
     public static final int kGearRatio = 3;
+    public static final Distance kPullyRadius = Millimeters.of(60);
     public static final Angle kFullExtensionAngle = Rotations.of(9.56 * kGearRatio);
 
     // Ratio of height to angle
@@ -396,20 +396,27 @@ public final class Constants {
         kFullExtensionAngle.div(kMaxHeight);
 
     public static final double kPositionConversionFactor = 1 / kFullExtensionAngle.in(Rotations);
+
     public static final double kS = 0.097565;
     public static final double kG0 = 0.68798;
-    public static final double kG1 = 0.68798;
-    public static final double kG2 = 0.68798;
     public static final double kV = 0.1293;
     public static final double kA = 0.025;
-
-    public static final FeedbackSensor feedbackSensor = FeedbackSensor.kAbsoluteEncoder;
     public static final double kP = 0.16037;
     public static final double kI = 0.1;
-
     public static final double kD = 0;
+
+    public static final double kSimS = 0.014871;
+    public static final double kSimG0 = 1.1059;
+    public static final double kSimV = 0.0092465;
+    public static final double kSimA = 0.00092256;
+
+    public static final double kSimP = 9.3353;
+    public static final double kSimI = 0;
+    public static final double kSimD = 0.12263;
+
+    public static final FeedbackSensor feedbackSensor = FeedbackSensor.kAbsoluteEncoder;
     public static final double kFF = 0;
-    public static final int currentLimit = 60;
+    public static final int currentLimit = 100;
 
     // public static final double kS = 0;
     // public static final double kG0 = 40;
@@ -433,27 +440,16 @@ public final class Constants {
             .withGravityType(GravityTypeValue.Elevator_Static)
             .withKG(kG0);
 
-    public static final Slot1Configs elevatorGains1 =
-        new Slot1Configs()
-            .withKP(kP)
-            .withKI(kI)
-            .withKD(kD)
-            .withKS(kS)
-            .withKV(kV)
-            .withKA(kA)
+    public static final Slot0Configs elevatorSimGains0 =
+        new Slot0Configs()
+            .withKP(kSimP)
+            .withKI(kSimI)
+            .withKD(kSimD)
+            .withKS(kSimS)
+            .withKV(kSimV)
+            .withKA(kSimA)
             .withGravityType(GravityTypeValue.Elevator_Static)
-            .withKG(kG1);
-
-    public static final Slot2Configs elevatorGains2 =
-        new Slot2Configs()
-            .withKP(kP)
-            .withKI(kI)
-            .withKD(kD)
-            .withKS(kS)
-            .withKV(kV)
-            .withKA(kA)
-            .withGravityType(GravityTypeValue.Elevator_Static)
-            .withKG(kG2);
+            .withKG(kSimG0);
 
     public static final TalonFXConfiguration elevatorConfig =
         new TalonFXConfiguration()
@@ -463,7 +459,11 @@ public final class Constants {
                     .withStatorCurrentLimitEnable(true));
 
     public static final SysIdRoutine.Config sysIdConfig =
-        new SysIdRoutine.Config(Volts.per(Second).of(0.5), Volts.of(4), Seconds.of(25));
+        new SysIdRoutine.Config(
+            Volts.per(Second).of(0.5),
+            Volts.of(4),
+            null,
+            (state) -> Logger.recordOutput("Elevator/sysIdState", state.toString()));
     public static final Pose3d kStage1StartPos =
         new Pose3d(0.1017225, 0, 0.094701406, new Rotation3d());
     public static final Pose3d kStage2StartPos =
