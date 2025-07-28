@@ -13,8 +13,11 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.*;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 import static edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction.*;
+import static frc.robot.Constants.ElevatorConstants.*;
+import static frc.robot.Constants.ManipulatorConstants.*;
 import static frc.robot.util.GetAliance.getAllianceBoolean;
 
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -25,9 +28,12 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.units.*;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -71,6 +77,7 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOReal;
 import frc.robot.subsystems.vision.VisionIOSim;
+import frc.robot.util.RobotMath;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.ironmaple.simulation.motorsims.SimulatedBattery;
@@ -453,6 +460,39 @@ public class RobotContainer {
 
   public void resetSubsystems() {
     elevator.zeroElevator();
+  }
+
+  public void logMechanismForAScopeDisplay() {
+    Distance elevatorStage1Height =
+        (Distance) RobotMath.max(elevator.getElevatorHeight(), kStage1MaxHeight);
+    Distance elevatorStage2Height =
+        (Distance) RobotMath.max(elevator.getElevatorHeight(), kStage2MaxHeight);
+    Distance elevatorCarriageHeight =
+        (Distance) RobotMath.max(elevator.getElevatorHeight(), kCarriageMaxHeight);
+    Logger.recordOutput(
+        "MechanismLocations",
+        new Pose3d[] {
+          new Pose3d(
+              kStage1StartPos.getX(),
+              kStage1StartPos.getY(),
+              kStage1StartPos.getZ() + (elevatorStage1Height.in(Meters)),
+              kStage1StartPos.getRotation()),
+          new Pose3d(
+              kStage2StartPos.getX(),
+              kStage2StartPos.getY(),
+              kStage2StartPos.getZ() + (elevatorStage2Height.in(Meters)),
+              kStage2StartPos.getRotation()),
+          new Pose3d(
+              kCarriageStartPos.getX(),
+              kCarriageStartPos.getY(),
+              kCarriageStartPos.getZ() + (elevatorCarriageHeight.in(Meters)),
+              kCarriageStartPos.getRotation()),
+          new Pose3d(
+              kStartingPose.getX(),
+              kStartingPose.getY(),
+              kStartingPose.getZ() + (elevatorCarriageHeight.in(Meters)),
+              kStartingPose.getRotation())
+        });
   }
 
   /**

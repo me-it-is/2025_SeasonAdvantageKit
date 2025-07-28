@@ -195,6 +195,7 @@ public final class Constants {
     public static final double kD = 0;
     public static final double kFF = 0;
     public static final int currentLimit = 40;
+    public static final Pose3d kStartingPose = new Pose3d(0.2512945, 0, 0.438594, new Rotation3d());
   }
 
   public static class VisionConstants {
@@ -459,6 +460,15 @@ public final class Constants {
 
     public static final SysIdRoutine.Config sysIdConfig =
         new SysIdRoutine.Config(Volts.per(Second).of(0.5), Volts.of(4), Seconds.of(25));
+    public static final Pose3d kStage1StartPos =
+        new Pose3d(0.1017225, 0, 0.056701, new Rotation3d());
+    public static final Pose3d kStage2StartPos =
+        new Pose3d(0.1017225, 0, 0.082101, new Rotation3d());
+    public static final Pose3d kCarriageStartPos =
+        new Pose3d(0.1017225, 0, 0.107501, new Rotation3d());
+    public static final Distance kStage1MaxHeight = Millimeters.of(660.4);
+    public static final Distance kStage2MaxHeight = kStage1MaxHeight.plus(Millimeters.of(657.225));
+    public static final Distance kCarriageMaxHeight = kStage2MaxHeight.plus(Millimeters.of(400.05));
   }
 
   public static class FaultConstants {
