@@ -374,7 +374,7 @@ public final class Constants {
     public static final AngularAcceleration kMaxAcceleration = RotationsPerSecondPerSecond.of(10);
     public static final Angle rotVelTolerance = Rotations.of(0.05);
 
-    public static final Mass kElevatorMass = Pounds.of(14.552);
+    public static final Mass kElevatorMass = Pounds.of(26.9145454);
 
     public static double totalExtensionTime = kMaxHeight.in(Units.Meters) / kDeadReckoningSpeed;
 
@@ -405,18 +405,18 @@ public final class Constants {
     public static final double kI = 0.1;
     public static final double kD = 0;
 
-    public static final double kSimS = 0.014871;
-    public static final double kSimG0 = 1.1059;
-    public static final double kSimV = 0.0092465;
-    public static final double kSimA = 0.00092256;
+    public static final double kSimS = -0.22475;
+    public static final double kSimG0 = 2.349;
+    public static final double kSimV = 0.0079709;
+    public static final double kSimA = 0.0020655;
 
-    public static final double kSimP = 9.3353;
+    public static final double kSimP = 9.5379;
     public static final double kSimI = 0;
-    public static final double kSimD = 0.12263;
+    public static final double kSimD = 0.19088;
 
     public static final FeedbackSensor feedbackSensor = FeedbackSensor.kAbsoluteEncoder;
     public static final double kFF = 0;
-    public static final int currentLimit = 100;
+    public static final int currentLimit = 250;
 
     // public static final double kS = 0;
     // public static final double kG0 = 40;
@@ -460,8 +460,8 @@ public final class Constants {
 
     public static final SysIdRoutine.Config sysIdConfig =
         new SysIdRoutine.Config(
-            Volts.per(Second).of(0.5),
-            Volts.of(4),
+            Volts.per(Second).of(1),
+            Volts.of(6),
             null,
             (state) -> Logger.recordOutput("Elevator/sysIdState", state.toString()));
     public static final Pose3d kStage1StartPos =
