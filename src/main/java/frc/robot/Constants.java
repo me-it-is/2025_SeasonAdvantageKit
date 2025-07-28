@@ -358,9 +358,13 @@ public final class Constants {
   }
 
   public static class ElevatorConstants {
-    public static final Distance kStage1MaxHeight = Millimeters.of(660.4);
-    public static final Distance kStage2MaxHeight = kStage1MaxHeight.plus(Millimeters.of(657.225));
-    public static final Distance kCarriageMaxHeight = kStage2MaxHeight.plus(Millimeters.of(400.05));
+    public static final Distance kStage1RideDist = Millimeters.of(660.4);
+
+    public static final Distance kStage1MaxHeight = kStage1RideDist;
+    public static final Distance kStage2RideDist = Millimeters.of(657.225);
+    public static final Distance kStage2MaxHeight = kStage1MaxHeight.plus(kStage2RideDist);
+    public static final Distance kCarriageRideDist = Millimeters.of(400.05);
+    public static final Distance kCarriageMaxHeight = kStage2MaxHeight.plus(kCarriageRideDist);
 
     public static final String canBus = "blinky";
     public static final int kTalonLeaderCANId = 14;
