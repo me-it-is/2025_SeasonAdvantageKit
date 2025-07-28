@@ -7,7 +7,7 @@ import static frc.robot.util.PhoenixUtil.tryUntilOk;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -31,8 +31,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   private final StatusSignal<Voltage> followerAppliedVolts;
   private final StatusSignal<Current> followerCurrent;
 
-  private MotionMagicExpoVoltage profile =
-      new MotionMagicExpoVoltage(Rotations.of(0)).withEnableFOC(true);
+  private MotionMagicVoltage profile = new MotionMagicVoltage(Rotations.of(0)).withEnableFOC(true);
 
   public ElevatorIOTalonFX(TalonFX talonLeader, TalonFX talonFollower) {
     this.talonLeader = talonLeader;
@@ -47,9 +46,9 @@ public class ElevatorIOTalonFX implements ElevatorIO {
       case SIM:
         elevatorConfig.Slot0 = ElevatorConstants.elevatorSimGains0;
     }
-    elevatorConfig.MotionMagic.MotionMagicCruiseVelocity = 25;
-    elevatorConfig.MotionMagic.MotionMagicAcceleration = 2.5;
-    elevatorConfig.MotionMagic.MotionMagicJerk = 50;
+    elevatorConfig.MotionMagic.MotionMagicCruiseVelocity = 75;
+    elevatorConfig.MotionMagic.MotionMagicAcceleration = 30;
+    elevatorConfig.MotionMagic.MotionMagicJerk = 20;
 
     tryUntilOk(10, () -> talonLeader.getConfigurator().apply(elevatorConfig, 0.25));
 
