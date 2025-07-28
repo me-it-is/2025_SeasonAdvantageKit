@@ -18,7 +18,6 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
@@ -55,16 +54,13 @@ public class Vision extends SubsystemBase implements AutoCloseable {
     visionIO.updateInputs(inputs);
     // Updates the Drivetrain PoesEstimator with both camera streams
     if (inputs.visionResults == null) return;
-    var a = List.of(inputs.visionResults);
-    var b = a.stream().map(this::updateAngleAndGetEstimate).toList();
-    Stream<EstimateTuple> cc = b.stream().flatMap(Optional::stream);
-    var c = cc.toList();
-    var d = c.stream().filter(Vision::isOnField).toList();
-    var g = d.stream().filter(v -> pitchIsInBounds(v, kPitchBounds)).toList();
-    var h = g.stream().filter(v -> rollIsInBounds(v, kRollBounds)).toList();
-    var i = h.stream().map(Vision::clampToFloor).toList();
-    var j = i.stream().toList();
-    j.stream()
+    List.of(inputs.visionResults).stream()
+        .map(this::updateAngleAndGetEstimate)
+        .flatMap(Optional::stream)
+        .filter(Vision::isOnField)
+        .filter(v -> pitchIsInBounds(v, kPitchBounds))
+        .filter(v -> rollIsInBounds(v, kRollBounds))
+        .map(Vision::clampToFloor)
         .map(v -> generatePoseEstimate(v, robotPose.get()))
         .forEach(
             (pose) -> {
