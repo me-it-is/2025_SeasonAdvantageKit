@@ -461,7 +461,7 @@ public final class Constants {
     public static final SysIdRoutine.Config sysIdConfig =
         new SysIdRoutine.Config(Volts.per(Second).of(0.5), Volts.of(4), Seconds.of(25));
     public static final Pose3d kStage1StartPos =
-        new Pose3d(0.1017225, 0, 0.056701, new Rotation3d());
+        new Pose3d(0.1017225, 0, 0.094701406, new Rotation3d());
     public static final Pose3d kStage2StartPos =
         new Pose3d(0.1017225, 0, 0.082101, new Rotation3d());
     public static final Pose3d kCarriageStartPos =
