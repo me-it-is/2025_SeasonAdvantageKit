@@ -2,6 +2,7 @@ package frc.robot.subsystems.elevator;
 
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
@@ -59,6 +60,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
 
   public Distance getElevatorHeight() {
     if (inputs.leaderPosition == null) return Meters.zero();
+    if (inputs.leaderPosition.lte(Rotations.zero())) return Meters.zero();
     return angleToHeight(inputs.leaderPosition);
   }
 
