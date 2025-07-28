@@ -45,13 +45,10 @@ public class ElevatorIOTalonFXSim extends ElevatorIOTalonFX {
     elevatorSim.setInputVoltage(leaderSim.getMotorVoltage());
     elevatorSim.update(Constants.kDt);
 
-    leaderSim.setRawRotorPosition(
-        heightToAngle(Meters.of(elevatorSim.getPositionMeters())).times(kGearRatio));
+    leaderSim.setRawRotorPosition(heightToAngle(Meters.of(elevatorSim.getPositionMeters())));
     leaderSim.setRotorVelocity(
         RadiansPerSecond.of(
-            heightToAngle(Meters.of(elevatorSim.getVelocityMetersPerSecond()))
-                .times(kGearRatio)
-                .in(Radians)));
+            heightToAngle(Meters.of(elevatorSim.getVelocityMetersPerSecond())).in(Radians)));
 
     super.updateInputs(inputs);
 
