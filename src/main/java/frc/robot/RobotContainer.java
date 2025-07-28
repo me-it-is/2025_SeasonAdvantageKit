@@ -463,12 +463,16 @@ public class RobotContainer {
   }
 
   public void logMechanismForAScopeDisplay() {
+    Distance height = elevator.getElevatorHeight();
     Distance elevatorStage1Height =
-        (Distance) RobotMath.max(elevator.getElevatorHeight(), kStage1MaxHeight);
+        (Distance) RobotMath.clamp(height, Meters.zero(), kStage1MaxHeight);
+    Logger.recordOutput("Elevator/stage1Height", elevatorStage1Height.in(Meters));
     Distance elevatorStage2Height =
-        (Distance) RobotMath.max(elevator.getElevatorHeight(), kStage2MaxHeight);
+        (Distance) RobotMath.clamp(height, Meters.zero(), kStage2MaxHeight);
+    Logger.recordOutput("Elevator/stage2Height", elevatorStage2Height.in(Meters));
     Distance elevatorCarriageHeight =
-        (Distance) RobotMath.max(elevator.getElevatorHeight(), kCarriageMaxHeight);
+        (Distance) RobotMath.clamp(height, Meters.zero(), kCarriageMaxHeight);
+    Logger.recordOutput("Elevator/carriageHeight", elevatorCarriageHeight.in(Meters));
     Logger.recordOutput(
         "MechanismLocations",
         new Pose3d[] {

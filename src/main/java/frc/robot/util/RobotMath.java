@@ -2,6 +2,7 @@ package frc.robot.util;
 
 import static edu.wpi.first.units.Units.Meters;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -176,5 +177,18 @@ public final class RobotMath {
   public static <U extends Unit> Measure<U> min(Measure<U> first, Measure<U> second) {
     return (Measure<U>)
         first.baseUnit().of(Math.min(first.baseUnitMagnitude(), second.baseUnitMagnitude()));
+  }
+
+  @SuppressWarnings("unchecked")
+  public static <U extends Unit> Measure<U> clamp(
+      Measure<U> measure, Measure<U> low, Measure<U> high) {
+    return (Measure<U>)
+        measure
+            .baseUnit()
+            .of(
+                MathUtil.clamp(
+                    measure.baseUnitMagnitude(),
+                    low.baseUnitMagnitude(),
+                    high.baseUnitMagnitude()));
   }
 }
