@@ -51,6 +51,7 @@ public class Manipulator extends SubsystemBase implements AutoCloseable {
   }
 
   public Angle getManipulatorAngle() {
+    if (inputs.manipulatorAngle == null) return Rotations.zero();
     return inputs.manipulatorAngle;
   }
 

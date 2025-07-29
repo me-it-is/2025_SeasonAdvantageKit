@@ -161,7 +161,11 @@ public class RobotContainer {
                 new ModuleIOTalonFXSim(TunerConstants.BackLeft, driveSimulation.getModules()[2]),
                 new ModuleIOTalonFXSim(TunerConstants.BackRight, driveSimulation.getModules()[3]));
 
-        manipulator = new Manipulator(new ManipulatorIOSparkMaxSim());
+        manipulator =
+            new Manipulator(
+                new ManipulatorIOSparkMaxSim(
+                    new SparkMax(ManipulatorConstants.kPivotId, MotorType.kBrushless),
+                    new SparkMax(ManipulatorConstants.kRollerId, MotorType.kBrushless)));
 
         elevator =
             new Elevator(
@@ -497,7 +501,11 @@ public class RobotContainer {
               kStartingPose.getX(),
               kStartingPose.getY(),
               kStartingPose.getZ() + (elevatorCarriageHeight.in(Meters)),
-              kStartingPose.getRotation().rotateBy(new Rotation3d(0, manipulator.getManipulatorAngle().in(Radians), 0)))
+              kStartingPose
+                  .getRotation()
+                  .rotateBy(
+                      new Rotation3d(
+                          0, -manipulator.getManipulatorAngle().in(Radians) - (Math.PI / 2), 0)))
         });
   }
 

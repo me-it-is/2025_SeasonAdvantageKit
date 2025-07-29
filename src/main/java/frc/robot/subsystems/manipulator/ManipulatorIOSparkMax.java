@@ -10,12 +10,15 @@ import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.AbsoluteEncoderConfig;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DigitalInput;
+import frc.robot.Constants;
 import frc.robot.Constants.ManipulatorConstants;
+import frc.robot.Constants.Mode;
 
 public class ManipulatorIOSparkMax implements ManipulatorIO {
   private final SparkMax pivot;
@@ -37,9 +40,14 @@ public class ManipulatorIOSparkMax implements ManipulatorIO {
     this.pivotController = pivot.getClosedLoopController();
 
     this.beamBreak = new DigitalInput(kBeamBreakPort);
-
+    var encoderConf =
+        new AbsoluteEncoderConfig()
+            .zeroCentered(true)
+            .zeroOffset(pivot.configAccessor.absoluteEncoder.getZeroOffset() + 0.25);
     pivotConfig.inverted(false).smartCurrentLimit(ManipulatorConstants.currentLimit);
     pivotConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder).pid(kP, kI, kD);
+    pivotConfig.apply(encoderConf);
+    if (Constants.currentMode == Mode.SIM) pivotConfig.closedLoop.pid(kSimP, kSimI, kSimD);
     rollerConfig.idleMode(IdleMode.kCoast);
 
     pivot.configure(pivotConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
