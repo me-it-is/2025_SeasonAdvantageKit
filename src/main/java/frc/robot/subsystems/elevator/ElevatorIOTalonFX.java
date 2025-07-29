@@ -1,6 +1,7 @@
 package frc.robot.subsystems.elevator;
 
 import static edu.wpi.first.units.Units.*;
+import static frc.robot.Constants.ElevatorConstants.*;
 import static frc.robot.subsystems.elevator.Elevator.heightToAngle;
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
@@ -46,9 +47,12 @@ public class ElevatorIOTalonFX implements ElevatorIO {
       case SIM:
         elevatorConfig.Slot0 = ElevatorConstants.elevatorSimGains0;
     }
-    elevatorConfig.MotionMagic.MotionMagicCruiseVelocity = 75;
-    elevatorConfig.MotionMagic.MotionMagicAcceleration = 30;
-    elevatorConfig.MotionMagic.MotionMagicJerk = 20;
+
+    elevatorConfig.MotionMagic.MotionMagicCruiseVelocity = kMaxVelocity.in(RotationsPerSecond);
+    elevatorConfig.MotionMagic.MotionMagicAcceleration =
+        kMaxAcceleration.in(RotationsPerSecondPerSecond);
+    elevatorConfig.MotionMagic.MotionMagicJerk =
+        kMaxJerk.in(RotationsPerSecondPerSecond.per(Second));
 
     tryUntilOk(10, () -> talonLeader.getConfigurator().apply(elevatorConfig, 0.25));
 

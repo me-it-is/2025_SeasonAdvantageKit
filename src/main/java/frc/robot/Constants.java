@@ -44,6 +44,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.AngleUnit;
+import edu.wpi.first.units.AngularAccelerationUnit;
 import edu.wpi.first.units.DistanceUnit;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
@@ -60,6 +61,7 @@ import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.units.measure.Per;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -378,8 +380,10 @@ public final class Constants {
     public static final double kDeadRecogningDeadZone = 0.05;
     public static final double kRestInput = 0.02;
     public static final Angle kSetpointTolerance = Rotations.of(0.5);
-    public static final AngularVelocity kMaxVelocity = RotationsPerSecond.of(15);
-    public static final AngularAcceleration kMaxAcceleration = RotationsPerSecondPerSecond.of(10);
+    public static final AngularVelocity kMaxVelocity = RotationsPerSecond.of(150);
+    public static final AngularAcceleration kMaxAcceleration = RotationsPerSecondPerSecond.of(25);
+    public static final Velocity<AngularAccelerationUnit> kMaxJerk =
+        RotationsPerSecondPerSecond.per(Second).of(50);
     public static final Angle rotVelTolerance = Rotations.of(0.05);
 
     public static final Mass kElevatorMass = Pounds.of(26.9145454);
