@@ -200,7 +200,8 @@ public final class Constants {
 
     public static final double kFF = 0;
     public static final int currentLimit = 40;
-    public static final Pose3d kStartingPose = new Pose3d(0.2512945, 0, 0.47694, new Rotation3d());
+    public static final Pose3d kStartingPose =
+        new Pose3d(0.2539295, 0, 0.4757015, new Rotation3d());
   }
 
   public static class VisionConstants {
