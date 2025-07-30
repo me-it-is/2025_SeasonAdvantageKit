@@ -442,7 +442,7 @@ public class RobotContainer {
     return routine.dynamic(dir);
   }
 
-  private Command charactarizeElevatorFull() {
+  private Command characterizeElevatorFull() {
     return sequence(
         characterizeElevatorQuasistatic(Direction.kForward)
             .until(
