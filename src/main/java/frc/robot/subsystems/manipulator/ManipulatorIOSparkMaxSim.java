@@ -27,11 +27,14 @@ public class ManipulatorIOSparkMaxSim extends ManipulatorIOSparkMax {
           Math.PI / 2,
           true,
           -Math.PI / 2);
+  private DCMotor rollerGearbox = DCMotor.getNEO(1);
   private SparkMaxSim pivotMotorSim;
+  private SparkMaxSim rollerMotorSim;
 
   public ManipulatorIOSparkMaxSim(SparkMax pivot, SparkMax rollers) {
     super(pivot, rollers);
 
+    rollerMotorSim = new SparkMaxSim(rollers, rollerGearbox);
     pivotMotorSim = new SparkMaxSim(pivot, pivotGearbox);
     pivotMotorSim.getAbsoluteEncoderSim().setPosition(-0.25);
   }
@@ -54,7 +57,7 @@ public class ManipulatorIOSparkMaxSim extends ManipulatorIOSparkMax {
     pivotMotorSim.setPosition(Radians.of(pivotSim.getAngleRads()).in(Rotations));
     super.updateInputs(inputs);
 
-    inputs.rollerOutput = 0;
+    inputs.rollerOutput = rollerMotorSim.getAppliedOutput();
     inputs.beamBroken = false;
     inputs.pivotOutput = pivotMotorSim.getAppliedOutput();
   }
