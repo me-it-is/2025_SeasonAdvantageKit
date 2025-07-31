@@ -1,5 +1,6 @@
 package frc.robot.subsystems.climber;
 
+import static edu.wpi.first.units.Units.Rotations;
 import static frc.robot.Constants.ClimberConstants.*;
 
 import edu.wpi.first.units.measure.Angle;
@@ -26,6 +27,7 @@ public class Climber extends SubsystemBase implements AutoCloseable {
   @Override
   public void periodic() {
     climberIO.updateInputs(inputs);
+    Logger.processInputs("Climber", inputs);
 
     this.error = this.setpoint.minus(inputs.climberAngle);
 
@@ -53,8 +55,12 @@ public class Climber extends SubsystemBase implements AutoCloseable {
     return this.setpoint.isNear(inputs.climberAngle, setpointTolerance);
   }
 
+  public Angle getAngle() {
+    if (inputs.climberAngle == null) return Rotations.zero();
+    return inputs.climberAngle;
+  }
+
   public void stop() {
-    System.out.println("stop climber");
     climberIO.stopMotor();
   }
 }

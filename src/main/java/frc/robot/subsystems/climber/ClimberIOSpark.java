@@ -45,7 +45,6 @@ public class ClimberIOSpark implements ClimberIO {
   public void setOutput(double output) {
     motorController.set(output);
   }
-  ;
 
   @Override
   public void stopMotor() {

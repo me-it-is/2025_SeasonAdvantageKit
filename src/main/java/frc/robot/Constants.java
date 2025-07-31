@@ -362,6 +362,8 @@ public final class Constants {
             State.BOTTOM,
             Rotations.of(0.285));
     public static final Angle setpointTolerance = Rotations.of(0.05);
+
+    public static final Pose3d kStartingPose = new Pose3d(-0.278, 0, 0.355, new Rotation3d());
   }
 
   public static class ElevatorConstants {

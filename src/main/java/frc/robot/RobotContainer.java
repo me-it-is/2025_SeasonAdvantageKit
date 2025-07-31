@@ -174,7 +174,10 @@ public class RobotContainer {
                     new TalonFX(ElevatorConstants.kTalonFollowerCANId, ElevatorConstants.canBus),
                     SimulatedBattery::getBatteryVoltage));
 
-        climber = new Climber(new ClimberIOSparkSim());
+        climber =
+            new Climber(
+                new ClimberIOSparkSim(
+                    new SparkMax(ClimberConstants.kClimberMotorID, MotorType.kBrushless)));
 
         SimulatedBattery.addElectricalAppliances(elevator::getTotalCurrent);
 
@@ -400,13 +403,11 @@ public class RobotContainer {
 
     opController
         .leftTrigger()
-        .whileTrue(runOnce(() -> climber.run(true), climber))
-        .onFalse(runOnce(climber::stop));
+        .whileTrue(runOnce(() -> climber.moveToSetpoint(State.BOTTOM), climber));
 
     opController
         .rightTrigger()
-        .whileTrue(runOnce(() -> climber.run(false), climber))
-        .onFalse(runOnce(climber::stop));
+        .whileTrue(runOnce(() -> climber.moveToSetpoint(State.TOP), climber));
   }
 
   /* Move to correct elevator height, pivot angle, and spin manipulator rollers to counteract the force applyd on the coral by spinning the manipulator */
@@ -505,7 +506,14 @@ public class RobotContainer {
                   .getRotation()
                   .rotateBy(
                       new Rotation3d(
-                          0, -manipulator.getManipulatorAngle().in(Radians) - (Math.PI / 2), 0)))
+                          0, -manipulator.getManipulatorAngle().in(Radians) - (Math.PI / 2), 0))),
+          new Pose3d(
+              ClimberConstants.kStartingPose.getX(),
+              ClimberConstants.kStartingPose.getY(),
+              ClimberConstants.kStartingPose.getZ(),
+              ClimberConstants.kStartingPose
+                  .getRotation()
+                  .rotateBy(new Rotation3d(0, -climber.getAngle().in(Radians), 0)))
         });
   }
 
