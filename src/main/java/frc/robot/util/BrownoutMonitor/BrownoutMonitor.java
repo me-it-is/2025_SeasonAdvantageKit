@@ -7,6 +7,7 @@ import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.manipulator.Manipulator;
+import org.littletonrobotics.junction.Logger;
 
 public class BrownoutMonitor extends SubsystemBase {
   private Drive drive;
@@ -33,6 +34,7 @@ public class BrownoutMonitor extends SubsystemBase {
   @Override
   public void periodic() {
     brownoutMonitorIO.updateInputs(inputs);
+    Logger.processInputs("BrownoutMonitor", inputs);
 
     if (inputs.totalCurrent.gte(kMaxTotalCurrentDraw)
         || inputs.batteryVoltage.gte(kMaxInputVoltage)) {
