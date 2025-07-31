@@ -50,9 +50,17 @@ public class Manipulator extends SubsystemBase implements AutoCloseable {
     return error.lt(kRotTolerance);
   }
 
+  public GameState getState() {
+    return curState;
+  }
+
   public Angle getManipulatorAngle() {
     if (inputs.manipulatorAngle == null) return Rotations.zero();
     return inputs.manipulatorAngle;
+  }
+
+  public double getManipulatorRollerOutput() {
+    return inputs.rollerOutput;
   }
 
   /** Spin rollers forward or backward at default speed */

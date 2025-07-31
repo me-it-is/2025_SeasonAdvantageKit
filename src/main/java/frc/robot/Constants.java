@@ -98,7 +98,7 @@ public final class Constants {
   // Converted form lbs in2 because wpi doesnt have a unit
   public static final MomentOfInertia ROBOT_MOI = KilogramSquareMeters.of(0.0588);
   public static final double WHEEL_COF = 1.75;
-  public static final double kDt = 0.005;
+  public static final double kDt = 0.01;
 
   public static final Pose2d startPose = new Pose2d(new Translation2d(2, 1), new Rotation2d());
 
@@ -132,16 +132,34 @@ public final class Constants {
 
   public static record AngleAndDistance(Angle angle, Distance distance) {}
 
-  public static Map<GameState, AngleAndDistance> reefMap =
-      Map.of(
-          GameState.L1_SCORE, new AngleAndDistance(Rotations.of(-0.2), Inches.of(7.3)),
-          GameState.L2_SCORE, new AngleAndDistance(Rotations.of(0.2), Inches.of(21.3)),
-          GameState.L3_SCORE, new AngleAndDistance(Rotations.of(0.2), Inches.of(35)),
-          GameState.L4_SCORE, new AngleAndDistance(Rotations.of(0.15), Inches.of(64.9)),
-          GameState.L2_ALGAE, new AngleAndDistance(Degrees.of(32), Inches.of(7)),
-          GameState.L3_ALGAE, new AngleAndDistance(Degrees.of(32), Inches.of(15)),
-          GameState.HUMAN_PLAYER_STATION, new AngleAndDistance(Rotations.of(-0.09), Inches.of(10)),
-          GameState.NONE, new AngleAndDistance(Rotations.of(-0.25), Inches.of(0)));
+  public static Map<GameState, AngleAndDistance> reefMap = getReefMap();
+
+  private static Map<GameState, AngleAndDistance> getReefMap() {
+    switch (currentMode) {
+      default:
+        return Map.of(
+            GameState.L1_SCORE, new AngleAndDistance(Rotations.of(-0.2), Inches.of(7.3)),
+            GameState.L2_SCORE, new AngleAndDistance(Rotations.of(0.2), Inches.of(21.3)),
+            GameState.L3_SCORE, new AngleAndDistance(Rotations.of(0.2), Inches.of(35)),
+            GameState.L4_SCORE, new AngleAndDistance(Rotations.of(0.15), Inches.of(64.9)),
+            GameState.L2_ALGAE, new AngleAndDistance(Degrees.of(32), Inches.of(7)),
+            GameState.L3_ALGAE, new AngleAndDistance(Degrees.of(32), Inches.of(15)),
+            GameState.HUMAN_PLAYER_STATION,
+                new AngleAndDistance(Rotations.of(-0.09), Inches.of(10)),
+            GameState.NONE, new AngleAndDistance(Rotations.of(-0.25), Inches.of(0)));
+      case SIM:
+        return Map.of(
+            GameState.L1_SCORE, new AngleAndDistance(Rotations.of(-0.2), Inches.of(7.3)),
+            GameState.L2_SCORE, new AngleAndDistance(Rotations.of(0.2), Inches.of(14.3)),
+            GameState.L3_SCORE, new AngleAndDistance(Rotations.of(0.2), Inches.of(29)),
+            GameState.L4_SCORE, new AngleAndDistance(Rotations.of(0.1), Inches.of(60)),
+            GameState.L2_ALGAE, new AngleAndDistance(Degrees.of(32), Inches.of(7)),
+            GameState.L3_ALGAE, new AngleAndDistance(Degrees.of(32), Inches.of(15)),
+            GameState.HUMAN_PLAYER_STATION,
+                new AngleAndDistance(Rotations.of(-0.09), Inches.of(10)),
+            GameState.NONE, new AngleAndDistance(Rotations.of(-0.25), Inches.of(0)));
+    }
+  }
 
   public static Distance[] elevatorStateMap = {Inches.of(0), Inches.of(0), Inches.of(0)};
 
@@ -202,6 +220,7 @@ public final class Constants {
     public static final int currentLimit = 40;
     public static final Pose3d kStartingPose =
         new Pose3d(0.2539295, 0, 0.4757015, new Rotation3d());
+    public static final Pose3d kCoralPose = new Pose3d(0.26, 0, 0.395691, new Rotation3d());
   }
 
   public static class VisionConstants {
@@ -382,7 +401,7 @@ public final class Constants {
     public static final double kDeadReckoningSpeed = 0.1;
     public static final double kDeadRecogningDeadZone = 0.05;
     public static final double kRestInput = 0.02;
-    public static final Angle kSetpointTolerance = Rotations.of(0.5);
+    public static final Distance kSetpointTolerance = Inches.of(0.5);
     public static final AngularVelocity kMaxVelocity = RotationsPerSecond.of(150);
     public static final AngularAcceleration kMaxAcceleration = RotationsPerSecondPerSecond.of(25);
     public static final Velocity<AngularAccelerationUnit> kMaxJerk =

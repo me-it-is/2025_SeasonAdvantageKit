@@ -31,7 +31,9 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.*;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Distance;
@@ -108,7 +110,7 @@ public class RobotContainer {
   private final LoggedDashboardChooser<Command> autoChooser;
   private final SendableChooser<Pose2d> startPoseLoc = new SendableChooser<>();
 
-  private SwerveDriveSimulation driveSimulation = null;
+  public SwerveDriveSimulation driveSimulation = null;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -152,6 +154,7 @@ public class RobotContainer {
         driveSimulation =
             new SwerveDriveSimulation(Constants.DriveConstants.mapleSimConfig, Constants.startPose);
         SimulatedArena.getInstance().addDriveTrainSimulation(driveSimulation);
+
         // Sim robot, instantiate physics sim IO implementations
         drive =
             new Drive(
@@ -160,12 +163,12 @@ public class RobotContainer {
                 new ModuleIOTalonFXSim(TunerConstants.FrontRight, driveSimulation.getModules()[1]),
                 new ModuleIOTalonFXSim(TunerConstants.BackLeft, driveSimulation.getModules()[2]),
                 new ModuleIOTalonFXSim(TunerConstants.BackRight, driveSimulation.getModules()[3]));
-
-        manipulator =
-            new Manipulator(
-                new ManipulatorIOSparkMaxSim(
-                    new SparkMax(ManipulatorConstants.kPivotId, MotorType.kBrushless),
-                    new SparkMax(ManipulatorConstants.kRollerId, MotorType.kBrushless)));
+        var manipulatorIO =
+            new ManipulatorIOSparkMaxSim(
+                new SparkMax(ManipulatorConstants.kPivotId, MotorType.kBrushless),
+                new SparkMax(ManipulatorConstants.kRollerId, MotorType.kBrushless),
+                this);
+        manipulator = new Manipulator(manipulatorIO);
 
         elevator =
             new Elevator(
@@ -187,6 +190,14 @@ public class RobotContainer {
                 new VisionIOSim(
                     VisionConstants.estimAndCam, driveSimulation::getSimulatedDriveTrainPose),
                 drive::getPose);
+        manipulatorIO.setCoralGetter(
+            () ->
+                (elevator.atSetpoint()
+                    && manipulator.getState() == GameState.HUMAN_PLAYER_STATION
+                    && manipulator.atSetpoint()
+                    && manipulator.getManipulatorRollerOutput() > 0.1));
+        manipulatorIO.setStateSupplier(manipulator::getState);
+        SimulatedArena.getInstance().resetFieldForAuto();
         break;
 
       default:
@@ -280,12 +291,34 @@ public class RobotContainer {
 
     // SimulatedArena.getInstance().physicsWorld.setGravity(PhysicsWorld.EARTH_GRAVITY);
     SimulatedArena.getInstance().simulationPeriodic();
+
     Logger.recordOutput(
         "FieldSimulation/RobotPosition", driveSimulation.getSimulatedDriveTrainPose());
     Logger.recordOutput(
         "FieldSimulation/Coral", SimulatedArena.getInstance().getGamePiecesArrayByType("Coral"));
+
     Logger.recordOutput(
         "FieldSimulation/Algae", SimulatedArena.getInstance().getGamePiecesArrayByType("Algae"));
+  }
+
+  public Pose3d getManipulatorCoralPose() {
+    return kCoralPose
+        .plus(
+            new Transform3d(
+                new Translation3d(
+                    driveSimulation.getSimulatedDriveTrainPose().getX(),
+                    driveSimulation.getSimulatedDriveTrainPose().getY(),
+                    getElevatorCarriageHeight().in(Meters)),
+                new Rotation3d()))
+        .rotateAround(
+            getManipulatorPose()
+                .getTranslation()
+                .plus(
+                    new Translation3d(
+                        driveSimulation.getSimulatedDriveTrainPose().getX(),
+                        driveSimulation.getSimulatedDriveTrainPose().getY(),
+                        0)),
+            getManipulatorPose().getRotation());
   }
 
   private void configureAutos() {
@@ -387,14 +420,14 @@ public class RobotContainer {
     opController.x().onTrue(moveToState(GameState.L4_SCORE, false));
 
     // human player station intake
-    // opController.povUp().onTrue(moveToState(GameState.HUMAN_PLAYER_STATION, false));
+    opController.povUp().onTrue(moveToState(GameState.HUMAN_PLAYER_STATION, false));
     // opController.povUp().whileTrue(run(() -> manipulator.move(true), manipulator));
-    opController
-        .povUp()
-        .onTrue(
-            run(() -> manipulator.setAngle(GameState.L2_SCORE), manipulator)
-                .withTimeout(0.5)
-                .andThen(runOnce(() -> manipulator.stopRollers())));
+    /*opController
+    .povUp()
+    .onTrue(
+        run(() -> manipulator.setAngle(GameState.L2_SCORE), manipulator)
+            .withTimeout(0.5)
+            .andThen(runOnce(() -> manipulator.stopRollers())));*/
 
     opController
         .povDown()
@@ -422,7 +455,11 @@ public class RobotContainer {
   private Command rollerAction(boolean forward) {
     return sequence(
         runOnce(() -> manipulator.spinRollers(forward), manipulator),
-        waitUntil(() -> (forward ? !manipulator.hasCoral() : manipulator.hasCoral())),
+        waitUntil(
+            () ->
+                (manipulator.getState() == GameState.HUMAN_PLAYER_STATION
+                    ? manipulator.hasCoral()
+                    : !manipulator.hasCoral())),
         runOnce(manipulator::stopRollers, manipulator));
   }
 
@@ -464,49 +501,57 @@ public class RobotContainer {
     elevator.zeroElevator();
   }
 
+  public Distance getElevatorCarriageHeight() {
+    return (Distance)
+        RobotMath.clamp(elevator.getElevatorHeight(), Meters.zero(), kCarriageMaxHeight);
+  }
+
+  public Distance getElevatorStage2Height() {
+    return (Distance)
+        RobotMath.clamp(
+            elevator.getElevatorHeight().minus(kCarriageRideDist), Meters.zero(), kStage2MaxHeight);
+  }
+
+  public Distance getElevatorStage1Height() {
+    return (Distance)
+        RobotMath.clamp(
+            elevator.getElevatorHeight().minus(kCarriageRideDist.plus(kStage2RideDist)),
+            Meters.zero(),
+            kStage1MaxHeight);
+  }
+
+  public Pose3d getManipulatorPose() {
+    return new Pose3d(
+        kStartingPose.getX(),
+        kStartingPose.getY(),
+        kStartingPose.getZ() + (getElevatorCarriageHeight().in(Meters)),
+        kStartingPose
+            .getRotation()
+            .rotateBy(
+                new Rotation3d(
+                    0, -manipulator.getManipulatorAngle().in(Radians) - (Math.PI / 2), 0)));
+  }
+
   public void logMechanismForAScopeDisplay() {
-    Distance height = elevator.getElevatorHeight();
-    Distance elevatorCarriageHeight =
-        (Distance) RobotMath.clamp(height, Meters.zero(), kCarriageMaxHeight);
-    Distance elevatorStage2Height =
-        (Distance)
-            RobotMath.clamp(height.minus(kCarriageRideDist), Meters.zero(), kStage2MaxHeight);
-    Distance elevatorStage1Height =
-        (Distance)
-            RobotMath.clamp(
-                height.minus(kCarriageRideDist.plus(kStage2RideDist)),
-                Meters.zero(),
-                kStage1MaxHeight);
-    Logger.recordOutput("Elevator/stage1Height", elevatorStage1Height.in(Meters));
-    Logger.recordOutput("Elevator/stage2Height", elevatorStage2Height.in(Meters));
-    Logger.recordOutput("Elevator/carriageHeight", elevatorCarriageHeight.in(Meters));
     Logger.recordOutput(
         "MechanismLocations",
         new Pose3d[] {
           new Pose3d(
               kStage1StartPos.getX(),
               kStage1StartPos.getY(),
-              kStage1StartPos.getZ() + (elevatorStage1Height.in(Meters)),
+              kStage1StartPos.getZ() + (getElevatorStage1Height().in(Meters)),
               kStage1StartPos.getRotation()),
           new Pose3d(
               kStage2StartPos.getX(),
               kStage2StartPos.getY(),
-              kStage2StartPos.getZ() + (elevatorStage2Height.in(Meters)),
+              kStage2StartPos.getZ() + (getElevatorStage2Height().in(Meters)),
               kStage2StartPos.getRotation()),
           new Pose3d(
               kCarriageStartPos.getX(),
               kCarriageStartPos.getY(),
-              kCarriageStartPos.getZ() + (elevatorCarriageHeight.in(Meters)),
+              kCarriageStartPos.getZ() + (getElevatorCarriageHeight().in(Meters)),
               kCarriageStartPos.getRotation()),
-          new Pose3d(
-              kStartingPose.getX(),
-              kStartingPose.getY(),
-              kStartingPose.getZ() + (elevatorCarriageHeight.in(Meters)),
-              kStartingPose
-                  .getRotation()
-                  .rotateBy(
-                      new Rotation3d(
-                          0, -manipulator.getManipulatorAngle().in(Radians) - (Math.PI / 2), 0))),
+          getManipulatorPose(),
           new Pose3d(
               ClimberConstants.kStartingPose.getX(),
               ClimberConstants.kStartingPose.getY(),
@@ -515,6 +560,9 @@ public class RobotContainer {
                   .getRotation()
                   .rotateBy(new Rotation3d(0, -climber.getAngle().in(Radians), 0)))
         });
+    Pose3d[] robotCoralPos =
+        manipulator.hasCoral() ? new Pose3d[] {getManipulatorCoralPose()} : new Pose3d[0];
+    Logger.recordOutput("Manipulator/coralPos", robotCoralPos);
   }
 
   /**

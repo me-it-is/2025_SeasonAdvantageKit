@@ -18,7 +18,7 @@ public class ClimberIOSparkSim extends ClimberIOSpark {
   private SingleJointedArmSim physicsSim =
       new SingleJointedArmSim(
           gearbox,
-          25,
+          120,
           SingleJointedArmSim.estimateMOI(0.270239, 1.31138),
           0.270239,
           0,

@@ -39,7 +39,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
   }
 
   public boolean atSetpoint() {
-    return RobotMath.abs(inputs.leaderPosition.minus(heightToAngle(setpoint)))
+    return RobotMath.abs(getElevatorHeight().minus(setpoint))
         .lt(ElevatorConstants.kSetpointTolerance);
   }
 

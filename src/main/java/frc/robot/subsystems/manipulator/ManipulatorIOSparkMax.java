@@ -22,7 +22,7 @@ import frc.robot.Constants.Mode;
 
 public class ManipulatorIOSparkMax implements ManipulatorIO {
   private final SparkMax pivot;
-  private final SparkMax rollers;
+  protected final SparkMax rollers;
   private SparkMaxConfig pivotConfig;
   private SparkMaxConfig rollerConfig;
 
