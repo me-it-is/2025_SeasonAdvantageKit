@@ -31,6 +31,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
   public void periodic() {
     elevatorIO.updateInputs(inputs);
     Logger.processInputs("Elevator", inputs);
+    Logger.recordOutput("Elevator/setpoint", setpoint);
   }
 
   public void setSetpoint(GameState stage) {
