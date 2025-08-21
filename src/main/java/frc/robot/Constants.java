@@ -450,7 +450,7 @@ public final class Constants {
 
     public static final FeedbackSensor feedbackSensor = FeedbackSensor.kAbsoluteEncoder;
     public static final double kFF = 0;
-    public static final int currentLimit = 250;
+    public static final int currentLimit = 100;
 
     // public static final double kS = 0;
     // public static final double kG0 = 40;
@@ -489,8 +489,8 @@ public final class Constants {
         new TalonFXConfiguration()
             .withCurrentLimits(
                 new CurrentLimitsConfigs()
-                    .withStatorCurrentLimit(Amps.of(currentLimit))
-                    .withStatorCurrentLimitEnable(true));
+                    .withSupplyCurrentLimit(Amps.of(currentLimit))
+                    .withSupplyCurrentLimitEnable(true));
 
     public static final SysIdRoutine.Config sysIdConfig =
         new SysIdRoutine.Config(
