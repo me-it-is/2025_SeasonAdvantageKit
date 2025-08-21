@@ -104,6 +104,9 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     inputs.followerVoltage = followerAppliedVolts.getValue();
     inputs.followerCurrent = followerCurrent.getValue();
     Logger.recordOutput("Elevator/Rotations", inputs.leaderPosition.in(Rotations));
+    Logger.recordOutput(
+        "Elevator/Error",
+        talonLeader.getClosedLoopReference().getValue() - inputs.leaderPosition.in(Rotations));
   }
 
   @Override
