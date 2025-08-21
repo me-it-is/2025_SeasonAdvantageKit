@@ -419,7 +419,8 @@ public final class Constants {
     // 3 to 1 ratio on the motor
     public static final int kGearRatio = 3;
     public static final Distance kPullyRadius = Millimeters.of(60);
-    public static final Angle kFullExtensionAngle = Rotations.of(9.56 * kGearRatio);
+    public static final Angle kFullExtensionAngle =
+        Radians.of(kMaxHeight.div(kPullyRadius).magnitude());
 
     // Ratio of height to angle
     public static final Per<DistanceUnit, AngleUnit> kAngularSpan =
