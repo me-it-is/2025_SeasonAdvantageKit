@@ -43,26 +43,8 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.units.AngleUnit;
-import edu.wpi.first.units.AngularAccelerationUnit;
-import edu.wpi.first.units.DistanceUnit;
-import edu.wpi.first.units.Units;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularAcceleration;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Current;
-import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.units.measure.Energy;
-import edu.wpi.first.units.measure.Force;
-import edu.wpi.first.units.measure.LinearAcceleration;
-import edu.wpi.first.units.measure.LinearVelocity;
-import edu.wpi.first.units.measure.Mass;
-import edu.wpi.first.units.measure.MomentOfInertia;
-import edu.wpi.first.units.measure.Per;
-import edu.wpi.first.units.measure.Temperature;
-import edu.wpi.first.units.measure.Time;
-import edu.wpi.first.units.measure.Velocity;
-import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.units.*;
+import edu.wpi.first.units.measure.*;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -124,12 +106,6 @@ public final class Constants {
     NONE,
   }
 
-  public static enum ElevatorState {
-    STAGE1,
-    STAGE2,
-    STAGE3;
-  }
-
   public static record AngleAndDistance(Angle angle, Distance distance) {}
 
   public static Map<GameState, AngleAndDistance> reefMap = getReefMap();
@@ -176,10 +152,6 @@ public final class Constants {
     public static final PIDController kTranslationController = new PIDController(0.5, 0.001, 0);
     public static final PIDController kRotationController = new PIDController(0.03, 0.01, 0);
 
-    public static final PIDController tipController = new PIDController(0.25, 0, 0.1);
-    public static final double tipFF = 0.1;
-    public static final Force tipDeadband = Newtons.of(3);
-
     public static final DriveTrainSimulationConfig mapleSimConfig =
         DriveTrainSimulationConfig.Default()
             .withRobotMass(ROBOT_MASS_KG)
@@ -207,8 +179,6 @@ public final class Constants {
     public static final double kDefaultRollerSpeed = 0.2;
     public static final double kHumanPlayerStationSpeed = 0.5;
     public static final double kWhilePivotingSpeed = 0.05;
-    public static final double kManualPivotSpeed = 0.3;
-    public static final Time kDefaultPickupTime = Seconds.of(1);
     public static final double kP = 2;
     public static final double kI = 0;
     public static final double kD = 0;
@@ -216,7 +186,6 @@ public final class Constants {
     public static final double kSimI = 0.025;
     public static final double kSimD = 0.3;
 
-    public static final double kFF = 0;
     public static final int currentLimit = 40;
     public static final Pose3d kStartingPose =
         new Pose3d(0.2539295, 0, 0.4757015, new Rotation3d());
@@ -244,7 +213,6 @@ public final class Constants {
     public static final Angle kMinAngError = Degrees.of(5);
     public static final Distance kMinTransError = Meters.of(0.05);
 
-    // TODO placeholder offsets, need tuning
     public static final Distance kTagXOffset = Meters.of(0.15);
     public static final Distance kTagYOffset = halfOffset;
 
@@ -357,9 +325,6 @@ public final class Constants {
 
   public static class ClimberConstants {
     public static final int kClimberMotorID = 2;
-    public static final int kUpperLimSwitchId = 0;
-    public static final int kLowerLimSwitchId = 1;
-    public static final int kMidBeamBreakId = 2;
     public static final double kClimberMotorMult = 0.9;
 
     public static final double kP = 1;
@@ -398,9 +363,6 @@ public final class Constants {
     public static final int kTalonLeaderCANId = 14;
     public static final int kTalonFollowerCANId = 15;
     public static final Distance kMaxHeight = kCarriageMaxHeight;
-    public static final double kDeadReckoningSpeed = 0.1;
-    public static final double kDeadRecogningDeadZone = 0.05;
-    public static final double kRestInput = 0.02;
     public static final Distance kSetpointTolerance = Inches.of(0.5);
     public static final AngularVelocity kMaxVelocity = RotationsPerSecond.of(100);
     public static final AngularAcceleration kMaxAcceleration = RotationsPerSecondPerSecond.of(10);
@@ -409,12 +371,6 @@ public final class Constants {
     public static final Angle rotVelTolerance = Rotations.of(0.05);
 
     public static final Mass kElevatorMass = Pounds.of(26.9145454);
-
-    public static double totalExtensionTime = kMaxHeight.in(Units.Meters) / kDeadReckoningSpeed;
-
-    public static final Distance kEncoderOffset = Meters.of(0);
-
-    public static final boolean kIsInverted = true;
 
     // 3 to 1 ratio on the motor
     public static final int kGearRatio = 3;
@@ -429,8 +385,6 @@ public final class Constants {
     // Ratio of angle to height
     public static final Per<AngleUnit, DistanceUnit> kSpanAngle =
         kFullExtensionAngle.div(kMaxHeight);
-
-    public static final double kPositionConversionFactor = 1 / kFullExtensionAngle.in(Rotations);
 
     public static final double kS = 0.097565;
     public static final double kG0 = 0.68798;
@@ -459,10 +413,6 @@ public final class Constants {
 
     // public static final double kG1 = 40;
     // public static final double kG2 = 40;
-
-    public static final double kPSlot1 = 0;
-    public static final double kISlot1 = 0;
-    public static final double kDSlot1 = 0;
 
     public static final Slot0Configs elevatorGains0 =
         new Slot0Configs()
