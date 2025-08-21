@@ -59,12 +59,12 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     leaderPosition = talonLeader.getPosition();
     leaderVelocity = talonLeader.getVelocity();
     leaderAppliedVolts = talonLeader.getMotorVoltage();
-    leaderCurrent = talonLeader.getStatorCurrent();
+    leaderCurrent = talonLeader.getTorqueCurrent();
 
     followerPosition = talonFollower.getPosition();
     followerVelocity = talonFollower.getVelocity();
     followerAppliedVolts = talonFollower.getMotorVoltage();
-    followerCurrent = talonFollower.getStatorCurrent();
+    followerCurrent = talonFollower.getTorqueCurrent();
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         1 / Constants.kDt,
