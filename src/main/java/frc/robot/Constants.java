@@ -420,7 +420,7 @@ public final class Constants {
     public static final int kGearRatio = 3;
     public static final Distance kPullyRadius = Millimeters.of(60);
     public static final Angle kFullExtensionAngle =
-        Radians.of(kMaxHeight.div(kPullyRadius).magnitude());
+        Radians.of(kMaxHeight.div(kPullyRadius).magnitude()).times(3);
 
     // Ratio of height to angle
     public static final Per<DistanceUnit, AngleUnit> kAngularSpan =
