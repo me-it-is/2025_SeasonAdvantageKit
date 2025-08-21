@@ -90,11 +90,9 @@ public class ElevatorIOTalonFX implements ElevatorIO {
             followerPosition, followerVelocity, followerAppliedVolts, followerCurrent);
 
     Logger.recordOutput(
-        "Elevator/ClosedLoopReference", talonLeader.getClosedLoopReference().getValueAsDouble());
-    Logger.recordOutput(
-        "Elevator/ClosedLoopOutput", talonLeader.getClosedLoopOutput().getValueAsDouble());
-    Logger.recordOutput(
-        "Elevator/ClosedLoopFF", talonLeader.getClosedLoopFeedForward().getValueAsDouble());
+        "Elevator/ClosedLoopReference", talonLeader.getClosedLoopReference().getValue());
+    Logger.recordOutput("Elevator/ClosedLoopOutput", talonLeader.getClosedLoopOutput().getValue());
+    Logger.recordOutput("Elevator/ClosedLoopFF", talonLeader.getClosedLoopFeedForward().getValue());
 
     inputs.leaderPosition = leaderPosition.getValue();
     inputs.leaderVelocity = leaderVelocity.getValue();
@@ -105,6 +103,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     inputs.followerVelocity = followerVelocity.getValue();
     inputs.followerVoltage = followerAppliedVolts.getValue();
     inputs.followerCurrent = followerCurrent.getValue();
+    Logger.recordOutput("Elevator/Rotations", inputs.leaderPosition.in(Rotations));
   }
 
   @Override
