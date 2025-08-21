@@ -440,14 +440,14 @@ public final class Constants {
     public static final double kI = 0.1;
     public static final double kD = 0;
 
-    public static final double kSimS = -0.22475;
-    public static final double kSimG0 = 2.349;
-    public static final double kSimV = 0.0079709;
-    public static final double kSimA = 0.0020655;
+    public static final double kSimS = 0;
+    public static final double kSimG0 = 1.539;
+    public static final double kSimV = 0.124;
+    public static final double kSimA = 0.02;
 
-    public static final double kSimP = 9.5379;
+    public static final double kSimP = 0.1;
     public static final double kSimI = 0;
-    public static final double kSimD = 0.19088;
+    public static final double kSimD = 0;
 
     public static final FeedbackSensor feedbackSensor = FeedbackSensor.kAbsoluteEncoder;
     public static final double kFF = 0;
