@@ -17,7 +17,7 @@ public class ElevatorIOTalonFXSim extends ElevatorIOTalonFX {
   TalonFXSimState leaderSim;
   Supplier<Voltage> batteryVoltage;
 
-  private static final DCMotor kSimGearBox = DCMotor.getKrakenX60(2);
+  private static final DCMotor kSimGearBox = DCMotor.getKrakenX60Foc(2);
   private static final ElevatorSim elevatorSim =
       new ElevatorSim(
           kSimGearBox,
