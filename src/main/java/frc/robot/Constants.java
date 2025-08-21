@@ -402,10 +402,10 @@ public final class Constants {
     public static final double kDeadRecogningDeadZone = 0.05;
     public static final double kRestInput = 0.02;
     public static final Distance kSetpointTolerance = Inches.of(0.5);
-    public static final AngularVelocity kMaxVelocity = RotationsPerSecond.of(150);
-    public static final AngularAcceleration kMaxAcceleration = RotationsPerSecondPerSecond.of(25);
+    public static final AngularVelocity kMaxVelocity = RotationsPerSecond.of(100);
+    public static final AngularAcceleration kMaxAcceleration = RotationsPerSecondPerSecond.of(10);
     public static final Velocity<AngularAccelerationUnit> kMaxJerk =
-        RotationsPerSecondPerSecond.per(Second).of(50);
+        RotationsPerSecondPerSecond.per(Second).of(25);
     public static final Angle rotVelTolerance = Rotations.of(0.05);
 
     public static final Mass kElevatorMass = Pounds.of(26.9145454);
@@ -451,7 +451,7 @@ public final class Constants {
 
     public static final FeedbackSensor feedbackSensor = FeedbackSensor.kAbsoluteEncoder;
     public static final double kFF = 0;
-    public static final int currentLimit = 100;
+    public static final int currentLimit = 70;
 
     // public static final double kS = 0;
     // public static final double kG0 = 40;
