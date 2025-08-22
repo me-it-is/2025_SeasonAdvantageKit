@@ -18,12 +18,14 @@ import static edu.wpi.first.wpilibj2.command.Commands.*;
 import static edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction.*;
 import static frc.robot.Constants.ElevatorConstants.*;
 import static frc.robot.Constants.ManipulatorConstants.*;
+import static frc.robot.Constants.currentMode;
 import static frc.robot.util.GetAliance.getAllianceBoolean;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.util.FlippingUtil;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.MathUtil;
@@ -52,6 +54,7 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.GameState;
 import frc.robot.Constants.ManipulatorConstants;
+import frc.robot.Constants.Mode;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.AutoAim;
 import frc.robot.commands.DriveCommands;
@@ -80,6 +83,7 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOReal;
 import frc.robot.subsystems.vision.VisionIOSim;
+import frc.robot.util.GetAliance;
 import frc.robot.util.RobotMath;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
@@ -357,7 +361,11 @@ public class RobotContainer {
     drive.resetGyro();
     Command autoCommand = autoChooser.get();
     if (autoCommand instanceof PathPlannerAuto auto) {
-      Pose2d startPose = auto.getStartingPose();
+      Pose2d startPose =
+          GetAliance.getAllianceBoolean()
+              ? auto.getStartingPose()
+              : FlippingUtil.flipFieldPose(auto.getStartingPose());
+      if (currentMode == Mode.SIM) driveSimulation.setSimulationWorldPose(startPose);
       drive.setPose(startPose);
     } else {
       System.out.println("No PathPlanner auto selected");
