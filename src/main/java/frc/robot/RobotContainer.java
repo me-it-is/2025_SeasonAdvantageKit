@@ -319,7 +319,13 @@ public class RobotContainer {
                         driveSimulation.getSimulatedDriveTrainPose().getX(),
                         driveSimulation.getSimulatedDriveTrainPose().getY(),
                         0)),
-            getManipulatorPose().getRotation());
+            getManipulatorPose().getRotation())
+        .rotateAround(
+            new Translation3d(
+                driveSimulation.getSimulatedDriveTrainPose().getX(),
+                driveSimulation.getSimulatedDriveTrainPose().getY(),
+                0),
+            new Rotation3d(driveSimulation.getSimulatedDriveTrainPose().getRotation()));
   }
 
   private void configureAutos() {
