@@ -291,6 +291,8 @@ public class RobotContainer {
 
     // SimulatedArena.getInstance().physicsWorld.setGravity(PhysicsWorld.EARTH_GRAVITY);
     SimulatedArena.getInstance().simulationPeriodic();
+    Logger.recordOutput("Battery/Voltage", SimulatedBattery.getBatteryVoltage());
+    Logger.recordOutput("Battery/Amperage", SimulatedBattery.getTotalCurrentDrawn());
 
     Logger.recordOutput(
         "FieldSimulation/RobotPosition", driveSimulation.getSimulatedDriveTrainPose());
