@@ -49,7 +49,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
   }
 
   public Current getTotalCurrent() {
-    return inputs.followerCurrent.plus(inputs.leaderCurrent);
+    return inputs.followerSupplyCurrent.plus(inputs.leaderSupplyCurrent);
   }
 
   @AutoLogOutput(key = "Elevator/Height")

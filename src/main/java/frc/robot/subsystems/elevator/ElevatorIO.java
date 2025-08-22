@@ -11,12 +11,14 @@ public interface ElevatorIO {
     AngularVelocity leaderVelocity;
     Voltage leaderVoltage;
     Current leaderCurrent;
+    Current leaderSupplyCurrent;
     StatusCode leaderStatus;
 
     Angle followerPosition;
     AngularVelocity followerVelocity;
     Voltage followerVoltage;
     Current followerCurrent;
+    Current followerSupplyCurrent;
     StatusCode followerStatus;
   }
 

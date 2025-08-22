@@ -61,5 +61,6 @@ public class ElevatorIOTalonFXSim extends ElevatorIOTalonFX {
     inputs.followerVoltage = inputs.leaderVoltage;
     inputs.followerCurrent = inputs.leaderCurrent;
     inputs.followerStatus = inputs.leaderStatus;
+    inputs.followerSupplyCurrent = inputs.leaderSupplyCurrent;
   }
 }

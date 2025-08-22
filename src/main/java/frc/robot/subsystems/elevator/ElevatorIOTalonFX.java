@@ -26,11 +26,13 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   private final StatusSignal<AngularVelocity> leaderVelocity;
   private final StatusSignal<Voltage> leaderAppliedVolts;
   private final StatusSignal<Current> leaderCurrent;
+  private final StatusSignal<Current> leaderSupplyCurrent;
 
   private final StatusSignal<Angle> followerPosition;
   private final StatusSignal<AngularVelocity> followerVelocity;
   private final StatusSignal<Voltage> followerAppliedVolts;
   private final StatusSignal<Current> followerCurrent;
+  private final StatusSignal<Current> followerSupplyCurrent;
 
   private MotionMagicVoltage profile = new MotionMagicVoltage(Rotations.of(0)).withEnableFOC(true);
 
@@ -60,11 +62,13 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     leaderVelocity = talonLeader.getVelocity();
     leaderAppliedVolts = talonLeader.getMotorVoltage();
     leaderCurrent = talonLeader.getTorqueCurrent();
+    leaderSupplyCurrent = talonLeader.getSupplyCurrent();
 
     followerPosition = talonFollower.getPosition();
     followerVelocity = talonFollower.getVelocity();
     followerAppliedVolts = talonFollower.getMotorVoltage();
     followerCurrent = talonFollower.getTorqueCurrent();
+    followerSupplyCurrent = talonFollower.getSupplyCurrent();
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         1 / Constants.kDt,
@@ -72,10 +76,12 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         leaderVelocity,
         leaderAppliedVolts,
         leaderCurrent,
+        leaderSupplyCurrent,
         followerPosition,
         followerVelocity,
         followerAppliedVolts,
-        followerCurrent);
+        followerCurrent,
+        followerSupplyCurrent);
 
     ParentDevice.optimizeBusUtilizationForAll(talonLeader, talonFollower);
   }
@@ -84,10 +90,14 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   public void updateInputs(ElevatorIOInputsAutoLogged inputs) {
     inputs.leaderStatus =
         BaseStatusSignal.refreshAll(
-            leaderPosition, leaderVelocity, leaderAppliedVolts, leaderCurrent);
+            leaderPosition, leaderVelocity, leaderAppliedVolts, leaderCurrent, leaderSupplyCurrent);
     inputs.followerStatus =
         BaseStatusSignal.refreshAll(
-            followerPosition, followerVelocity, followerAppliedVolts, followerCurrent);
+            followerPosition,
+            followerVelocity,
+            followerAppliedVolts,
+            followerCurrent,
+            followerSupplyCurrent);
 
     Logger.recordOutput(
         "Elevator/ClosedLoopReference", talonLeader.getClosedLoopReference().getValue());
@@ -98,15 +108,13 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     inputs.leaderVelocity = leaderVelocity.getValue();
     inputs.leaderVoltage = leaderAppliedVolts.getValue();
     inputs.leaderCurrent = leaderCurrent.getValue();
+    inputs.leaderSupplyCurrent = leaderSupplyCurrent.getValue();
 
     inputs.followerPosition = followerPosition.getValue();
     inputs.followerVelocity = followerVelocity.getValue();
     inputs.followerVoltage = followerAppliedVolts.getValue();
     inputs.followerCurrent = followerCurrent.getValue();
-    Logger.recordOutput("Elevator/Rotations", inputs.leaderPosition.in(Rotations));
-    Logger.recordOutput(
-        "Elevator/Error",
-        talonLeader.getClosedLoopReference().getValue() - inputs.leaderPosition.in(Rotations));
+    inputs.followerSupplyCurrent = followerSupplyCurrent.getValue();
   }
 
   @Override
