@@ -37,7 +37,7 @@ public class ManipulatorIOSparkMaxSim extends ManipulatorIOSparkMax {
   private SparkMaxSim pivotMotorSim;
   private SparkMaxSim rollerMotorSim;
 
-  private boolean hasCoral = false;
+  private boolean hasCoral = true;
   private Supplier<Boolean> getCoral;
   private Supplier<GameState> currentState;
   private RobotContainer robotContainer;
