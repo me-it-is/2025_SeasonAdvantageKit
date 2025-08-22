@@ -17,6 +17,7 @@ import static edu.wpi.first.units.Units.*;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 import static edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction.*;
 import static frc.robot.Constants.ElevatorConstants.*;
+import static frc.robot.Constants.GameState.*;
 import static frc.robot.Constants.ManipulatorConstants.*;
 import static frc.robot.Constants.currentMode;
 import static frc.robot.util.GetAliance.getAllianceBoolean;
@@ -333,13 +334,19 @@ public class RobotContainer {
   }
 
   private void configureAutos() {
+    NamedCommands.registerCommand("move to L1", moveToState(L1_SCORE, true));
+    NamedCommands.registerCommand("move to L1", moveToState(L1_SCORE, true));
     NamedCommands.registerCommand(
-        "score", moveToState(GameState.L4_SCORE, true).andThen(rollerAction(false)));
-    NamedCommands.registerCommand(
-        "hps pickup",
-        moveToState(GameState.HUMAN_PLAYER_STATION, true).andThen(rollerAction(true)));
-    NamedCommands.registerCommand(
-        "remove algae", moveToState(GameState.L2_ALGAE, true).andThen(rollerAction(true)));
+        "move to human player station", moveToState(HUMAN_PLAYER_STATION, true));
+    NamedCommands.registerCommand("move to L2 score", moveToState(L2_SCORE, true));
+    NamedCommands.registerCommand("move to L2 algae", moveToState(L2_ALGAE, true));
+    NamedCommands.registerCommand("move to L3 score", moveToState(L3_SCORE, true));
+    NamedCommands.registerCommand("move to L3 algae", moveToState(L3_ALGAE, true));
+    NamedCommands.registerCommand("move to L4", moveToState(L4_SCORE, true));
+    NamedCommands.registerCommand("reef score", rollerAction(true));
+    NamedCommands.registerCommand("trough score", rollerAction(false));
+    NamedCommands.registerCommand("hps pickup", rollerAction(true));
+    NamedCommands.registerCommand("remove algae", rollerAction(true));
 
     autoChooser.addDefaultOption("top leave", AutoBuilder.buildAuto("top leave"));
     // autoChooser.addOption(
