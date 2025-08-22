@@ -222,7 +222,6 @@ public class RobotContainer {
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
     // Set up SysId routines
 
-    Command drive1m = AutoBuilder.buildAuto("drive 1m");
     testController.x().whileTrue(drive.driveSysIdQuasistatic(kForward));
     testController.b().whileTrue(drive.driveSysIdQuasistatic(kReverse));
     testController.y().whileTrue(drive.driveSysIdDynamic(kForward));
