@@ -37,8 +37,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.units.*;
-import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.*;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -267,24 +266,24 @@ public class RobotContainer {
         "left",
         new Pose2d(
             new Translation2d(
-                getAllianceBoolean() ? VisionConstants.kFieldHeight.in(Units.Meters) : 0,
-                DriveConstants.kChassisSize.in(Units.Meters) / 2),
+                getAllianceBoolean() ? VisionConstants.kFieldHeight.in(Meters) : 0,
+                DriveConstants.kChassisSize.in(Meters) / 2),
             new Rotation2d()));
 
     startPoseLoc.addOption(
         "center",
         new Pose2d(
             new Translation2d(
-                VisionConstants.kFieldHeight.in(Units.Meters) / 2,
-                DriveConstants.kChassisSize.in(Units.Meters) / 2),
+                VisionConstants.kFieldHeight.in(Meters) / 2,
+                DriveConstants.kChassisSize.in(Meters) / 2),
             new Rotation2d()));
 
     startPoseLoc.addOption(
         "right",
         new Pose2d(
             new Translation2d(
-                getAllianceBoolean() ? 0 : VisionConstants.kFieldHeight.in(Units.Meters),
-                DriveConstants.kChassisSize.in(Units.Meters) / 2),
+                getAllianceBoolean() ? 0 : VisionConstants.kFieldHeight.in(Meters),
+                DriveConstants.kChassisSize.in(Meters) / 2),
             new Rotation2d()));
     startPoseLoc.setDefaultOption("constant start", Constants.startPose);
     drive.setPose(startPoseLoc.getSelected());
