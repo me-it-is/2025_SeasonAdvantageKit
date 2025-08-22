@@ -15,6 +15,7 @@ package frc.robot.subsystems.drive;
 
 import static edu.wpi.first.units.Units.*;
 import static frc.robot.Constants.DriveConstants.*;
+import static frc.robot.Constants.kDt;
 
 import com.ctre.phoenix6.CANBus;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -197,6 +198,7 @@ public class Drive extends SubsystemBase {
     double[] sampleTimestamps =
         modules[0].getOdometryTimestamps(); // All signals are sampled together
     int sampleCount = sampleTimestamps.length;
+    var lastPose = poseEstimator.getEstimatedPosition();
     for (int i = 0; i < sampleCount; i++) {
       // Read wheel positions and deltas from each module
       SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
@@ -224,6 +226,13 @@ public class Drive extends SubsystemBase {
       // Apply update
       poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
     }
+    var newPose = poseEstimator.getEstimatedPosition();
+    Logger.recordOutput(
+        "Drive/MPS",
+        Math.sqrt(
+                Math.pow(lastPose.getX() - newPose.getX(), 2)
+                    + Math.pow(lastPose.getY() - newPose.getY(), 2))
+            / kDt);
 
     // Update gyro alert
     gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.currentMode != Mode.SIM);
