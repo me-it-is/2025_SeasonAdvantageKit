@@ -170,6 +170,7 @@ public class Drive extends SubsystemBase {
 
   @Override
   public void periodic() {
+    Logger.recordOutput("WheelPositions", getModuleTranslations());
     odometryLock.lock(); // Prevents odometry updates while reading data
     gyroIO.updateFault();
 

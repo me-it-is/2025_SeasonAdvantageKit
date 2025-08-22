@@ -78,8 +78,8 @@ public final class Constants {
   // Physical values of the robot
   public static final Mass ROBOT_MASS_KG = Pounds.of(138.308);
   // Converted form lbs in2 because wpi doesnt have a unit
-  public static final MomentOfInertia ROBOT_MOI = KilogramSquareMeters.of(0.0588);
-  public static final double WHEEL_COF = 1.75;
+  public static final MomentOfInertia ROBOT_MOI = KilogramSquareMeters.of(5.674);
+  public static final double WHEEL_COF = 1.2;
   public static final double kDt = 0.01;
 
   public static final Pose2d startPose = new Pose2d(new Translation2d(5, 1), new Rotation2d());
@@ -140,7 +140,7 @@ public final class Constants {
   public static Distance[] elevatorStateMap = {Inches.of(0), Inches.of(0), Inches.of(0)};
 
   public static class DriveConstants {
-    public static final Distance kChassisSize = Inches.of(34.24);
+    public static final Distance kChassisSize = Feet.of(2.853);
     public static final LinearVelocity kMaxPathSpeed = TunerConstants.kSpeedAt12Volts;
     public static final LinearAcceleration kMaxTranslationAcceleration =
         MetersPerSecondPerSecond.of(6);
