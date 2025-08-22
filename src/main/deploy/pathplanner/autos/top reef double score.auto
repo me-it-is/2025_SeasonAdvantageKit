@@ -5,21 +5,47 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "top to score"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "top to score"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "move to L4"
+                }
+              }
+            ]
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "score"
+            "name": "reef score"
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "top reef to hps"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "top reef to hps"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "move to human player station"
+                }
+              }
+            ]
           }
         },
         {
@@ -29,15 +55,28 @@
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "hps to top score"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "hps to top score"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "move to L4"
+                }
+              }
+            ]
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "score"
+            "name": "reef score"
           }
         }
       ]

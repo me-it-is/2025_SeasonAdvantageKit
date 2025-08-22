@@ -5,15 +5,28 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "bottom to score"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "bottom to score"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "move to L4"
+                }
+              }
+            ]
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "score"
+            "name": "reef score"
           }
         }
       ]

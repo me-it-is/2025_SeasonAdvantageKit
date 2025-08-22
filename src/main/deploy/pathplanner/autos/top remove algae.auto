@@ -5,9 +5,22 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "top to score"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "top to score"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "move to L2 algae"
+                }
+              }
+            ]
           }
         },
         {

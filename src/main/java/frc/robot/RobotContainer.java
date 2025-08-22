@@ -223,6 +223,7 @@ public class RobotContainer {
     }
 
     // Set up auto routines
+    configureAutos();
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
     // Set up SysId routines
 
@@ -255,7 +256,6 @@ public class RobotContainer {
     autoChooser.addOption("Drive SysId (Dynamic Forward)", drive.driveSysIdDynamic(kForward));
     autoChooser.addOption("Drive SysId (Dynamic Reverse)", drive.driveSysIdDynamic(kReverse));
 
-    configureAutos();
     // Configure the button bindings
     DriverStation.silenceJoystickConnectionWarning(true);
     configureButtonBindings();
@@ -345,22 +345,7 @@ public class RobotContainer {
     NamedCommands.registerCommand("reef score", rollerAction(true));
     NamedCommands.registerCommand("trough score", rollerAction(false));
     NamedCommands.registerCommand("hps pickup", rollerAction(true));
-    NamedCommands.registerCommand("remove algae", rollerAction(true));
-
-    autoChooser.addDefaultOption("top leave", AutoBuilder.buildAuto("top leave"));
-    // autoChooser.addOption(
-    //    "middle leave single score", AutoBuilder.buildAuto("middle leave single score"));
-    autoChooser.addOption("middle leave", AutoBuilder.buildAuto("middle leave"));
-    autoChooser.addOption("bottom leave", AutoBuilder.buildAuto("bottom leave"));
-    autoChooser.addOption("top leave single score", AutoBuilder.buildAuto("top reef single score"));
-    autoChooser.addOption("top leave double score", AutoBuilder.buildAuto("top reef double score"));
-    autoChooser.addOption(
-        "bottom leave single score", AutoBuilder.buildAuto("bottom reef single score"));
-    autoChooser.addOption(
-        "bottom leave double score", AutoBuilder.buildAuto("bottom reef double score"));
-    autoChooser.addOption("top remove algae", AutoBuilder.buildAuto("top remove algae"));
-    autoChooser.addOption("bottom remove algae", AutoBuilder.buildAuto("bottom remove algae"));
-    autoChooser.addOption("drive 1m", AutoBuilder.buildAuto("drive 1m"));
+    NamedCommands.registerCommand("remove algae", rollerAction(true, Seconds.of(1.5)));
   }
 
   public void resetPose() {
@@ -481,6 +466,13 @@ public class RobotContainer {
                 (manipulator.getState() == GameState.HUMAN_PLAYER_STATION
                     ? manipulator.hasCoral()
                     : !manipulator.hasCoral())),
+        runOnce(manipulator::stopRollers, manipulator));
+  }
+
+  private Command rollerAction(boolean forward, Time time) {
+    return sequence(
+        runOnce(() -> manipulator.spinRollers(forward), manipulator),
+        waitTime(time),
         runOnce(manipulator::stopRollers, manipulator));
   }
 
