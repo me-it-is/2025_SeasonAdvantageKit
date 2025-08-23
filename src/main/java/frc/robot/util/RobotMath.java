@@ -1,14 +1,16 @@
 package frc.robot.util;
 
-import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.units.AngleUnit;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.PerUnit;
 import edu.wpi.first.units.Unit;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Per;
 
@@ -190,5 +192,15 @@ public final class RobotMath {
                     measure.baseUnitMagnitude(),
                     low.baseUnitMagnitude(),
                     high.baseUnitMagnitude()));
+  }
+
+  public static double mod(double a, double b) {
+    return b - Math.floor(a / b) * b;
+  }
+
+  public static Angle getSmallestAngleBetweenAngles(
+      Measure<AngleUnit> angle1, Measure<AngleUnit> angle2) {
+    var a = angle1.minus(angle2);
+    return (Angle) Degrees.of(mod((a.in(Degrees) + 180), 360) - 180);
   }
 }

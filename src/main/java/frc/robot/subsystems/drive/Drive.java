@@ -53,6 +53,7 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.Mode;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.vision.Vision.PoseEstimate;
+import frc.robot.util.RobotMath;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -234,6 +235,10 @@ public class Drive extends SubsystemBase {
                 Math.pow(lastPose.getX() - newPose.getX(), 2)
                     + Math.pow(lastPose.getY() - newPose.getY(), 2))
             / kDt);
+    Logger.recordOutput(
+        "Drive/RadPS",
+        RobotMath.getSmallestAngleBetweenAngles(
+            lastPose.getRotation().getMeasure(), newPose.getRotation().getMeasure()));
 
     // Update gyro alert
     gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.currentMode != Mode.SIM);
