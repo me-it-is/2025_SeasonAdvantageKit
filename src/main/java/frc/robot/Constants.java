@@ -80,7 +80,7 @@ public final class Constants {
   // Converted form lbs in2 because wpi doesnt have a unit
   public static final MomentOfInertia ROBOT_MOI = KilogramSquareMeters.of(5.674);
   public static final double WHEEL_COF = 1.2;
-  public static final double kDt = 0.01;
+  public static final double kDt = currentMode == Mode.SIM ? 0.005 : 0.02;
 
   public static final Pose2d startPose = new Pose2d(new Translation2d(5, 1), new Rotation2d());
 
