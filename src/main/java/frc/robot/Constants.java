@@ -204,11 +204,11 @@ public final class Constants {
     public static final Angle kPitchBounds = Radians.of(0.2);
 
     private static final Distance halfOffset = DriveConstants.kChassisSize.div(2);
-    public static final Distance kCamOneChassisXOffset = halfOffset;
-    public static final Distance kCamOneChassisYOffset = halfOffset;
-    public static final Distance kCamTwoChassisXOffset = halfOffset.unaryMinus();
-    public static final Distance kCamTwoChassisYOffset = halfOffset.unaryMinus();
-    public static final Distance KCamChassisZOffset = Inches.of(4.5);
+    public static final Distance kCamOneChassisXOffset = Meters.zero();
+    public static final Distance kCamOneChassisYOffset = Feet.of(2);
+    public static final Distance kCamTwoChassisXOffset = Meters.zero();
+    public static final Distance kCamTwoChassisYOffset = Feet.of(2);
+    public static final Distance KCamChassisZOffset = Feet.of(1.8);
 
     public static final Angle kMinAngError = Degrees.of(5);
     public static final Distance kMinTransError = Meters.of(0.05);
@@ -217,7 +217,7 @@ public final class Constants {
     public static final Distance kTagYOffset = halfOffset;
 
     public static final Distance tagDistSetpoint = Meters.of(0.1);
-    public static final Angle kCameraPitch = Degree.of(-30);
+    public static final Angle kCameraPitch = Degrees.of(0);
     public static final Transform3d kRobotToCamOne =
         new Transform3d(
             new Translation3d(kCamOneChassisXOffset, kCamOneChassisYOffset, KCamChassisZOffset),
