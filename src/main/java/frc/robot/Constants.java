@@ -395,11 +395,11 @@ public final class Constants {
     public static final double kD = 0;
 
     public static final double kSimS = 0;
-    public static final double kSimG0 = 1.539;
-    public static final double kSimV = 0.124;
-    public static final double kSimA = 0.02;
+    public static final double kSimG0 = 0.729;
+    public static final double kSimV = 0.126;
+    public static final double kSimA = 0.005;
 
-    public static final double kSimP = 0.1;
+    public static final double kSimP = 0.5;
     public static final double kSimI = 0;
     public static final double kSimD = 0;
 
